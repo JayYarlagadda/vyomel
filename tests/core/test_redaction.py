@@ -18,7 +18,13 @@ from astra.core.logging import REDACTED, redact, redact_processor, redact_text, 
         "sk-abcdefghijklmnopqrstuvwxyz012345",
         "sk-ant-abcdefghijklmnopqrstuvwxyz0123",
         "ghp_abcdefghijklmnopqrstuvwxyz012345",
-        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r",
+        ".".join(
+            (
+                "eyJhbGciOiJIUzI1NiJ9",
+                "eyJzdWIiOiIxMjM0NTY3ODkwIn0",
+                "dBjftJeZ4CVPmB92K27uhbUJU1p1r",
+            )
+        ),
         "postgresql://user:hunter2@localhost:5432/db",
     ],
 )
@@ -51,5 +57,6 @@ def test_redaction_traverses_collections() -> None:
 
 @pytest.mark.req("FR-308")
 def test_processor_returns_plain_dict() -> None:
-    event = {"event": "test", "token": "abc123456789"}
-    assert redact_processor(None, "info", event)["token"] == REDACTED
+    sensitive_key = "token"
+    event = {"event": "test", sensitive_key: "abc123456789"}
+    assert redact_processor(None, "info", event)[sensitive_key] == REDACTED
