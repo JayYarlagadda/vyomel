@@ -3,3 +3,4 @@
 # commit; real secrets elsewhere (or future findings in this file) still fail.
 26e7a416de44ff9225854b1a02407ec713e7e967:tests/core/test_redaction.py:jwt:21
 26e7a416de44ff9225854b1a02407ec713e7e967:tests/core/test_redaction.py:generic-api-key:54
+9769be18a51b9d3d958e45b1e42bc8f02b959784:tests/core/test_redaction.py:generic-api-key:61
