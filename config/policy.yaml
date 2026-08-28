@@ -1,0 +1,101 @@
+# Astra permission policy.
+#
+# Normative reference: docs/06-SECURITY-PERMISSIONS.md section 3.
+# Evaluation order: explicit deny -> protected paths -> matching allow rule
+#                   -> level default -> deny.
+#
+# The L4 invariant is enforced in code (security/policy.py), not here. No edit
+# to this file can cause an L4 action to execute without explicit confirmation.
+
+version: 1
+
+defaults:
+  L0: allow
+  L1: allow
+  L2: confirm
+  L3: confirm
+  L4: confirm
+
+rules:
+  # --- reads inside the workspace are free ---
+  - id: read-workspace
+    match:
+      tool: "fs.read_file"
+      args:
+        path: ["D:/Astra/**"]
+    level: L0
+    decision: allow
+
+  - id: list-workspace
+    match:
+      tool: "fs.list_dir"
+      args:
+        path: ["D:/Astra/**"]
+    decision: allow
+
+  # --- scratch is disposable, so writes there stay frictionless ---
+  - id: scratch-writes
+    match:
+      tool: "fs.write_file"
+      args:
+        path: ["${scratch_dir}/**"]
+    decision: allow
+
+  # --- credential-bearing paths are never touched, at any level ---
+  - id: protected-paths
+    match:
+      args:
+        path:
+          - "**/.ssh/**"
+          - "**/.env"
+          - "**/.aws/**"
+          - "**/.gnupg/**"
+          - "**/AppData/**/Login Data"
+          - "**/*id_rsa*"
+          - "**/*.pem"
+    decision: deny
+    reason: "Credential-bearing path"
+
+  # --- external communication always surfaces the full payload ---
+  - id: email-send
+    match:
+      tool: "email.send"
+    decision: confirm
+    show: [to, cc, bcc, subject, body_preview]
+
+  - id: git-push
+    match:
+      tool: "git.push"
+    decision: confirm
+    show: [remote, branch, commit_count]
+
+egress:
+  deny_by_default: true
+  allow_domains:
+    - "api.openai.com"
+    - "api.anthropic.com"
+    - "github.com"
+    - "api.github.com"
+    - "*.googleapis.com"
+
+sensitivity:
+  # Any match forces local-only model routing. Failing is correct here;
+  # silently escalating to a cloud provider is not (FR-703).
+  local_only_when:
+    - screen_contains_credential_field
+    - path_matches:
+        - "**/*password*"
+        - "**/*secret*"
+        - "**/.env"
+    - content_matches_pattern:
+        - "sk-[A-Za-z0-9]{20,}"
+        - "-----BEGIN .* PRIVATE KEY-----"
+
+escalation:
+  # Rules that raise -- never lower -- an action's capability level.
+  vision_tier_minimum: L2
+  untrusted_taint_levels: 1
+  untrusted_taint_minimum: L2
+  bulk_threshold: 10
+  bulk_levels: 1
+  unknown_tool: L4

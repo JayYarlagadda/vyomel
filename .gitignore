@@ -1,0 +1,82 @@
+# --- secrets: never commit ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+credentials.json
+token.json
+.secrets/
+
+# --- runtime state ---
+.astra/
+scratch/
+evidence/
+blobs/
+trash/
+*.db
+*.sqlite3
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.tox/
+.nox/
+
+# --- testing / coverage ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+
+# --- models & caches (large binaries) ---
+models/
+*.gguf
+*.safetensors
+*.bin
+.cache/
+hf-cache/
+
+# --- media artifacts ---
+*.mp4
+*.mov
+*.mkv
+*.wav
+*.mp3
+!evals/fixtures/**/*.wav
+
+# --- eval scratch (results ARE committed) ---
+evals/results/**/raw/
+evals/.tmp/
+
+# --- browser profiles ---
+.playwright/
+browser-profile/
+
+# --- os / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/settings.json.example
+*.swp
+
+# --- logs ---
+*.log
+logs/

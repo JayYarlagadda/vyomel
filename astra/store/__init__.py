@@ -1,0 +1,14 @@
+"""Persistence layer: engine, session management, ORM models, migrations."""
+
+from astra.store.db import dispose_engine, get_engine, get_session, init_engine, session_scope
+from astra.store.models import Base, Task
+
+__all__ = [
+    "Base",
+    "Task",
+    "dispose_engine",
+    "get_engine",
+    "get_session",
+    "init_engine",
+    "session_scope",
+]

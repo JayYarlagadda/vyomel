@@ -1,0 +1,174 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "astra"
+version = "0.1.0"
+description = "Personal AI execution platform: turns natural-language intent into verified, permission-aware actions."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = { text = "MIT" }
+authors = [{ name = "Jayanth Sai Yarlagadda" }]
+keywords = ["ai-agent", "llm", "rag", "workflow-engine", "automation"]
+
+dependencies = [
+    # web / api
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "websockets>=13.0",
+    # config & validation
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "python-dotenv>=1.0",
+    # persistence
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "pgvector>=0.3.6",
+    # queue / cache
+    "redis>=5.2",
+    # cli & output
+    "typer>=0.15",
+    "rich>=13.9",
+    # utilities
+    "python-ulid>=3.0",
+    "httpx>=0.28",
+    "orjson>=3.10",
+    "tenacity>=9.0",
+    # observability
+    "structlog>=24.4",
+    "prometheus-client>=0.21",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "pytest-timeout>=2.3",
+    "hypothesis>=6.119",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-pyyaml",
+    "pre-commit>=4.0",
+]
+otel = [
+    "opentelemetry-api>=1.28",
+    "opentelemetry-sdk>=1.28",
+    "opentelemetry-exporter-otlp>=1.28",
+    "opentelemetry-instrumentation-fastapi>=0.49b0",
+    "opentelemetry-instrumentation-sqlalchemy>=0.49b0",
+    "opentelemetry-instrumentation-redis>=0.49b0",
+]
+models = [
+    "openai>=1.57",
+    "anthropic>=0.40",
+    "tiktoken>=0.8",
+]
+memory = [
+    "sentence-transformers>=3.3",
+    "pypdfium2>=4.30",
+    "python-docx>=1.1",
+    "trafilatura>=1.12",
+    "markdown-it-py>=3.0",
+]
+browser = ["playwright>=1.49"]
+desktop = ["uiautomation>=2.0.20", "pywinauto>=0.6.8", "mss>=9.0", "pillow>=11.0"]
+
+[project.scripts]
+astra = "astra.cli.main:app"
+
+[project.urls]
+Repository = "https://github.com/JayYarlagadda/astra"
+
+[tool.hatch.build.targets.wheel]
+packages = ["astra"]
+
+# ----------------------------------------------------------------------------
+# ruff
+# ----------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["astra", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # isort
+    "N",         # pep8-naming
+    "UP",        # pyupgrade
+    "B",         # bugbear
+    "A",         # builtins shadowing
+    "C4",        # comprehensions
+    "DTZ",       # naive datetimes -- important: all time is UTC-aware
+    "T20",       # no print()
+    "SIM",       # simplify
+    "TID",       # tidy imports
+    "RUF",
+    "S",         # bandit security
+    "ASYNC",
+]
+ignore = [
+    "S101",   # assert is allowed (used for invariants)
+    "B008",   # FastAPI Depends() in defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Invariant violations are deliberately not named *Error: they signal a broken
+# security or state-machine guarantee, not a recoverable failure.
+"astra/core/errors.py" = ["N818"]
+"tests/**" = ["S", "T20"]
+"scripts/**" = ["T20"]
+"evals/**" = ["T20"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["astra"]
+
+# ----------------------------------------------------------------------------
+# mypy
+# ----------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+disallow_any_generics = true
+plugins = ["pydantic.mypy"]
+exclude = ["^evals/", "^\\.venv/"]
+
+[[tool.mypy.overrides]]
+module = ["uiautomation.*", "pywinauto.*", "mss.*", "pgvector.*", "trafilatura.*"]
+ignore_missing_imports = true
+
+# ----------------------------------------------------------------------------
+# pytest
+# ----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+timeout = 120
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "req(id): links a test to a requirement ID from docs/01-REQUIREMENTS.md",
+    "integration: requires Postgres and Redis",
+    "slow: takes more than 5 seconds",
+    "desktop: requires a Windows desktop session",
+    "browser: requires Playwright browsers",
+]
+
+[tool.coverage.run]
+source = ["astra"]
+branch = true
+omit = ["astra/store/migrations/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@overload",
+]
