@@ -9,10 +9,11 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from astra import __version__
-from astra.api.routers import health, tasks
+from astra.api.routers import approvals, audit, health, policy, tasks
 from astra.core.config import Settings, get_settings
 from astra.core.errors import AstraError
 from astra.core.logging import configure_logging, get_logger
+from astra.orchestrator.runtime import SchedulerHandle
 from astra.store.db import dispose_engine, init_engine
 
 log = get_logger(__name__)
@@ -26,10 +27,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         resolved.ensure_directories()
         init_engine(resolved)
+        handle = SchedulerHandle(resolved)
+        if resolved.env != "test":
+            await handle.start()
         log.info("astra.api.started", version=__version__, env=resolved.env)
         try:
             yield
         finally:
+            if resolved.env != "test":
+                await handle.stop()
             await dispose_engine()
             log.info("astra.api.stopped")
 
@@ -42,6 +48,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(tasks.router)
+    app.include_router(approvals.router)
+    app.include_router(audit.router)
+    app.include_router(policy.router)
 
     @app.exception_handler(AstraError)
     async def _astra_error_handler(request: Request, exc: AstraError) -> JSONResponse:

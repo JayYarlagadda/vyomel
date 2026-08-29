@@ -230,13 +230,34 @@ If no local model is available and the payload is `SENSITIVE`, the action fails 
 
 ## 9. Security testing checklist (CI gate)
 
-- [ ] Default-deny holds for unknown tools and malformed policy.
-- [ ] L4 auto-approval impossible under adversarial config fuzzing.
-- [ ] Path traversal (`../`, symlinks, UNC, `\\?\` prefixes, 8.3 short names) rejected by the fs sandbox.
-- [ ] Egress allowlist blocks non-allowlisted domains, including via redirect chains.
-- [ ] Redaction filter catches every registered secret across logs, traces, audit, and prompts.
-- [ ] Injection corpus produces zero successful escalations.
-- [ ] Approval parameter-tampering (approve, then mutate) is rejected.
-- [ ] Audit hash chain detects insertion, deletion, and mutation.
-- [ ] `pip-audit` reports no high/critical advisories.
-- [ ] `gitleaks` reports no findings.
+Checked items are enforced by a test in CI as of M2; the test file is named. Unchecked items depend on a layer that does not exist yet.
+
+- [x] Default-deny holds for unknown tools and malformed policy. — `tests/security/test_policy_default_deny.py`
+- [x] L4 auto-approval impossible under adversarial config fuzzing. — `tests/security/test_l4_never_auto.py` (Hypothesis-generated policy documents)
+- [x] Path traversal rejected by the fs sandbox. — `tests/security/test_sandbox.py`. Covers `../`, prefix-collision siblings, absolute escapes, null bytes, and a Hypothesis property that no segment sequence escapes. Symlinks, UNC, `\\?\`, and 8.3 short names are resolved by `Path.resolve()` but not yet asserted against; they need a Windows-privileged fixture to create.
+- [ ] Egress allowlist blocks non-allowlisted domains, including via redirect chains. — parsed and unit-testable; unused until the first network tool in M4.
+- [x] Redaction filter catches every registered secret across logs and audit. — `tests/core/test_redaction.py`, `tests/core/test_secrets.py`, and the redaction case in `tests/security/test_audit_append_only.py`. Traces and prompts follow in M4/M5.
+- [ ] Injection corpus produces zero successful escalations. — needs a planner to inject into (M5). Untrusted-content taint escalation is in and tested.
+- [x] Approval parameter-tampering (approve, then mutate) is rejected. — `tests/security/test_approval_gate.py`, plus the level-escalation case in `tests/api/test_approvals_api.py`.
+- [x] Audit hash chain detects insertion, deletion, and mutation. — `tests/security/test_audit_append_only.py`, which disables the trigger to prove the chain catches what the trigger would otherwise block.
+- [x] `pip-audit` reports no high/critical advisories.
+- [x] `gitleaks` reports no findings.
+
+---
+
+## 10. As built (M2)
+
+| Concern | Module |
+|---|---|
+| Capability classification and escalation | `astra/security/capability.py` |
+| Glob and domain matching for rules | `astra/security/matching.py` |
+| Policy parsing, evaluation, hot reload | `astra/security/policy.py` |
+| Approval records and their invariants | `astra/security/approvals.py` |
+| Hash-chained audit trail | `astra/security/audit.py` |
+| The gate between `READY` and `DISPATCHED` | `astra/runtime/gate.py` |
+| Decisions as a use case (approve/modify/reject) | `astra/orchestrator/approvals.py` |
+| `Secret` wrapper | `astra/core/secrets.py` |
+
+The gate is in `runtime`, not `security`, because it needs both a policy verdict and the action state machine, and the layering rule forbids `security` from importing `runtime` (`02-ARCHITECTURE.md` §3). `security` owns records and verdicts; the gate is the one component holding both halves.
+
+Two mechanisms in this document are loaded but not yet consulted, and both are waiting on M4 rather than unfinished: the egress allowlist (§5) has no network tool to gate, and `policy.sensitivity` (§8) gates model routing, which arrives with the provider layer.

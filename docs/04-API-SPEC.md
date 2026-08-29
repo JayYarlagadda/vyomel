@@ -138,6 +138,17 @@ Event stream. Event types: `task.status_changed`, `plan.created`, `plan.revised`
 
 `MODIFIED` re-validates against the tool schema and **re-classifies** capability. If the modification raises the level, a new approval is required — a modification cannot be used to slip past a gate (`06` §4.2).
 
+Responses are the approval object. Failure modes, all of which are reachable in normal use rather than exceptional:
+
+| Status | When |
+|---|---|
+| `404` | No such approval |
+| `409` | Already decided, expired, or the action has moved on (cancelled, or failed closed by the expiry sweeper) |
+| `409` | A `MODIFIED` edit fails the tool's input schema, or classifies above the task's capability ceiling |
+| `422` | `MODIFIED` without `parameters`, or `parameters` sent with any other decision |
+
+An approval is bound to `(action_id, parameter_hash, capability_level)` and is single-use. Editing the action after approval, or a re-classification that raises its level, voids it: the gate finds no usable approval and asks again.
+
 ---
 
 ## 4. Memory
@@ -180,8 +191,9 @@ Query response always includes citations:
 | `POST` | `/v1/workflows/{id}/invoke` | Run with parameters |
 | `GET` | `/v1/policy` | Active policy + version hash |
 | `POST` | `/v1/policy/reload` | Hot reload from disk |
-| `GET` | `/v1/audit` | Filter by `task_id`, `event_type`, `since` |
-| `POST` | `/v1/audit/verify` | Walk the hash chain; report first divergence |
+| `POST` | `/v1/policy/test` | `{tool, parameters}` → classification, escalation reasons, decision, deciding rule. Does not execute anything |
+| `GET` | `/v1/audit` | Filter by `task_id`, `action_id`, `event_type`, `since` |
+| `POST` | `/v1/audit/verify` | Walk the hash chain; report first divergence. `?start_id=` verifies a suffix |
 | `GET` | `/v1/models` | Providers, health, routing table |
 | `GET` | `/v1/stats` | Aggregate task/cost/latency/intervention stats |
 

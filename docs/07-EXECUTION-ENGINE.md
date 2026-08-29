@@ -145,6 +145,8 @@ The scheduler, on boot:
 
 This is what makes "restart the machine mid-task and it continues" true rather than aspirational.
 
+**Clarification (M1):** Redis-flush recovery must also republish `DISPATCHED` rows whose `lease_until` is null. Those are exactly the "Postgres committed, XADD never happened" window that write-ordering creates, and `NULL < now()` is not true in SQL, so the reaper cannot see them. READY rows are picked up by the next dispatcher tick.
+
 ---
 
 ## 5. DAG execution

@@ -1,5 +1,6 @@
 """Core primitives: configuration, errors, identifiers, time, logging, enums."""
 
+from astra.core.cancel import CancellationToken
 from astra.core.clock import Clock, FrozenClock, SystemClock, utcnow
 from astra.core.config import Settings, get_settings
 from astra.core.errors import (
@@ -13,7 +14,14 @@ from astra.core.errors import (
     PrivacyRoutingViolation,
     ToolError,
 )
-from astra.core.ids import canonical_json, content_hash, idempotency_key, new_id
+from astra.core.ids import (
+    canonical_json,
+    content_hash,
+    digest_bytes,
+    file_digest,
+    idempotency_key,
+    new_id,
+)
 from astra.core.types import (
     ActionStatus,
     ActuationTier,
@@ -33,6 +41,7 @@ __all__ = [
     "ActuationTier",
     "ApprovalStatus",
     "AstraError",
+    "CancellationToken",
     "Capability",
     "Clock",
     "ConflictError",
@@ -55,6 +64,8 @@ __all__ = [
     "VerifyOutcome",
     "canonical_json",
     "content_hash",
+    "digest_bytes",
+    "file_digest",
     "get_settings",
     "idempotency_key",
     "new_id",

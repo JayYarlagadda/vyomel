@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 from typing import Any
 
 from ulid import ULID
@@ -29,6 +30,24 @@ def canonical_json(value: Any) -> str:
 
 def content_hash(value: Any) -> str:
     return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
+
+
+def digest_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def file_digest(path: Path) -> str:
+    """SHA-256 of the file's bytes. Used by writers and by the verifier.
+
+    Both sides must hash the same way: the verifier re-opens the file rather
+    than trusting a tool-reported digest, but the algorithm has to match or
+    every honest write would fail its own postcondition.
+    """
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65_536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def idempotency_key(

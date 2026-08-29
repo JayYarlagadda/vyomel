@@ -44,7 +44,9 @@ Repo scaffold, tooling, infrastructure, and the first vertical slice through eve
 
 ---
 
-### M1 — Execution runtime *(weeks 2–3)* — **the keystone**
+### M1 — Execution runtime *(weeks 2–3)* — **the keystone** — complete (2026-08-28)
+
+State machines, schema, tools, dispatcher write-ordering, worker, reaper, timeout handling, and handwritten DAG execution are in tree, with `demos/m1/` reproducing the 5-action DAG and a mid-flight worker kill. The one deferral is an OS-level `kill -9` of a live worker process, which needs the M6 chaos harness; the lease-expiry replay test is the M1 stand-in.
 
 - Full schema: `steps`, `step_edges`, `actions`, `dead_letters`
 - Action state machine with illegal-transition rejection (FR-203)
@@ -61,7 +63,9 @@ Repo scaffold, tooling, infrastructure, and the first vertical slice through eve
 
 ---
 
-### M2 — Security and permissions *(week 4)*
+### M2 — Security and permissions *(week 4)* — complete (2026-08-28)
+
+Classification, policy, approvals, audit, redaction, and the CLI/API surfaces are in tree and green. Two items in the security document are parsed but deliberately unused until the layer that needs them exists: the egress allowlist (first network tool, M4) and `policy.sensitivity`, which gates model routing (FR-703, M4). Prompt-injection defense currently stops at untrusted-content taint escalation — boundary markers arrive with the planner in M5.
 
 - Capability classification with escalation rules
 - Policy engine, `config/policy.yaml`, default-deny, L4 invariant
@@ -75,12 +79,14 @@ Repo scaffold, tooling, infrastructure, and the first vertical slice through eve
 
 ---
 
-### M3 — Verification and first real tools *(week 5)*
+### M3 — Verification and first real tools *(week 5)* — in progress (2026-08-28)
 
-- `astra.verify` with `value_equals`, `file_exists`, `file_hash`, `api_readback`, `llm_judge`
-- `UNVERIFIED` status wired end-to-end; no path to `SUCCEEDED` without verification
-- Mutating tools: `fs.write_file`, `fs.move`, `fs.copy`, `fs.delete` (trash-based), `shell.run` (allowlisted), `git.*`
-- Compensation implementations for all reversible tools
+The engine, the `UNVERIFIED` task-completion tightening, `verifications` persistence, mutating fs tools, `shell.run`, `git.*`, and cancel compensation are in tree. Remaining M3 surfaces: `astra tools` / `astra do` / `astra show`.
+
+- `astra.verify` with `value_equals`, `file_exists`, `file_hash` re-observing; `api_readback`, `llm_judge` registered as `NO_METHOD` until their paths exist
+- `UNVERIFIED` status wired end-to-end; no path to task `SUCCEEDED` without verification unless the step opts in
+- Mutating tools: `fs.write_file`, `fs.move`, `fs.copy`, `fs.delete` (trash-based, L4 for directory trees), `shell.run` (allowlisted), `git.status` / `git.diff` / `git.commit` / `git.push`
+- Compensation: `Canceller` calls `tool.compensate()` in `reverse_topo` order; `POST /v1/tasks/{id}/cancel` and `astra cancel`
 
 **Exit:** injected wrong-value writes are caught 100 % of the time; cancel compensates reversible actions in reverse topological order.
 

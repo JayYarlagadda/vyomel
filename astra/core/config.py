@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     db_pool_size: int = 10
     db_max_overflow: int = 5
 
+    # --- security ---
+    policy_path: Path = Path("config/policy.yaml")
+
     # --- filesystem sandbox ---
     workspace_root: Path = Path("D:/Astra/.astra")
     # NoDecode: the raw value is a semicolon-separated string, not JSON, so

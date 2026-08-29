@@ -92,6 +92,7 @@ Indexes: `(status, created_at)`, `(origin)`, `(trace_id)`.
 | `status` | `step_status` enum | |
 | `plan_version` | `int` | which plan generation produced it |
 | `depends_on` | `text[]` | denormalized for fast readiness checks |
+| `tolerates_unverified` | `bool` | if true, `UNVERIFIED` upstream still satisfies this step |
 
 `step_edges(task_id, from_step_id, to_step_id, plan_version)` is the normalized DAG, with a CHECK preventing self-edges and an application-level acyclicity assertion at plan-validation time.
 
@@ -111,18 +112,20 @@ The most important table. One row per tool invocation attempt lineage.
 | `capability_level` | `capability` enum | `L0..L4` |
 | `reversible` | `bool` | drives compensation on cancel |
 | `idempotency_key` | `text` | **UNIQUE** — the duplicate-suppression mechanism |
+| `depends_on` | `text[]` | action-level DAG; readiness is computed from this |
 | `status` | `action_status` enum | see state machine |
 | `attempt_count` | `int` | |
 | `max_retries` | `int` | |
 | `timeout_s` | `int` | |
 | `lease_owner` | `text` | worker id holding the lease |
 | `lease_until` | `timestamptz` | reaper reclaims after this |
+| `available_at` | `timestamptz` | backoff gate; dispatcher will not enqueue before this. Distinct from `lease_until` so a retrying READY row cannot be mistaken for an expired lease. |
 | `result` | `jsonb` | tool output |
 | `error` | `jsonb` | `{code, message, retryable, observation}` |
 | `span_id` | `text` | OTel span |
 | `created_at` / `dispatched_at` / `started_at` / `finished_at` | `timestamptz` | |
 
-Indexes: `(status, lease_until)` for the reaper, `(task_id, status)`, `UNIQUE(idempotency_key)`, `(tool, status)`.
+Indexes: `(status, lease_until)` for the reaper, `(status, available_at)` for dispatch, `(task_id, status)`, `UNIQUE(idempotency_key)`, `(tool, status)`.
 
 > **Idempotency key construction:** `sha256(tool || canonical_json(parameters) || task_id || step_id || plan_version)`. Deterministic across replays of the same logical action; distinct across genuinely different actions. Tools that are inherently non-idempotent (e.g. `email.send`) additionally consult a `side_effect_ledger` before executing.
 
@@ -131,26 +134,36 @@ Indexes: `(status, lease_until)` for the reaper, `(task_id, status)`, `UNIQUE(id
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `text` PK | |
-| `action_id` | `text` FK UNIQUE | one live approval per action |
-| `capability_level` | `capability` | |
+| `action_id` | `text` FK | one *live* approval per action: partial unique index `WHERE status = 'PENDING'`, since decided rows accumulate |
+| `task_id` | `text` FK | the queue is read per task |
+| `capability_level` | `capability` | compared again at consumption time, not trusted from the decision |
 | `summary` | `text` | plain-language description of what will happen |
+| `presented` | `jsonb` | the exact payload rendered to the user |
 | `blast_radius` | `jsonb` | affected resources, reversibility, external visibility |
 | `status` | `approval_status` | `PENDING \| APPROVED \| MODIFIED \| REJECTED \| EXPIRED` |
+| `parameter_hash` | `text` | binds the approval to the invocation shown, not to the action |
 | `modified_parameters` | `jsonb` | when the user edits before approving |
+| `policy_rule_id` / `policy_hash` | `text` | attributes the gate to a rule in a policy version |
 | `decided_by` / `decided_at` | `text` / `timestamptz` | |
+| `consumed_at` | `timestamptz` | single-use; a crash-replay finds it spent and asks again |
 | `expires_at` | `timestamptz` | fail-closed on expiry |
+
+`presented` records what was actually shown rather than what the system meant to show — auditing intent would make the record useless in the one case that matters, a rendering bug that hid the true target of an action.
+
+The `verifications` table landed in Alembic `0004`. Each row is one postcondition check against one action; the audit payload is a summary of the same evidence.
 
 ### 3.5 `verifications`
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` / `action_id` | `text` | |
-| `verifier` | `text` | `value_equals`, `element_exists`, `file_hash`, `api_readback`, `llm_judge` |
+| `verifier` | `text` | `value_equals`, `element_exists`, `file_exists`, `file_hash`, `api_readback`, `llm_judge` |
 | `expected` / `observed` | `jsonb` | |
 | `outcome` | `verify_outcome` | `PASS \| FAIL \| NO_METHOD` |
 | `observation_tier` | `int` | 1=API … 4=vision; supports FR-404 |
 | `evidence_ref` | `text` | path/hash of screenshot or response blob |
 | `latency_ms` | `int` | |
+| `created_at` | `timestamptz` | additive to the original sketch; a row without a timestamp cannot be ordered independently of `id` |
 
 ### 3.6 `audit_log`
 

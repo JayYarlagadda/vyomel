@@ -41,6 +41,32 @@ rules:
         path: ["${scratch_dir}/**"]
     decision: allow
 
+  - id: scratch-moves
+    match:
+      tool: "fs.move"
+      args:
+        dest: ["${scratch_dir}/**"]
+    max_level: L2
+    decision: allow
+
+  - id: scratch-copies
+    match:
+      tool: "fs.copy"
+      args:
+        dest: ["${scratch_dir}/**"]
+    max_level: L2
+    decision: allow
+
+  # File deletes in scratch are L2 and reversible (trash). Directory trees
+  # classify L4; max_level keeps this rule from ever auto-approving those.
+  - id: scratch-deletes
+    match:
+      tool: "fs.delete"
+      args:
+        path: ["${scratch_dir}/**"]
+    max_level: L2
+    decision: allow
+
   # --- credential-bearing paths are never touched, at any level ---
   - id: protected-paths
     match:
@@ -99,3 +125,22 @@ escalation:
   bulk_threshold: 10
   bulk_levels: 1
   unknown_tool: L4
+  # Rule 4: touching one of these classifies the action L4 regardless of the
+  # tool's base level, so it can never be auto-approved. Deliberately overlaps
+  # the protected-paths deny rule above: classification and policy are separate
+  # controls, and neither is allowed to be the only thing standing in the way.
+  sensitive_paths:
+    - "**/.ssh/**"
+    - "**/.env"
+    - "**/.aws/**"
+    - "**/.gnupg/**"
+    - "**/AppData/**/Login Data"
+    - "**/*id_rsa*"
+    - "**/*.pem"
+    - "**/*.key"
+    - "**/*credentials*"
+  sensitive_domains:
+    - "*.bankofamerica.com"
+    - "*.chase.com"
+    - "*.paypal.com"
+    - "*.coinbase.com"

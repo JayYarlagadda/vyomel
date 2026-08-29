@@ -4,7 +4,7 @@
 
 Astra is not a chatbot. A chatbot returns text. Astra changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
 
-**Status:** M0 — foundation. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) for milestone progress.
+**Status:** M3 in progress — verification engine, mutating fs tools, allowlisted `shell.run` / `git.*`, and cancel compensation in reverse topological order. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
 
 ---
 
@@ -78,6 +78,7 @@ Read in this order:
 | [`14-RESUME-MAPPING`](docs/14-RESUME-MAPPING.md) | Every claim → the artifact that proves it |
 | [`15-RISKS`](docs/15-RISKS.md) | Risk register |
 | [`16-WORKFLOW`](docs/16-WORKFLOW.md) | Dev workflow, definition of done |
+| [`17-BUILD-LOG`](docs/17-BUILD-LOG.md) | Session notes: what was built, where it stopped |
 | [`adr/DECISIONS`](docs/adr/DECISIONS.md) | Architecture decision records |
 
 ---
@@ -104,12 +105,25 @@ Copy-Item .env.example .env      # then fill in API keys
 .\.venv\Scripts\python.exe -m astra.cli worker     # in another shell
 ```
 
-Then:
+What works today (M2). `astra do` and `astra trace` arrive with the planner in M5; until then tasks carry handwritten plans:
 
 ```powershell
-astra do "summarize the PDFs in D:\Docs\inbox and file them under Orbit" --watch
-astra approvals
-astra trace <task_id>
+# see the 5-action DAG execute, then survive a worker being killed mid-flight
+.\.venv\Scripts\python.exe demos\m1\run_demo.py
+
+# the human-in-the-loop surface
+astra approvals                                     # what is waiting on you
+astra approve <approval_id>
+astra modify <approval_id> --set value=85           # re-validated and re-classified
+astra reject <approval_id> --reason "wrong student"
+
+# ask the policy what it would do, without running anything
+astra policy test fs.read_file '{\"path\": \"D:/Astra/.env\"}'
+astra policy show
+
+# the audit trail, and proof it has not been altered
+astra audit tail --task <task_id>
+astra audit verify
 ```
 
 ---

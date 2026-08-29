@@ -84,7 +84,7 @@ The architecture is shaped by five forces, in tension:
 | Layer | Owns | May depend on | Must never |
 |---|---|---|---|
 | `api` | HTTP/WS contract, request validation, auth, SSE streaming | `orchestrator`, `obs` | contain business logic or touch the DB directly |
-| `orchestrator` | Use cases, transactions, task lifecycle | `planner`, `security`, `memory`, `runtime`, `store` | perform I/O against tools directly |
+| `orchestrator` | Use cases, transactions, task lifecycle | `planner`, `security`, `memory`, `runtime`, `store`, `tools` (catalog) | perform I/O against tools directly |
 | `planner` | NL → DAG, replanning, budget estimation | `models`, `memory`, `tools` (catalog only) | execute anything |
 | `security` | Capability classification, policy, approvals, audit, redaction | `store` | be bypassable — every action path goes through it |
 | `memory` | Ingestion, embedding, graph, retrieval, episodic records | `models` (embeddings), `store` | store structured state as free-form vectors |
@@ -144,6 +144,8 @@ The architecture is shaped by five forces, in tension:
 ```
 
 Note the commit points. Every transition that could be lost on a crash is committed to Postgres **before** the effect is attempted, and the idempotency check at step 6 makes replay safe. This is what satisfies FR-202 / NFR-03.
+
+Step 5 is implemented as `astra/runtime/gate.py` rather than inside `astra/security/`. The decision needs both halves — a policy verdict and the action state machine — and the layering rule forbids `security` from importing `runtime`. So `security` owns records and verdicts, and the gate is the single component holding both. The practical benefit is that classification, policy, and approval records are all testable without a scheduler.
 
 ---
 

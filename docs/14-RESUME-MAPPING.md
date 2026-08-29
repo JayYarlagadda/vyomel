@@ -22,20 +22,20 @@ The resume already lists Astra. That inverts the usual order: instead of buildin
 
 | # | Claim phrase | Proven by | Milestone | Status |
 |---|---|---|---|---|
-| C1 | "persistent … platform" | Postgres-as-truth; `tests/runtime/test_persistence.py`; restart survives | M0–M1 | ◐ tasks persist and survive restart; steps/actions land in M1 |
+| C1 | "persistent … platform" | Postgres-as-truth; `tests/runtime/test_persistence.py`; restart survives | M0–M1 | ◐ tasks, steps, and actions persist; worker crash-replay in `test_crash_recovery.py` |
 | C2 | "converts natural-language requests into … multi-step workflows" | `astra/planner/`; `tests/planner/test_dag.py`; `evals/suites/agent/` | M5 | ☐ |
-| C3 | "permission-aware" | `astra/security/`; capability lattice; `tests/security/` | M2 | ☐ |
+| C3 | "permission-aware" | `astra/security/`; capability lattice; `tests/security/` | M2 | ☑ classification with escalation, default-deny policy, L4 invariant under Hypothesis fuzzing, single-use approvals bound to parameters and level, hash-chained append-only audit |
 | C4 | "across browser … tools" | `astra/tools/browser/`; `evals/suites/browser/` | M7 | ☐ |
 | C5 | "… desktop …" | `astra/tools/desktop/`; `evals/suites/desktop/` | M8 | ☐ |
 | C6 | "… and API tools" | `astra/tools/api/` (Gmail, Calendar, GitHub) | M9 | ☐ |
 | C7 | "RAG-based personal context" | `astra/memory/`; hybrid retrieval; `evals/suites/rag/` | M4 | ☐ |
-| C8 | "durable asynchronous execution" | Redis Streams + leases + reaper; `evals/suites/longrun/` chaos results | M1, M6 | ☐ |
+| C8 | "durable asynchronous execution" | Redis Streams + leases + reaper; `evals/suites/longrun/` chaos results | M1, M6 | ◐ streams, leases, reaper green; chaos suite is M6 |
 | C9 | "structured tool calling" | Pydantic → JSON-Schema tool defs; `schema_validity_rate` metric | M5 | ☐ |
 | C10 | "self-hosted AI infrastructure layer with vLLM" | `astra/models/providers/vllm.py`; `infra/vllm/`; `infra/k8s/`; `evals/results/serving/` | M11 | ☐ |
 | C11 | "vector retrieval" (pgvector) | HNSW index on `document_chunks.embedding` | M4 | ☐ |
-| C12 | "Redis-backed task queues" | `astra/runtime/queue.py` — Streams, consumer groups, `XAUTOCLAIM` | M1 | ☐ |
-| C13 | "persistent workflow state" | `tasks`/`steps`/`actions` + state machine + startup recovery | M1 | ☐ |
-| C14 | "post-action verification" | `astra/verify/`; `verification_catch_rate` = 100 % on injected faults | M3 | ☐ |
+| C12 | "Redis-backed task queues" | `astra/runtime/queue.py` — Streams, consumer groups, `XAUTOCLAIM` | M1 | ☑ claim/ack/recovery covered by DAG, timeout, and crash-replay tests; `demos/m1/` shows it |
+| C13 | "persistent workflow state" | `tasks`/`steps`/`actions` + state machine + startup recovery | M1 | ☑ schema, state machine locked to `07` §3, recovery republish of orphan DISPATCHED |
+| C14 | "post-action verification" | `astra/verify/`; `verification_catch_rate` = 100 % on injected faults | M3 | ◐ `value_equals`/`file_exists`/`file_hash` re-observe; lying writes fail in `tests/verify/test_catch_rate.py`; cancel compensates reversible fs writes in reverse topo (`tests/runtime/test_lifecycle.py`); `element_exists`/`api_readback`/`llm_judge` still `NO_METHOD` |
 | C15 | "bounded replanning" | `max_replans` with hard ceiling; `tests/planner/test_replan_bounds.py` | M5 | ☐ |
 | C16 | "long-running autonomous tasks" | 30-min task, no client connection, survives restart | M6 | ☐ |
 | C17 | "measuring task completion, tool-call accuracy, retrieval quality, latency, human-intervention rate" | `evals/` harness; all five metrics in `evals/results/` | M4, M5, M12 | ☐ |
