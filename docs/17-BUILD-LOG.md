@@ -210,3 +210,72 @@ Safe checkpoint: **234 tests green**, remaining M3 tools plus cancel compensatio
 
 **For whoever picks this up next.** `tests/tools/test_contract.py` enumerates the production catalog; keep test-only tools in `tests/fakes.py`. A `SUCCEEDED` task cannot be cancelled — the FR-209 test cancels after both writes have succeeded but *before* the scheduler tick that would complete the task. Do not "fix" that by allowing cancel of terminal success; undo-after-success is a different product question.
 
+---
+
+## 2026-08-29 — M3 operator surfaces (session 6)
+
+**Left off:** remaining M3 tools, cancel compensation, `POST /v1/tasks/{id}/cancel`, `astra cancel`. 234 tests green.
+
+**This session's goal:** the operator CLI/API that sits on the catalog and the task object — `astra tools`, `astra do`, `astra show` — without pretending a planner exists.
+
+### Sequencing chosen
+
+1. `GET /v1/tools` / `GET /v1/tools/{name}` from the registry, including input and output JSON Schema. This is the catalog M5 will filter, so it has to be complete now.
+2. `POST /v1/tools/{name}/invoke`: classify, evaluate policy, audit, then execute. `CONFIRM` and `DENY` fail closed — debug invoke is not a consent bypass.
+3. `astra do` → `POST /v1/tasks` with `origin: cli`. `--plan` is the handwritten DAG. `--dry-run` installs and classifies but leaves the task in `PLANNING` so the scheduler cannot dispatch.
+4. `astra show` / `astra tasks` on `GET /v1/tasks/{id}` and `/plan`.
+
+### Decisions worth recording
+
+- **Direct invoke does not collect approvals.** An L3 `test.notify` (or `git.push`) returns 403 with `policy.confirm_required` on the trail. The worker path remains the only way to obtain consent. Verification also stays on the worker — `orchestrator` may not import `verify`.
+- **Policy is committed before the tool runs.** A 403 rolls the request session back; committing first is what keeps a denied invoke on the hash chain.
+- **`--dry-run` is not "install then cancel".** That races the in-process scheduler. Leaving `PLANNING` is the state the scheduler already ignores.
+
+### Stopped here
+
+Safe checkpoint: **253 tests green**, operator surfaces on top of the M3 catalog and task APIs. `ruff` clean, `mypy --strict` clean over 67 modules, layering guard clean.
+
+**In tree and working:**
+- `GET /v1/tools`, `GET /v1/tools/{name}`, `POST /v1/tools/{name}/invoke`
+- `astra tools list|show|invoke`, `astra do [--plan] [--dry-run] [--watch]`, `astra show`, `astra tasks`
+
+**Not in this session (next):**
+- Cooperative cancel of `RUNNING` actions (grace_s, per-action token)
+- `api_readback` / `llm_judge` / `element_exists` observation paths (M5/M7/M9)
+- Prompt-injection boundary markers (M5), egress allowlist (M4), sensitivity routing (M4)
+- Natural-language planning for `astra do` without `--plan` (M5)
+
+**For whoever picks this up next.** M3's remaining product gap is cooperative cancel of a live execute. The operator CLI is complete enough that M5 can generate a plan and the same `astra show` / `astra cancel` / `astra approvals` path keeps working. Do not add a second invoke path that skips `DirectInvoker`.
+
+---
+
+## 2026-08-29 — M3 cooperative cancel (session 7)
+
+**Left off:** operator CLI/API green. `RUNNING` actions were listed on cancel, not stopped.
+
+**This session's goal:** 07 §8 — signal a live execute, wait `cancel_grace_s`, then have the *worker* CAS `RUNNING → CANCELLED`.
+
+### Decisions worth recording
+
+- **The canceller still does not seize `RUNNING`.** That CAS would race a worker that already mutated the world but has not committed `SUCCEEDED`.
+- **The signal is the cancelled task row.** Workers share no in-memory state. The execute holds a per-action `CancellationToken`; a watcher polls Postgres and sets it, then after grace cancels the coroutine.
+- **Commit the task `CANCELLED` before the grace wait.** An uncommitted signal is invisible to the worker's session.
+- **`expire_on_commit=False` means a re-read after grace must `session.expire` the stale `RUNNING` instances**, or the report keeps listing them.
+
+### Stopped here
+
+Safe checkpoint: **256 tests green**, cooperative cancel of a live `test.sleep`, plus the operator surfaces from session 6. `ruff` clean, layering guard clean.
+
+**In tree and working:**
+- `Settings.cancel_grace_s` (default 10, ceiling 60)
+- Worker per-action token + watcher; `RUNNING → CANCELLED` from the worker
+- `tests/runtime/test_cooperative_cancel.py`
+
+**Not in this session (next):**
+- `api_readback` / `llm_judge` / `element_exists` observation paths (M5/M7/M9)
+- Prompt-injection boundary markers (M5), egress allowlist (M4), sensitivity routing (M4)
+- Natural-language planning for `astra do` without `--plan` (M5)
+- M4 memory/RAG
+
+**For whoever picks this up next.** M3's specified exit (catch-rate, reverse-topo compensate, operator CLI, cooperative cancel) is in tree. Do not allow cancel of a `SUCCEEDED` task. Blocking I/O tools (M7+) must poll `ctx.cancel` because `Task.cancel()` will not interrupt a thread.
+

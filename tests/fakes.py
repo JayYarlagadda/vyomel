@@ -15,6 +15,7 @@ from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field
 
+from astra.core.errors import ErrorCode, ToolError
 from astra.core.ids import digest_bytes
 from astra.core.types import Capability
 from astra.tools.base import Tool, ToolContext
@@ -45,7 +46,13 @@ class Sleep(Tool):
 
     async def execute(self, params: BaseModel, ctx: ToolContext) -> BaseModel:
         assert isinstance(params, SleepInput)
-        await asyncio.sleep(params.seconds)
+        remaining = params.seconds
+        while remaining > 0:
+            if ctx.cancel.cancelled:
+                raise ToolError("cancelled", code=ErrorCode.PRECONDITION_FAILED, retryable=False)
+            slice_s = min(0.05, remaining)
+            await asyncio.sleep(slice_s)
+            remaining -= slice_s
         return SleepOutput(slept_s=params.seconds)
 
 

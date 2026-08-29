@@ -55,6 +55,7 @@ class AuditEvent:
     APPROVAL_CONSUMED = "approval.consumed"
     ACTION_DISPATCHED = "action.dispatched"
     ACTION_FINISHED = "action.finished"
+    TOOL_INVOKED = "tool.invoked"
     ACTION_COMPENSATED = "action.compensated"
     TASK_CANCELLED = "task.cancelled"
     VERIFICATION_COMPLETED = "verification.completed"

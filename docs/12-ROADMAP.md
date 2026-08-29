@@ -81,7 +81,7 @@ Classification, policy, approvals, audit, redaction, and the CLI/API surfaces ar
 
 ### M3 — Verification and first real tools *(week 5)* — in progress (2026-08-28)
 
-The engine, the `UNVERIFIED` task-completion tightening, `verifications` persistence, mutating fs tools, `shell.run`, `git.*`, and cancel compensation are in tree. Remaining M3 surfaces: `astra tools` / `astra do` / `astra show`.
+The engine, the `UNVERIFIED` task-completion tightening, `verifications` persistence, mutating fs tools, `shell.run`, `git.*`, cancel compensation, operator CLI (`astra tools` / `astra do` / `astra show`), and cooperative cancel of `RUNNING` actions are in tree.
 
 - `astra.verify` with `value_equals`, `file_exists`, `file_hash` re-observing; `api_readback`, `llm_judge` registered as `NO_METHOD` until their paths exist
 - `UNVERIFIED` status wired end-to-end; no path to task `SUCCEEDED` without verification unless the step opts in

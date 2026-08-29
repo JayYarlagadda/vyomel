@@ -222,6 +222,7 @@ Every bound is configuration with a hard ceiling that config cannot exceed.
 | `max_token_budget` | 200k | 2M | `FAILED(BUDGET)` |
 | `max_cost_usd` | 2.00 | 20.00 | `FAILED(BUDGET)` |
 | `approval_ttl_s` | 3600 | 86400 | approval `EXPIRED`, action `FAILED` |
+| `cancel_grace_s` | 10 | 60 | worker cancels the execute coroutine and CAS-es `RUNNING → CANCELLED` |
 
 The ceilings exist so that a misconfiguration cannot turn a bug into an unbounded, expensive, or destructive loop.
 
@@ -231,7 +232,7 @@ The ceilings exist so that a misconfiguration cannot turn a bug into an unbounde
 
 On cancel:
 1. All `PLANNED` / `READY` / `DISPATCHED` actions → `CANCELLED`.
-2. `RUNNING` actions receive a cooperative cancellation signal; after `grace_s` (10 s) the worker abandons the lease.
+2. `RUNNING` actions receive a cooperative cancellation signal (per-action token on the worker, observed via the cancelled task row). After `cancel_grace_s` (default 10 s) the worker cancels the execute coroutine and moves the action to `CANCELLED`. The canceller does **not** CAS `RUNNING → CANCELLED` itself.
 3. `SUCCEEDED` actions with `reversible = true` are compensated **in reverse topological order**, each compensation being itself an audited action.
 4. Irreversible completed actions are reported explicitly in the cancellation summary: *"Cancelled. Note: the email to X was already sent and cannot be undone."*
 

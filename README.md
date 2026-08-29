@@ -4,7 +4,7 @@
 
 Astra is not a chatbot. A chatbot returns text. Astra changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
 
-**Status:** M3 in progress — verification engine, mutating fs tools, allowlisted `shell.run` / `git.*`, and cancel compensation in reverse topological order. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
+**Status:** M3 in progress — verification, mutating tools, cancel compensation, and the operator CLI (`astra tools` / `astra do` / `astra show`). See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
 
 ---
 
@@ -105,11 +105,22 @@ Copy-Item .env.example .env      # then fill in API keys
 .\.venv\Scripts\python.exe -m astra.cli worker     # in another shell
 ```
 
-What works today (M2). `astra do` and `astra trace` arrive with the planner in M5; until then tasks carry handwritten plans:
+What works today (M3). Natural-language planning (`astra do` without `--plan`) is M5; until then tasks carry handwritten plans:
 
 ```powershell
 # see the 5-action DAG execute, then survive a worker being killed mid-flight
 .\.venv\Scripts\python.exe demos\m1\run_demo.py
+
+# create a task; --plan installs a handwritten DAG; --dry-run classifies without dispatch
+astra do "list the docs" --plan .\plan.json
+astra show <task_id>
+astra tasks --status running
+astra cancel <task_id>
+
+# inspect and (policy-gated) invoke a single tool
+astra tools list
+astra tools show fs.write_file
+astra tools invoke task.report --json '{\"summary\": \"ok\"}'
 
 # the human-in-the-loop surface
 astra approvals                                     # what is waiting on you

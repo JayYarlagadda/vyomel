@@ -38,6 +38,7 @@ class CreateTaskRequest(BaseModel):
     bounds: TaskBoundsIn | None = None
     autostart: bool = True
     dry_run: bool = False
+    origin: TaskOrigin = TaskOrigin.API
     plan: HandwrittenPlan | None = None
 
 
@@ -265,3 +266,32 @@ class VersionResponse(BaseModel):
     version: str
     schema_revision: str | None = None
     environment: str
+
+
+class ToolCatalogItem(BaseModel):
+    name: str
+    version: str
+    description: str
+    base_capability: Capability
+    reversible: bool
+    idempotent: bool
+    actuation_tier: int
+    concurrency_key: str | None = None
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] = Field(default_factory=dict)
+
+
+class ToolListResponse(BaseModel):
+    items: list[ToolCatalogItem]
+
+
+class InvokeToolRequest(BaseModel):
+    parameters: dict[str, Any] = Field(default_factory=dict)
+
+
+class InvokeToolResponse(BaseModel):
+    invoke_id: str
+    tool: str
+    capability_level: Capability
+    decision: Decision
+    result: dict[str, Any]

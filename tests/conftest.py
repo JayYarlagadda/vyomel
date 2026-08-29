@@ -78,6 +78,7 @@ def runtime_settings(tmp_path: Path) -> Settings:
         max_parallel_actions=4,
         max_retries=2,
         action_timeout_s=15,
+        cancel_grace_s=0.5,
     )
 
 

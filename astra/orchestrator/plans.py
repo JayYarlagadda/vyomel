@@ -81,7 +81,11 @@ class PlanService:
         # level at dispatch; it does not re-derive it.
         self._escalation = escalation or store_for(settings).get().escalation
 
-    async def install(self, task: Task, plan: HandwrittenPlan) -> Task:
+    async def install(self, task: Task, plan: HandwrittenPlan, *, activate: bool = True) -> Task:
+        """Persist a classified DAG. ``activate=False`` is dry-run: the rows exist
+        so ``GET /plan`` is truthful, but the task stays ``PLANNING`` and the
+        scheduler will not dispatch.
+        """
         if len(plan.steps) > self._settings.max_steps:
             raise PlanError(f"plan has {len(plan.steps)} steps; max is {self._settings.max_steps}")
 
@@ -108,11 +112,18 @@ class PlanService:
         self._session.add_all(actions)
         await self._session.flush()
 
-        dest = apply_task(TaskStatus.PLANNING, TaskTrigger.PLAN_VALIDATED)
-        updated = await repo.cas_status(
-            task.id, expected=TaskStatus.PLANNING, new=dest, plan_version=1
-        )
-        assert updated is not None
+        if activate:
+            dest = apply_task(TaskStatus.PLANNING, TaskTrigger.PLAN_VALIDATED)
+            updated = await repo.cas_status(
+                task.id, expected=TaskStatus.PLANNING, new=dest, plan_version=1
+            )
+            assert updated is not None
+        else:
+            # dry_run: persist the classified DAG but do not enter READY, so the
+            # scheduler cannot dispatch. PLANNING is not in runnable().
+            task.plan_version = 1
+            await self._session.flush()
+            updated = task
         await self._audit.append(
             self._session,
             actor="orchestrator:handwritten",

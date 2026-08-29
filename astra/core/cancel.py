@@ -1,8 +1,10 @@
 """Cooperative cancellation.
 
-Tools check ``cancelled`` at well-defined points; the worker sets it when the
-task is cancelled. M1 tools are short enough that a start-of-execute check is
-enough. Long-running actuators (M7+) poll between I/O.
+Each in-flight execute gets its own token. The worker sets it when the task
+is cancelled; tools poll ``cancelled`` between I/O. After ``cancel_grace_s``
+the worker cancels the execute task and abandons the lease — it does not CAS
+``RUNNING → CANCELLED`` from the canceller, which would race a mutation that
+has not been committed yet.
 """
 
 from __future__ import annotations

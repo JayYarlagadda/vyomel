@@ -31,6 +31,7 @@ def test_defaults_are_within_ceilings() -> None:
         ("max_token_budget", 999_999_999),
         ("max_cost_usd", 1_000.0),
         ("approval_ttl_s", 9_999_999),
+        ("cancel_grace_s", 1_000.0),
     ],
 )
 def test_ceilings_reject_excessive_values(field: str, value: float) -> None:

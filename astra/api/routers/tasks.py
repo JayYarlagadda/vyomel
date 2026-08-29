@@ -77,15 +77,19 @@ async def create_task(
             ),
         )
 
+    hints = dict(payload.context_hints)
+    if payload.dry_run:
+        hints["dry_run"] = True
     task = await service.create(
         instruction=payload.instruction,
+        origin=payload.origin,
         capability_ceiling=payload.capability_ceiling,
-        context_hints=payload.context_hints,
+        context_hints=hints,
         bounds=bounds,
     )
     if payload.plan is not None:
         planner = PlanService(session, settings, get_registry())
-        task = await planner.install(task, payload.plan)
+        task = await planner.install(task, payload.plan, activate=not payload.dry_run)
     return _to_response(task, await service.progress(task.id))
 
 

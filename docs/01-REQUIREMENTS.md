@@ -17,7 +17,7 @@ Priority levels:
 
 | ID | Requirement | Priority | Verified by |
 |---|---|---|---|
-| FR-101 | Accept a natural-language instruction via HTTP, CLI, or WebSocket and create a persisted `Task`. | P0 | `tests/api/test_tasks.py` |
+| FR-101 | Accept a natural-language instruction via HTTP, CLI, or WebSocket and create a persisted `Task`. | P0 | `tests/api/test_tasks.py`, `tests/cli/test_do_cli.py` |
 | FR-102 | Decompose an instruction into a **directed acyclic graph** of `Step`s with explicit dependencies, not a linear chain. | P0 | `tests/planner/test_dag.py` |
 | FR-103 | Produce plans as **schema-validated structured output**; a plan that fails schema validation is rejected and re-requested (max 2 retries) rather than parsed heuristically. | P0 | `tests/planner/test_schema.py` |
 | FR-104 | Select tools only from the capability-filtered catalog available to the requesting principal. | P0 | `tests/planner/test_tool_scoping.py` |
@@ -85,7 +85,7 @@ Priority levels:
 | ID | Requirement | Priority | Verified by |
 |---|---|---|---|
 | FR-601 | Every tool declares a JSON-Schema input model, an output model, a capability level, reversibility, and idempotency semantics. | P0 | `tests/tools/test_contract.py` |
-| FR-602 | Tools are discovered via a registry and exposed to the model as structured function definitions. | P0 | `tests/tools/test_registry.py` |
+| FR-602 | Tools are discovered via a registry and exposed to the model as structured function definitions. | P0 | `tests/tools/test_contract.py`, `tests/api/test_tools_api.py` |
 | FR-603 | Filesystem tools operate only inside configured allowlisted roots; path traversal is rejected. | P0 | `tests/tools/test_fs_sandbox.py` |
 | FR-604 | Browser tools drive a real browser (Playwright/CDP) using the accessibility tree and DOM selectors before coordinates. | P0 | `tests/tools/test_browser.py` |
 | FR-605 | Desktop tools use Windows UI Automation before screen coordinates; the fallback hierarchy is enforced in code. | P0 | `tests/tools/test_desktop_hierarchy.py` |

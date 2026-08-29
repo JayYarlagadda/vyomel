@@ -15,6 +15,8 @@ import json
 import shutil
 import subprocess
 import sys
+import time
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -36,6 +38,8 @@ audit_app = typer.Typer(help="Audit trail.", no_args_is_help=True)
 app.add_typer(audit_app, name="audit")
 policy_app = typer.Typer(help="Policy inspection.", no_args_is_help=True)
 app.add_typer(policy_app, name="policy")
+tools_app = typer.Typer(help="Tool catalog and debug invoke.", no_args_is_help=True)
+app.add_typer(tools_app, name="tools")
 
 console = Console()
 
@@ -212,6 +216,185 @@ def cancel(
     still = body.get("still_running") or []
     if still:
         console.print(f"[dim]{len(still)} action(s) still running.[/dim]")
+
+
+@app.command()
+def do(
+    instruction: Annotated[str, typer.Argument(help="What you want Astra to do.")],
+    ceiling: Annotated[str, typer.Option(help="Capability ceiling (L0-L4).")] = "L2",
+    dry_run: Annotated[bool, typer.Option(help="Install a plan without dispatching it.")] = False,
+    plan: Annotated[
+        Path | None,
+        typer.Option(help="Handwritten plan JSON (M5 will generate this from the instruction)."),
+    ] = None,
+    watch: Annotated[bool, typer.Option(help="Poll until the task settles or waits for you.")] = (
+        False
+    ),
+    interval: Annotated[float, typer.Option(help="Watch poll interval, seconds.")] = 1.0,
+) -> None:
+    """Create a task. Without a planner, pass --plan to run a handwritten DAG."""
+    from astra.cli.client import request
+
+    payload: dict[str, object] = {
+        "instruction": instruction,
+        "capability_ceiling": ceiling.upper(),
+        "dry_run": dry_run,
+        "origin": "cli",
+    }
+    if plan is not None:
+        try:
+            parsed = json.loads(plan.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            console.print(f"[red]Plan file not found:[/red] {plan}")
+            raise typer.Exit(code=1) from None
+        except json.JSONDecodeError as exc:
+            console.print(f"[red]Plan is not valid JSON:[/red] {exc}")
+            raise typer.Exit(code=1) from None
+        payload["plan"] = parsed
+
+    body = request(console, "POST", "/v1/tasks", json=payload)
+    _print_task_line(body)
+    status = str(body["status"])
+    if status == "CREATED":
+        console.print(
+            "[dim]No plan yet. Pass --plan until the M5 planner exists, or "
+            "POST a handwritten plan.[/dim]"
+        )
+    elif status == "PLANNING" and dry_run:
+        console.print("[dim]dry-run: plan installed and classified; not dispatched.[/dim]")
+    if watch and status not in {"CREATED", "PLANNING"}:
+        _watch_task(body["id"], interval=interval)
+
+
+@app.command()
+def tasks(
+    status: Annotated[str | None, typer.Option(help="Filter by task status.")] = None,
+    limit: Annotated[int, typer.Option(help="Maximum rows.")] = 20,
+) -> None:
+    """List recent tasks."""
+    from astra.cli.client import request
+
+    params: dict[str, object] = {"limit": limit}
+    if status:
+        params["status"] = status.upper()
+    items = request(console, "GET", "/v1/tasks", params=params)["items"]
+    if not items:
+        console.print("[dim]No tasks.[/dim]")
+        return
+    table = Table("id", "status", "ceiling", "instruction")
+    for item in items:
+        instruction = item["instruction"]
+        if len(instruction) > 60:
+            instruction = instruction[:57] + "..."
+        table.add_row(item["id"], item["status"], item["capability_ceiling"], instruction)
+    console.print(table)
+
+
+@app.command()
+def show(task_id: Annotated[str, typer.Argument(help="Task id.")]) -> None:
+    """Show a task, its plan, and current action statuses."""
+    from astra.cli.client import request
+
+    task = request(console, "GET", f"/v1/tasks/{task_id}")
+    _print_task_line(task)
+    progress = task.get("progress") or {}
+    console.print(
+        f"progress: {progress.get('steps_done', 0)}/{progress.get('steps_total', 0)} steps, "
+        f"{progress.get('actions_done', 0)}/{progress.get('actions_total', 0)} actions"
+    )
+    plan = request(console, "GET", f"/v1/tasks/{task_id}/plan")
+    actions = plan.get("actions") or []
+    if not actions:
+        console.print("[dim]No plan installed.[/dim]")
+        return
+    table = Table("action", "tool", "level", "status")
+    for action in actions:
+        table.add_row(action["id"], action["tool"], action["capability_level"], action["status"])
+    console.print(table)
+
+
+@tools_app.command("list")
+def tools_list() -> None:
+    """List registered tools."""
+    from astra.cli.client import request
+
+    items = request(console, "GET", "/v1/tools")["items"]
+    table = Table("name", "level", "rev", "idem", "description")
+    for item in items:
+        table.add_row(
+            item["name"],
+            item["base_capability"],
+            "yes" if item["reversible"] else "no",
+            "yes" if item["idempotent"] else "no",
+            item["description"].split(".")[0],
+        )
+    console.print(table)
+
+
+@tools_app.command("show")
+def tools_show(name: Annotated[str, typer.Argument(help="Tool name, e.g. fs.write_file.")]) -> None:
+    """Show one tool's contract and input schema."""
+    from astra.cli.client import request
+
+    body = request(console, "GET", f"/v1/tools/{name}")
+    table = Table("field", "value")
+    table.add_row("name", body["name"])
+    table.add_row("version", body["version"])
+    table.add_row("capability", body["base_capability"])
+    table.add_row("reversible", str(body["reversible"]))
+    table.add_row("idempotent", str(body["idempotent"]))
+    table.add_row("description", body["description"])
+    console.print(table)
+    console.print(json.dumps(body["input_schema"], indent=2))
+
+
+@tools_app.command("invoke")
+def tools_invoke(
+    name: Annotated[str, typer.Argument(help="Tool name.")],
+    json_: Annotated[
+        str,
+        typer.Option("--json", help="Parameters as a JSON object."),
+    ] = "{}",
+) -> None:
+    """Run one tool now. Policy-gated; CONFIRM/DENY are refused, not auto-approved."""
+    from astra.cli.client import request
+
+    try:
+        parameters = json.loads(json_)
+    except json.JSONDecodeError as exc:
+        console.print(f"[red]Parameters are not valid JSON:[/red] {exc}")
+        raise typer.Exit(code=1) from None
+    if not isinstance(parameters, dict):
+        console.print("[red]--json must be a JSON object.[/red]")
+        raise typer.Exit(code=1)
+
+    body = request(console, "POST", f"/v1/tools/{name}/invoke", json={"parameters": parameters})
+    console.print(f"{body['tool']} [{body['capability_level']}] {body['decision']}")
+    console.print(json.dumps(body["result"], indent=2))
+
+
+def _print_task_line(body: dict[str, object]) -> None:
+    console.print(
+        f"Task [bold]{body['id']}[/bold] is [bold]{body['status']}[/bold] "
+        f"(ceiling {body['capability_ceiling']})"
+    )
+
+
+def _watch_task(task_id: str, *, interval: float) -> None:
+    from astra.cli.client import request
+
+    stop = {"SUCCEEDED", "FAILED", "CANCELLED", "WAITING_FOR_USER", "NEEDS_HUMAN", "PLANNING"}
+    while True:
+        body = request(console, "GET", f"/v1/tasks/{task_id}")
+        status = str(body["status"])
+        progress = body.get("progress") or {}
+        console.print(
+            f"  {status}  "
+            f"{progress.get('actions_done', 0)}/{progress.get('actions_total', 0)} actions"
+        )
+        if status in stop:
+            return
+        time.sleep(max(interval, 0.1))
 
 
 @audit_app.command("tail")

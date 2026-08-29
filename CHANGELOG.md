@@ -34,6 +34,15 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 - Cancel: `POST /v1/tasks/{id}/cancel` and `astra cancel` compensate reversible
   `SUCCEEDED` actions in `reverse_topo` order (FR-209). Irreversible completed
   effects are listed, not pretended undone.
+- Operator surfaces: `GET /v1/tools`, `GET /v1/tools/{name}`,
+  `POST /v1/tools/{name}/invoke` (policy-gated; `CONFIRM`/`DENY` fail closed),
+  `astra tools list|show|invoke`, `astra do` (handwritten `--plan`, `--dry-run`
+  leaves the task in `PLANNING`), `astra show`, `astra tasks`. Natural-language
+  planning is still M5.
+- Cooperative cancel of `RUNNING` actions: the worker holds a per-action
+  `CancellationToken`, observes the cancelled task row, and after
+  `cancel_grace_s` (default 10s, ceiling 60s) cancels the execute coroutine
+  and CAS-es `RUNNING → CANCELLED`. The canceller does not seize `RUNNING`.
 
 ### M2 — Security and permissions
 

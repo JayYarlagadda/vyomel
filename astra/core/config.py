@@ -30,6 +30,7 @@ CEILING_MAX_WALL_CLOCK_S = 21_600
 CEILING_MAX_TOKEN_BUDGET = 2_000_000
 CEILING_MAX_COST_USD = 20.0
 CEILING_APPROVAL_TTL_S = 86_400
+CEILING_CANCEL_GRACE_S = 60.0
 
 
 class Settings(BaseSettings):
@@ -76,6 +77,9 @@ class Settings(BaseSettings):
     max_token_budget: Annotated[int, Field(ge=1)] = 200_000
     max_cost_usd: Annotated[float, Field(ge=0)] = 2.0
     approval_ttl_s: Annotated[int, Field(ge=1)] = 3_600
+    # How long a RUNNING execute may keep going after the task is cancelled
+    # before the worker cancels the coroutine (docs/07 §8).
+    cancel_grace_s: Annotated[float, Field(ge=0)] = 10.0
 
     # --- models ---
     openai_api_key: SecretStr = SecretStr("")
@@ -110,6 +114,7 @@ class Settings(BaseSettings):
             ("max_token_budget", self.max_token_budget, CEILING_MAX_TOKEN_BUDGET),
             ("max_cost_usd", self.max_cost_usd, CEILING_MAX_COST_USD),
             ("approval_ttl_s", self.approval_ttl_s, CEILING_APPROVAL_TTL_S),
+            ("cancel_grace_s", self.cancel_grace_s, CEILING_CANCEL_GRACE_S),
         ]
         for name, value, ceiling in ceilings:
             if value > ceiling:

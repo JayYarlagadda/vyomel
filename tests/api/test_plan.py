@@ -44,3 +44,41 @@ async def test_create_task_with_handwritten_plan(client: AsyncClient) -> None:
     assert len(payload["steps"]) == 1
     assert payload["actions"][0]["tool"] == "fs.list_dir"
     assert payload["actions"][0]["status"] == "PLANNED"
+
+
+@pytest.mark.integration
+@pytest.mark.req("FR-107")
+async def test_dry_run_installs_the_plan_but_does_not_enter_ready(client: AsyncClient) -> None:
+    """dry_run is 'plan without executing'. READY is what the scheduler dispatches."""
+    response = await client.post(
+        "/v1/tasks",
+        json={
+            "instruction": "preview only",
+            "dry_run": True,
+            "plan": {
+                "steps": [
+                    {
+                        "alias": "survey",
+                        "title": "List workspace",
+                        "intent": "See files",
+                        "actions": [
+                            {
+                                "alias": "ls",
+                                "tool": "fs.list_dir",
+                                "parameters": {"path": "D:/Astra/docs"},
+                            }
+                        ],
+                    }
+                ]
+            },
+        },
+    )
+    assert response.status_code == 201, response.text
+    body = response.json()
+    assert body["status"] == "PLANNING"
+    assert body["plan_version"] == 1
+    assert body["progress"]["actions_total"] == 1
+
+    plan = (await client.get(f"/v1/tasks/{body['id']}/plan")).json()
+    assert plan["actions"][0]["status"] == "PLANNED"
+

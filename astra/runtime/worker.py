@@ -8,6 +8,7 @@ to replay. Non-idempotent tools reserve the side-effect ledger first.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from datetime import timedelta
 from typing import Any
 
@@ -19,14 +20,14 @@ from astra.core.clock import Clock, SystemClock
 from astra.core.config import Settings
 from astra.core.errors import AstraError, ErrorCode, ToolError
 from astra.core.logging import get_logger
-from astra.core.types import ActionStatus, VerifyOutcome
+from astra.core.types import ActionStatus, TaskStatus, VerifyOutcome
 from astra.runtime.queue import ActionQueue, StreamMessage
 from astra.runtime.retry import delay_s
 from astra.runtime.state import ActionTrigger, apply_action
 from astra.security.audit import AuditEvent, AuditTrail
 from astra.store.db import session_scope
 from astra.store.models import Action
-from astra.store.repos import ActionRepo, VerificationRepo
+from astra.store.repos import ActionRepo, TaskRepo, VerificationRepo
 from astra.tools.base import ToolContext
 from astra.tools.registry import RegistryError, ToolRegistry
 from astra.verify.engine import VerificationReport, verify_result
@@ -100,6 +101,12 @@ class Worker:
             action = await repo.get(action_id)
             if action is None or action.status is not ActionStatus.RUNNING:
                 return
+            task = await TaskRepo(session).get(action.task_id)
+            if task is not None and task.status is TaskStatus.CANCELLED:
+                await _finish_cancelled(repo, action, self._clock.now(), session=session)
+                await session.refresh(action)
+                await self._record_outcome(session, action)
+                return
             await _run_claimed(
                 action,
                 session=session,
@@ -168,6 +175,7 @@ async def _run_claimed(
         )
         return
 
+    action_cancel = CancellationToken()
     ctx = ToolContext(
         task_id=action.task_id,
         action_id=action.id,
@@ -175,7 +183,7 @@ async def _run_claimed(
         scratch_dir=settings.scratch_dir,
         allowed_roots=list(settings.allowed_roots),
         deadline=action.lease_until or now + timedelta(seconds=action.timeout_s),
-        cancel=cancel,
+        cancel=action_cancel,
         clock=clock,
         trash_dir=settings.trash_dir,
     )
@@ -212,14 +220,33 @@ async def _run_claimed(
             )
             return
 
+    execute_task = asyncio.create_task(tool.execute(params, ctx))
+    watch_task = asyncio.create_task(
+        _watch_for_cancel(
+            task_id=action.task_id,
+            token=action_cancel,
+            execute_task=execute_task,
+            grace_s=settings.cancel_grace_s,
+            clock=clock,
+            worker_cancel=cancel,
+        )
+    )
     try:
-        output = await asyncio.wait_for(tool.execute(params, ctx), timeout=action.timeout_s)
+        output = await asyncio.wait_for(execute_task, timeout=action.timeout_s)
     except TimeoutError:
         await _retry_or_fail(
             repo, action, now, code=ErrorCode.TIMEOUT, message="action timed out", retryable=True
         )
         return
+    except asyncio.CancelledError:
+        if action_cancel.cancelled or cancel.cancelled:
+            await _finish_cancelled(repo, action, clock.now(), session=session)
+            return
+        raise
     except ToolError as exc:
+        if action_cancel.cancelled:
+            await _finish_cancelled(repo, action, clock.now(), session=session)
+            return
         await _retry_or_fail(
             repo,
             action,
@@ -231,6 +258,9 @@ async def _run_claimed(
         )
         return
     except AstraError as exc:
+        if action_cancel.cancelled:
+            await _finish_cancelled(repo, action, clock.now(), session=session)
+            return
         await _retry_or_fail(
             repo, action, now, code=exc.code, message=exc.user_message, retryable=exc.retryable
         )
@@ -247,6 +277,10 @@ async def _run_claimed(
             observation=type(exc).__name__,
         )
         return
+    finally:
+        watch_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await watch_task
 
     result = output.model_dump(mode="json")
     postconditions = list(action.postconditions or [])
@@ -364,6 +398,58 @@ async def _finish_failed(
         context={"message": message, "attempt_count": action.attempt_count},
     )
     log.info("astra.runtime.action_failed", action_id=action.id, code=code.value)
+
+
+async def _finish_cancelled(
+    repo: ActionRepo, action: Action, now: Any, *, session: AsyncSession
+) -> None:
+    dest = apply_action(ActionStatus.RUNNING, ActionTrigger.TASK_CANCELLED)
+    moved = await repo.cas_status(
+        action.id,
+        expected=ActionStatus.RUNNING,
+        new=dest,
+        finished_at=now,
+        lease_owner=None,
+        lease_until=None,
+    )
+    if moved is None:
+        return
+    await session.commit()
+    log.info("astra.runtime.action_cancelled", action_id=action.id)
+
+
+async def _watch_for_cancel(
+    *,
+    task_id: str,
+    token: CancellationToken,
+    execute_task: asyncio.Task[Any],
+    grace_s: float,
+    clock: Clock,
+    worker_cancel: CancellationToken,
+) -> None:
+    """Set the per-action token when the task is cancelled; after grace, abort execute.
+
+    Coordination is through Postgres (the task row). Workers share no in-memory
+    state, so this loop is how a canceller in another process is observed.
+    """
+    signalled_at = None
+    poll = 0.05 if grace_s <= 0 else min(0.1, max(0.02, grace_s / 5))
+    while not execute_task.done():
+        if worker_cancel.cancelled:
+            token.cancel()
+            execute_task.cancel()
+            return
+        async with session_scope() as session:
+            task = await TaskRepo(session).get(task_id)
+        if task is not None and task.status is TaskStatus.CANCELLED:
+            token.cancel()
+            if signalled_at is None:
+                signalled_at = clock.now()
+            elapsed = (clock.now() - signalled_at).total_seconds()
+            if elapsed >= grace_s:
+                execute_task.cancel()
+                return
+        await asyncio.sleep(poll)
 
 
 async def _audit_verification(

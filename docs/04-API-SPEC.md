@@ -185,7 +185,7 @@ Query response always includes citations:
 |---|---|---|
 | `GET` | `/v1/tools` | Catalog with schemas, capability levels, tiers |
 | `GET` | `/v1/tools/{name}` | Full definition |
-| `POST` | `/v1/tools/{name}/invoke` | Direct invocation (debug); still fully policy-gated and audited |
+| `POST` | `/v1/tools/{name}/invoke` | Direct invocation (debug); still fully policy-gated and audited. `CONFIRM` and `DENY` fail closed — this path does not collect consent |
 | `GET` | `/v1/workflows` | Saved + learned workflows |
 | `POST` | `/v1/workflows/{id}/accept` | Accept a learned workflow proposal |
 | `POST` | `/v1/workflows/{id}/invoke` | Run with parameters |

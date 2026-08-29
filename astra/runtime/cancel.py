@@ -9,9 +9,12 @@ On cancel:
    ``reverse_topo`` order — the same function the DAG module already owns.
    Do not invent a second ordering.
 4. Irreversible completed actions are listed, not pretended undone.
-5. ``RUNNING`` actions are reported as still in flight. Cooperative cancel of
-   a live execute is a later tightening; compensating them here would race the
-   worker's status write.
+5. ``RUNNING`` actions are signalled, not seized. The worker holds a
+   per-action ``CancellationToken`` and, after ``cancel_grace_s``, cancels
+   the execute task and CAS-es ``RUNNING → CANCELLED``. The canceller must
+   not take that CAS: a worker that already mutated the world but has not
+   committed ``SUCCEEDED`` would leave an effect that is neither recorded
+   nor compensated.
 
 Each compensation is an audited action. The ``compensate()`` on a tool is
 mandatory when ``reversible=True``; this module is the thing that actually
@@ -20,6 +23,7 @@ calls it.
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Any
@@ -161,6 +165,11 @@ class Canceller:
                     lease_until=None,
                 )
 
+        # Workers in other sessions (or processes) observe the cancelled task
+        # row. Holding that write uncommitted for the grace wait would mean
+        # they never see the signal.
+        await session.commit()
+
         actions = await action_repo.list_by_task(task_id)
         compensated: list[str] = []
         irreversible: list[IrreversibleEffect] = []
@@ -183,6 +192,23 @@ class Canceller:
             ]
 
         still_running = [a.id for a in actions if a.status is ActionStatus.RUNNING]
+        if still_running and self._settings.cancel_grace_s > 0:
+            # Give the worker time to observe the task status, set the
+            # per-action token, and abandon the execute. Then compensate
+            # anything that committed SUCCEEDED in that window.
+            await asyncio.sleep(self._settings.cancel_grace_s)
+            for row in actions:
+                session.expire(row)
+            actions = await action_repo.list_by_task(task_id)
+            if compensate:
+                extra_ok, extra_irreversible, extra_failed = await self._compensate_succeeded(
+                    session, actions, actor=actor
+                )
+                compensated.extend(extra_ok)
+                irreversible.extend(extra_irreversible)
+                failed.extend(extra_failed)
+                actions = await action_repo.list_by_task(task_id)
+            still_running = [a.id for a in actions if a.status is ActionStatus.RUNNING]
         await _sync_cancelled_steps(step_repo, steps, actions)
 
         report = CancelReport(
