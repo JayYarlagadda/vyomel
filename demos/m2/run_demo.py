@@ -115,9 +115,7 @@ def read_plan(path: str) -> HandwrittenPlan:
                 alias="peek",
                 title="Read a file",
                 intent="Read something the policy protects",
-                actions=[
-                    ActionSpec(alias="r", tool="fs.read_file", parameters={"path": path})
-                ],
+                actions=[ActionSpec(alias="r", tool="fs.read_file", parameters={"path": path})],
             )
         ]
     )
@@ -125,9 +123,7 @@ def read_plan(path: str) -> HandwrittenPlan:
 
 async def sole_action(task_id: str) -> Action:
     async with session_scope() as session:
-        return (
-            await session.execute(select(Action).where(Action.task_id == task_id))
-        ).scalar_one()
+        return (await session.execute(select(Action).where(Action.task_id == task_id))).scalar_one()
 
 
 async def approvals_for(task_id: str) -> list[Approval]:

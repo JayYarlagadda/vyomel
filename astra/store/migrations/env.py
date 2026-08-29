@@ -11,8 +11,7 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from pgvector.asyncpg import register_vector
-from sqlalchemy import event, pool
+from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -46,15 +45,15 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
+    # Do not register pgvector here. CI starts from an empty database; the
+    # vector type exists only after 0001 CREATE EXTENSION. Migrations are DDL
+    # and never bind embedding values. The app engine in db.py registers after
+    # upgrade.
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-
-    @event.listens_for(connectable.sync_engine, "connect")
-    def _register_vector(dbapi_connection: object, _connection_record: object) -> None:
-        dbapi_connection.run_async(register_vector)  # type: ignore[attr-defined]
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
