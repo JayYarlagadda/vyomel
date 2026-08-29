@@ -40,6 +40,8 @@ policy_app = typer.Typer(help="Policy inspection.", no_args_is_help=True)
 app.add_typer(policy_app, name="policy")
 tools_app = typer.Typer(help="Tool catalog and debug invoke.", no_args_is_help=True)
 app.add_typer(tools_app, name="tools")
+memory_app = typer.Typer(help="Ingest documents and query semantic memory.", no_args_is_help=True)
+app.add_typer(memory_app, name="memory")
 
 console = Console()
 
@@ -371,6 +373,62 @@ def tools_invoke(
     body = request(console, "POST", f"/v1/tools/{name}/invoke", json={"parameters": parameters})
     console.print(f"{body['tool']} [{body['capability_level']}] {body['decision']}")
     console.print(json.dumps(body["result"], indent=2))
+
+
+@memory_app.command("ingest")
+def memory_ingest(
+    paths: Annotated[list[Path], typer.Argument(help="Files or directories to ingest.")],
+    recursive: Annotated[
+        bool, typer.Option("--recursive", help="Walk directories for .md and .txt.")
+    ] = False,
+) -> None:
+    """Chunk and index local markdown/text (synchronous)."""
+    from astra.cli.client import request
+
+    body = request(
+        console,
+        "POST",
+        "/v1/memory/ingest",
+        json={"paths": [str(path) for path in paths], "recursive": recursive, "watch": False},
+    )
+    table = Table("status", "chunks", "ver", "path")
+    for item in body["documents"]:
+        table.add_row(
+            item["status"],
+            str(item["chunk_count"]),
+            str(item["version"]),
+            item["path"],
+        )
+    console.print(table)
+
+
+@memory_app.command("query")
+def memory_query(
+    query: Annotated[str, typer.Argument(help="Natural-language or identifier query.")],
+    k: Annotated[int, typer.Option("--k", help="How many chunks to return.")] = 10,
+    strategy: Annotated[
+        str, typer.Option("--strategy", help="hybrid, vector, or lexical.")
+    ] = "hybrid",
+) -> None:
+    """Hybrid retrieval with citations."""
+    from astra.cli.client import request
+
+    body = request(
+        console,
+        "POST",
+        "/v1/memory/query",
+        json={"query": query, "k": k, "strategy": strategy},
+    )
+    console.print(f"strategy={body['strategy']}  latency_ms={body['latency_ms']:.1f}")
+    for hit in body["results"]:
+        citation = hit["citation"]
+        heading = " / ".join(citation["heading_path"]) if citation["heading_path"] else "(root)"
+        console.print(
+            f"[bold]{hit['score']:.4f}[/bold]  {citation['path']}  {heading}  "
+            f"[{citation['char_start']}:{citation['char_end']}]"
+        )
+        console.print(hit["content"][:400])
+        console.print()
 
 
 def _print_task_line(body: dict[str, object]) -> None:

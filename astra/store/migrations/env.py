@@ -11,7 +11,8 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool
+from pgvector.asyncpg import register_vector
+from sqlalchemy import event, pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -50,6 +51,11 @@ async def run_async_migrations() -> None:
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+
+    @event.listens_for(connectable.sync_engine, "connect")
+    def _register_vector(dbapi_connection: object, _connection_record: object) -> None:
+        dbapi_connection.run_async(register_vector)  # type: ignore[attr-defined]
+
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()

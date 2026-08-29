@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from astra import __version__
-from astra.api.routers import approvals, audit, health, policy, tasks, tools
+from astra.api.routers import approvals, audit, health, memory, policy, tasks, tools
 from astra.core.config import Settings, get_settings
 from astra.core.errors import AstraError
 from astra.core.logging import configure_logging, get_logger
@@ -45,6 +45,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         summary="Personal AI execution platform",
         lifespan=lifespan,
     )
+    app.state.settings = resolved
 
     app.include_router(health.router)
     app.include_router(tasks.router)
@@ -52,6 +53,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(audit.router)
     app.include_router(policy.router)
     app.include_router(tools.router)
+    app.include_router(memory.router)
 
     @app.exception_handler(AstraError)
     async def _astra_error_handler(request: Request, exc: AstraError) -> JSONResponse:

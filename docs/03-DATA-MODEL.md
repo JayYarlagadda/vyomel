@@ -209,7 +209,9 @@ This is what makes "Continue Orbit from yesterday" resolvable: `project:Orbit â†
 
 ### 4.3 `documents` and `document_chunks`
 
-`documents(id, entity_id, path, mime, content_hash, size_bytes, ingested_at, version)`
+`documents(id, path, mime, content_hash, size_bytes, ingested_at, version)`
+
+`entity_id` lands with the context graph (FR-502). `document_chunks` also store `embedding_model` so a later re-embed can be incremental (ADR-0007).
 
 `document_chunks`:
 
@@ -222,7 +224,8 @@ This is what makes "Continue Orbit from yesterday" resolvable: `project:Orbit â†
 | `token_count` | `int` | |
 | `heading_path` | `text[]` | structural breadcrumb, e.g. `['Design','Retry Policy']` |
 | `page` / `char_start` / `char_end` | `int` | for precise citation (FR-505) |
-| `embedding` | `vector(384)` | `bge-small-en-v1.5` |
+| `embedding` | `vector(384)` | `bge-small-en-v1.5` (tests use a 384-d hashing stand-in) |
+| `embedding_model` | `text` | model id that produced `embedding` |
 | `tsv` | `tsvector` | generated column for BM25/full-text |
 
 Indexes:

@@ -295,3 +295,55 @@ class InvokeToolResponse(BaseModel):
     capability_level: Capability
     decision: Decision
     result: dict[str, Any]
+
+
+class IngestRequest(BaseModel):
+    paths: Annotated[list[str], Field(min_length=1)]
+    recursive: bool = False
+    watch: bool = False
+
+
+class IngestedDocument(BaseModel):
+    path: str
+    status: Literal["ingested", "skipped", "replaced"]
+    document_id: str
+    chunk_count: int
+    version: int
+    content_hash: str
+
+
+class IngestResponse(BaseModel):
+    job_id: str
+    status: Literal["completed"] = "completed"
+    documents: list[IngestedDocument]
+
+
+class MemoryQueryRequest(BaseModel):
+    query: Annotated[str, Field(min_length=1, max_length=4_000)]
+    k: Annotated[int, Field(ge=1, le=40)] = 10
+    strategy: Literal["hybrid", "vector", "lexical"] = "hybrid"
+    filters: dict[str, Any] = Field(default_factory=dict)
+
+
+class CitationOut(BaseModel):
+    path: str
+    heading_path: list[str]
+    page: int | None = None
+    char_start: int
+    char_end: int
+    ingested_at: datetime
+
+
+class MemoryHit(BaseModel):
+    chunk_id: str
+    content: str
+    score: float
+    vector_rank: int | None = None
+    lexical_rank: int | None = None
+    citation: CitationOut
+
+
+class MemoryQueryResponse(BaseModel):
+    results: list[MemoryHit]
+    strategy: str
+    latency_ms: float

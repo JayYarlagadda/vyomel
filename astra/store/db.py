@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from pgvector.asyncpg import register_vector
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -28,10 +30,19 @@ def init_engine(settings: Settings) -> AsyncEngine:
             pool_pre_ping=True,
             echo=False,
         )
+        _register_pgvector(_engine)
         _session_factory = async_sessionmaker(
             _engine, expire_on_commit=False, autoflush=False, class_=AsyncSession
         )
     return _engine
+
+
+def _register_pgvector(engine: AsyncEngine) -> None:
+    """asyncpg will otherwise send embeddings as text arrays and pgvector rejects them."""
+
+    @event.listens_for(engine.sync_engine, "connect")
+    def _on_connect(dbapi_connection: object, _connection_record: object) -> None:
+        dbapi_connection.run_async(register_vector)  # type: ignore[attr-defined]
 
 
 def get_engine() -> AsyncEngine:

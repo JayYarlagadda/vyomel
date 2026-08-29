@@ -27,7 +27,7 @@ from astra.runtime.queue import ActionQueue
 from astra.runtime.scheduler import Scheduler
 from astra.runtime.worker import Worker
 from astra.store.db import dispose_engine, init_engine, session_scope
-from astra.store.models import Task
+from astra.store.models import Document, Task
 from tests.fakes import registry_with_fakes
 
 
@@ -109,6 +109,21 @@ async def _truncate_tasks() -> None:
     # Steps, actions, approvals, ledger rows, and dead letters cascade from tasks.
     async with session_scope() as session:
         await session.execute(delete(Task))
+
+
+@pytest.fixture
+async def memory_db(runtime_db: Settings) -> AsyncIterator[Settings]:
+    """Same isolation as ``runtime_db``, plus empty document tables."""
+    await _truncate_documents()
+    try:
+        yield runtime_db
+    finally:
+        await _truncate_documents()
+
+
+async def _truncate_documents() -> None:
+    async with session_scope() as session:
+        await session.execute(delete(Document))
 
 
 @pytest.fixture

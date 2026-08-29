@@ -279,3 +279,48 @@ Safe checkpoint: **256 tests green**, cooperative cancel of a live `test.sleep`,
 
 **For whoever picks this up next.** M3's specified exit (catch-rate, reverse-topo compensate, operator CLI, cooperative cancel) is in tree. Do not allow cancel of a `SUCCEEDED` task. Blocking I/O tools (M7+) must poll `ctx.cancel` because `Task.cancel()` will not interrupt a thread.
 
+---
+
+## 2026-08-29 — M4 memory vertical slice (session 8)
+
+**Left off:** M3 green at 256 tests. Context was about to run out; stop here rather than half-wire bge/graph/evals.
+
+**This session's goal:** ingest + hybrid retrieve that is test-green, not recall@10.
+
+### Decisions worth recording
+
+- **Hashing 384-d embedder, not bge.** Same column, same cosine path. Hybrid tests use a unique lexical token. Do not quote recall@10.
+- **Embeddings live only on chunks (FR-504).** The document row is path/hash/mime/version.
+- **Register pgvector on the asyncpg connect.** Without it, inserts of `vector(384)` fail.
+- **Ingest is synchronous.** `watch` is 501. POST returns a completed report; there is no job table yet.
+- **API settings come from `app.state.settings`** so tests can allowlist `tmp_path`. `get_settings()` would ignore `create_app(settings)`.
+- **`memory` cannot import `tools`.** Path allowlisting is duplicated in `astra/memory/paths.py`.
+
+### Stopped here
+
+Safe checkpoint: **272 tests green**, `mypy --strict` on 78 modules, layering clean. md/txt ingest through hybrid RRF and citations, HTTP/CLI included. Nothing is committed. Do not quote recall@10 — the embedder is hashing-bow-384, not bge.
+
+**In tree and working:**
+- Chunk on headings, then 512/64 word windows, with `char_start` / `char_end` for citations
+- SHA-256 skip/replace: unchanged file is a no-op; changed bytes bump `version` and replace chunks
+- Embeddings only on `document_chunks` (384-d hashing embedder)
+- Hybrid retrieval: HNSW cosine + `tsvector`, fused with RRF (`k=60`)
+- Alembic `0005` `documents` / `document_chunks`
+- `POST /v1/memory/ingest`, `POST /v1/memory/query`, `astra memory ingest|query`
+
+**Out of this slice:** `watch`, job polling, pdf/docx/html, entity graph, episodes, forget, memory tools, recall@10 evals. `watch=true` is 501.
+
+**How to try it** (API must be up; paths must be under `ASTRA_ALLOWED_ROOTS`):
+
+```powershell
+astra memory ingest .\notes.md
+astra memory query "your unique token"
+```
+
+**Not in this session (next, in this order):**
+- real `bge-small-en-v1.5` (same 384-d column; do not treat hashing retrieval as a quality number)
+- then graph / forget
+- then evals
+- later: pdf/docx/html/code extractors, episodes (FR-507), memory tools (`memory.query` as a worker tool)
+
+

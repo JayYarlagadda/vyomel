@@ -4,7 +4,7 @@
 
 Astra is not a chatbot. A chatbot returns text. Astra changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
 
-**Status:** M3 in progress — verification, mutating tools, cancel compensation, and the operator CLI (`astra tools` / `astra do` / `astra show`). See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
+**Status:** M4 in progress — first memory slice (md/txt ingest, hybrid RRF). M3 verification and operator CLI are in tree. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
 
 ---
 
@@ -135,6 +135,10 @@ astra policy show
 # the audit trail, and proof it has not been altered
 astra audit tail --task <task_id>
 astra audit verify
+
+# semantic memory (md/txt; hashing embedder until bge is wired)
+astra memory ingest .\notes.md
+astra memory query "ZX9QUNIQUE failover"
 ```
 
 ---

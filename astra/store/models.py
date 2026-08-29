@@ -1,7 +1,6 @@
 """SQLAlchemy ORM models.
 
 Normative schema: docs/03-DATA-MODEL.md. Enum labels are append-only.
-Memory tables land in M4.
 """
 
 from __future__ import annotations
@@ -10,6 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
+from pgvector.sqlalchemy import VECTOR
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -43,6 +43,19 @@ from astra.core.types import (
 
 class Base(DeclarativeBase):
     pass
+
+
+class AsyncpgVector(VECTOR):
+    """Pass lists through to asyncpg's binary vector codec.
+
+    Upstream ``VECTOR.bind_processor`` stringifies to ``[0.1,0.2,...]``. That
+    text then hits ``register_vector``, which expects a list and raises.
+    """
+
+    cache_ok = True
+
+    def bind_processor(self, dialect: object) -> None:
+        return None
 
 
 def _pg_enum(enum_cls: type, name: str) -> Enum:
@@ -379,3 +392,53 @@ class DeadLetter(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+
+
+class Document(Base):
+    """A local file ingested into semantic memory (docs/03 §4.3).
+
+    Structured identity stays on this row. The embedding lives only on chunks
+    (FR-504): the document is not a vector.
+    """
+
+    __tablename__ = "documents"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    path: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    mime: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    ingested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    chunks: Mapped[list[DocumentChunk]] = relationship(
+        back_populates="document", cascade="all, delete-orphan"
+    )
+
+
+class DocumentChunk(Base):
+    """One retrieval unit. Vector + tsvector; citations from the columns below."""
+
+    __tablename__ = "document_chunks"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    document_id: Mapped[str] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    token_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    heading_path: Mapped[list[str]] = mapped_column(
+        ARRAY(Text), nullable=False, server_default=text("'{}'")
+    )
+    page: Mapped[int | None] = mapped_column(Integer)
+    char_start: Mapped[int] = mapped_column(Integer, nullable=False)
+    char_end: Mapped[int] = mapped_column(Integer, nullable=False)
+    embedding: Mapped[list[float]] = mapped_column(AsyncpgVector(384), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(Text, nullable=False)
+
+    document: Mapped[Document] = relationship(back_populates="chunks")
+
+    __table_args__ = (Index("ix_document_chunks_document_id", "document_id"),)

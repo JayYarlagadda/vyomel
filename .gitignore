@@ -45,7 +45,8 @@ coverage.xml
 .ruff_cache/
 
 # --- models & caches (large binaries) ---
-models/
+# Root-only so astra/models/ (Python providers) is not ignored.
+/models/
 *.gguf
 *.safetensors
 *.bin

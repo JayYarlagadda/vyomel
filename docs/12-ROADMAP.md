@@ -104,6 +104,8 @@ The engine, the `UNVERIFIED` task-completion tightening, `verifications` persist
 
 **Exit:** `recall@10 ≥ 0.85` on the benchmark; first ablation table committed.
 
+Partial (2026-08-29): md/txt ingest, hashing 384-d embedder, HNSW + tsvector, hybrid RRF, citations, `POST /v1/memory/ingest|query`, `astra memory ingest|query`. Not yet: bge, pdf/docx/html, graph, episodes, forget, evals.
+
 ---
 
 ### M5 — Planner *(weeks 8–9)*

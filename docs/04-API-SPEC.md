@@ -177,6 +177,8 @@ Query response always includes citations:
   "strategy": "hybrid_rrf", "latency_ms": 187 }
 ```
 
+`POST /v1/memory/ingest` is synchronous in the current slice (md/txt only; `watch` returns 501). `GET /v1/memory/ingest/{job_id}` and entity/episode routes wait for later M4 work.
+
 ---
 
 ## 5. Tools, workflows, admin

@@ -81,4 +81,3 @@ async def test_dry_run_installs_the_plan_but_does_not_enter_ready(client: AsyncC
 
     plan = (await client.get(f"/v1/tasks/{body['id']}/plan")).json()
     assert plan["actions"][0]["status"] == "PLANNED"
-

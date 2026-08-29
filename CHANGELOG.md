@@ -5,6 +5,16 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 
 ## [Unreleased]
 
+### M4 — Memory and RAG (in progress)
+
+- md/txt ingestion: heading-aware chunks, SHA-256 skip/replace (FR-506), embeddings
+  stored only on `document_chunks` (FR-504). Alembic `0005`.
+- Hybrid retrieval: HNSW cosine + `tsvector` GIN, fused with RRF k=60 (FR-503).
+  Citations include path, heading_path, and char offsets (FR-505).
+- Tests use a deterministic 384-d hashing embedder, not `bge-small-en-v1.5`.
+- API: `POST /v1/memory/ingest`, `POST /v1/memory/query`. CLI: `astra memory ingest|query`.
+  Watch, entity graph, episodes, and forget are not in this slice.
+
 ### M3 — Verification and first real tools (in progress)
 
 - Verification engine dispatches on postcondition type (`astra/verify/engine.py`):

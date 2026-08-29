@@ -28,11 +28,11 @@ The resume already lists Astra. That inverts the usual order: instead of buildin
 | C4 | "across browser … tools" | `astra/tools/browser/`; `evals/suites/browser/` | M7 | ☐ |
 | C5 | "… desktop …" | `astra/tools/desktop/`; `evals/suites/desktop/` | M8 | ☐ |
 | C6 | "… and API tools" | `astra/tools/api/` (Gmail, Calendar, GitHub) | M9 | ☐ |
-| C7 | "RAG-based personal context" | `astra/memory/`; hybrid retrieval; `evals/suites/rag/` | M4 | ☐ |
+| C7 | "RAG-based personal context" | `astra/memory/`; hybrid retrieval; `evals/suites/rag/` | M4 | ◐ md/txt ingest, hashing embedder, hybrid RRF + citations; bge/evals still open |
 | C8 | "durable asynchronous execution" | Redis Streams + leases + reaper; `evals/suites/longrun/` chaos results | M1, M6 | ◐ streams, leases, reaper green; chaos suite is M6 |
 | C9 | "structured tool calling" | Pydantic → JSON-Schema tool defs; `schema_validity_rate` metric | M5 | ☐ |
 | C10 | "self-hosted AI infrastructure layer with vLLM" | `astra/models/providers/vllm.py`; `infra/vllm/`; `infra/k8s/`; `evals/results/serving/` | M11 | ☐ |
-| C11 | "vector retrieval" (pgvector) | HNSW index on `document_chunks.embedding` | M4 | ☐ |
+| C11 | "vector retrieval" (pgvector) | HNSW index on `document_chunks.embedding` | M4 | ◐ HNSW + cosine query green; production model is still the hashing stand-in |
 | C12 | "Redis-backed task queues" | `astra/runtime/queue.py` — Streams, consumer groups, `XAUTOCLAIM` | M1 | ☑ claim/ack/recovery covered by DAG, timeout, and crash-replay tests; `demos/m1/` shows it |
 | C13 | "persistent workflow state" | `tasks`/`steps`/`actions` + state machine + startup recovery | M1 | ☑ schema, state machine locked to `07` §3, recovery republish of orphan DISPATCHED |
 | C14 | "post-action verification" | `astra/verify/`; `verification_catch_rate` = 100 % on injected faults | M3 | ◐ `value_equals`/`file_exists`/`file_hash` re-observe; lying writes fail in `tests/verify/test_catch_rate.py`; cancel compensates reversible fs writes in reverse topo (`tests/runtime/test_lifecycle.py`); `element_exists`/`api_readback`/`llm_judge` still `NO_METHOD` |
