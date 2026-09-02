@@ -68,6 +68,7 @@ class ToolRegistry:
 def default_registry() -> ToolRegistry:
     from astra.tools.fs import Copy, Delete, ListDir, Move, ReadFile, WriteFile
     from astra.tools.git import GitCommit, GitDiff, GitPush, GitStatus
+    from astra.tools.memory import MemoryForget, MemoryGetEntity, MemoryQuery, MemoryRemember
     from astra.tools.report import TaskReport
     from astra.tools.shell import ShellRun
 
@@ -83,6 +84,10 @@ def default_registry() -> ToolRegistry:
     registry.register(GitDiff())
     registry.register(GitCommit())
     registry.register(GitPush())
+    registry.register(MemoryQuery())
+    registry.register(MemoryGetEntity())
+    registry.register(MemoryRemember())
+    registry.register(MemoryForget())
     registry.register(TaskReport())
     return registry
 

@@ -18,6 +18,8 @@ from sqlalchemy.orm import selectinload
 from astra.core.errors import AstraError, ErrorCode, NotFoundError
 from astra.core.ids import file_digest, new_id
 from astra.memory.chunking import chunk_text
+from astra.memory.extract import extract_text
+from astra.memory.graph import upsert_document_entity
 from astra.memory.paths import is_ingestible, mime_for, resolve_allowed
 from astra.models.embeddings import Embedder, HashingEmbedder
 from astra.store.models import Document, DocumentChunk
@@ -80,18 +82,13 @@ def _collect(paths: Sequence[str], allowed_roots: Sequence[Path], *, recursive: 
             raise NotFoundError(f"No file at {resolved}")
         if not is_ingestible(resolved):
             raise AstraError(
-                f"Only .md and .txt are ingested in this slice: {resolved}",
+                f"Unsupported ingest type in this slice: {resolved.suffix}",
                 code=ErrorCode.INVALID_PARAMETERS,
             )
         if resolved not in seen:
             seen.add(resolved)
             found.append(resolved)
     return found
-
-
-def _read_utf8(path: Path) -> tuple[str, int]:
-    data = path.read_bytes()
-    return data.decode("utf-8", errors="replace"), len(data)
 
 
 async def _ingest_one(session: AsyncSession, path: Path, embedder: Embedder) -> FileIngest:
@@ -101,6 +98,7 @@ async def _ingest_one(session: AsyncSession, path: Path, embedder: Embedder) -> 
         select(Document).options(selectinload(Document.chunks)).where(Document.path == stored)
     )
     if existing is not None and existing.content_hash == digest:
+        await upsert_document_entity(session, document=existing, path=path)
         return FileIngest(
             path=stored,
             status="skipped",
@@ -110,7 +108,7 @@ async def _ingest_one(session: AsyncSession, path: Path, embedder: Embedder) -> 
             content_hash=digest,
         )
 
-    text, size_bytes = _read_utf8(path)
+    text, size_bytes = extract_text(path)
     chunks = chunk_text(text)
     vectors = embedder.embed([chunk.content for chunk in chunks]) if chunks else []
 
@@ -151,6 +149,7 @@ async def _ingest_one(session: AsyncSession, path: Path, embedder: Embedder) -> 
                 embedding_model=embedder.name,
             )
         )
+    await upsert_document_entity(session, document=document, path=path)
     return FileIngest(
         path=stored,
         status=status,

@@ -186,6 +186,7 @@ async def _run_claimed(
         cancel=action_cancel,
         clock=clock,
         trash_dir=settings.trash_dir,
+        settings=settings,
     )
     pre = await tool.preflight(params, ctx)
     if not pre.ok:

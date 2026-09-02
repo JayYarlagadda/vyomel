@@ -87,6 +87,8 @@ class Settings(BaseSettings):
     local_model_base_url: str = "http://localhost:11434/v1"
     vllm_base_url: str = ""
     embedding_model: str = "BAAI/bge-small-en-v1.5"
+    # auto: hashing in test, bge elsewhere. hashing forces the test stand-in.
+    embedding_backend: Literal["auto", "hashing", "bge"] = "auto"
     offline: bool = False
 
     # --- observability ---

@@ -27,7 +27,7 @@ from astra.runtime.queue import ActionQueue
 from astra.runtime.scheduler import Scheduler
 from astra.runtime.worker import Worker
 from astra.store.db import dispose_engine, init_engine, session_scope
-from astra.store.models import Document, Task
+from astra.store.models import Document, Entity, Episode, Task
 from tests.fakes import registry_with_fakes
 
 
@@ -123,7 +123,9 @@ async def memory_db(runtime_db: Settings) -> AsyncIterator[Settings]:
 
 async def _truncate_documents() -> None:
     async with session_scope() as session:
+        await session.execute(delete(Episode))
         await session.execute(delete(Document))
+        await session.execute(delete(Entity))
 
 
 @pytest.fixture

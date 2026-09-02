@@ -17,6 +17,7 @@ from astra.core.types import (
     ApprovalStatus,
     Capability,
     Decision,
+    EntityType,
     StepStatus,
     TaskOrigin,
     TaskStatus,
@@ -347,3 +348,82 @@ class MemoryQueryResponse(BaseModel):
     results: list[MemoryHit]
     strategy: str
     latency_ms: float
+
+
+class EntityRelationOut(BaseModel):
+    id: str
+    relation: str
+    peer_id: str
+    peer_name: str
+    peer_type: str
+    direction: Literal["outgoing", "incoming"]
+    confidence: float
+
+
+class EntityDocumentOut(BaseModel):
+    id: str
+    path: str
+    chunk_count: int
+    version: int
+
+
+class EntityOut(BaseModel):
+    id: str
+    type: str
+    name: str
+    aliases: list[str]
+    attributes: dict[str, Any]
+    salience: float
+    source: str
+    first_seen_at: datetime
+    last_seen_at: datetime
+    documents: list[EntityDocumentOut]
+    relations: list[EntityRelationOut]
+
+
+class ForgetResponse(BaseModel):
+    entity_id: str
+    documents_deleted: int
+    chunks_deleted: int
+    relations_deleted: int
+    episodes_deleted: int = 0
+
+
+class RememberRequest(BaseModel):
+    type: EntityType
+    name: Annotated[str, Field(min_length=1, max_length=500)]
+    aliases: list[str] = Field(default_factory=list)
+    attributes: dict[str, Any] = Field(default_factory=dict)
+
+
+class RememberResponse(BaseModel):
+    entity_id: str
+    type: str
+    name: str
+
+
+class EntitySummary(BaseModel):
+    id: str
+    type: str
+    name: str
+    salience: float
+    source: str
+
+
+class EntityListResponse(BaseModel):
+    items: list[EntitySummary]
+
+
+class EpisodeOut(BaseModel):
+    id: str
+    task_id: str
+    summary: str
+    outcome: str
+    entity_ids: list[str]
+    tools_used: list[str]
+    started_at: datetime
+    finished_at: datetime
+
+
+class EpisodeListResponse(BaseModel):
+    items: list[EpisodeOut]

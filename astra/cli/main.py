@@ -431,6 +431,77 @@ def memory_query(
         console.print()
 
 
+@memory_app.command("show")
+def memory_show(
+    entity_id: Annotated[str, typer.Argument(help="Entity id from ingest or GET /entities.")],
+) -> None:
+    """Show a context-graph entity and linked documents."""
+    from astra.cli.client import request
+
+    body = request(console, "GET", f"/v1/memory/entities/{entity_id}")
+    console.print(f"[bold]{body['type']}[/bold] {body['name']}  salience={body['salience']:.2f}")
+    for document in body["documents"]:
+        console.print(f"  doc {document['path']}  chunks={document['chunk_count']}")
+
+
+@memory_app.command("forget")
+def memory_forget(
+    entity_id: Annotated[str, typer.Argument(help="Entity to hard-delete with its chunks.")],
+) -> None:
+    """Hard-delete an entity, its documents, chunks, and relations (FR-509)."""
+    from astra.cli.client import request
+
+    body = request(console, "DELETE", f"/v1/memory/entities/{entity_id}")
+    console.print(
+        f"forgot {body['entity_id']}: "
+        f"{body['documents_deleted']} docs, {body['chunks_deleted']} chunks, "
+        f"{body['relations_deleted']} relations, {body.get('episodes_deleted', 0)} episodes"
+    )
+
+
+@memory_app.command("remember")
+def memory_remember(
+    name: Annotated[str, typer.Argument(help="Canonical entity name.")],
+    entity_type: Annotated[
+        str, typer.Option("--type", help="Entity type enum value.")
+    ] = "preference",
+    alias: Annotated[
+        list[str] | None, typer.Option("--alias", help="Additional aliases.")
+    ] = None,
+) -> None:
+    """Persist an explicit fact into the context graph."""
+    from astra.cli.client import request
+
+    body = request(
+        console,
+        "POST",
+        "/v1/memory/remember",
+        json={
+            "type": entity_type,
+            "name": name,
+            "aliases": alias or [],
+            "attributes": {},
+        },
+    )
+    console.print(f"remembered {body['type']} {body['name']} -> {body['entity_id']}")
+
+
+@memory_app.command("episodes")
+def memory_episodes(
+    entity_id: Annotated[str | None, typer.Option("--entity", help="Filter by entity id.")] = None,
+    limit: Annotated[int, typer.Option("--limit", help="Max rows.")] = 20,
+) -> None:
+    """List episodic memory records."""
+    from astra.cli.client import request
+
+    params: dict[str, str | int] = {"limit": limit}
+    if entity_id:
+        params["entity_id"] = entity_id
+    body = request(console, "GET", "/v1/memory/episodes", params=params)
+    for item in body["items"]:
+        console.print(f"{item['finished_at']}  {item['outcome']}  {item['summary'][:120]}")
+
+
 def _print_task_line(body: dict[str, object]) -> None:
     console.print(
         f"Task [bold]{body['id']}[/bold] is [bold]{body['status']}[/bold] "

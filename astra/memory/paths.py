@@ -11,6 +11,8 @@ from pathlib import Path
 
 from astra.core.errors import AstraError, ErrorCode, PermissionDeniedError
 
+INGESTIBLE_SUFFIXES = frozenset({".md", ".markdown", ".txt", ".html", ".pdf", ".docx"})
+
 
 def resolve_allowed(path: str, allowed_roots: Sequence[Path]) -> Path:
     if not allowed_roots:
@@ -38,17 +40,24 @@ def resolve_allowed(path: str, allowed_roots: Sequence[Path]) -> Path:
 
 
 def is_ingestible(path: Path) -> bool:
-    return path.suffix.lower() in {".md", ".markdown", ".txt"}
+    return path.suffix.lower() in INGESTIBLE_SUFFIXES
 
 
 def mime_for(path: Path) -> str:
     suffix = path.suffix.lower()
-    if suffix in {".md", ".markdown"}:
-        return "text/markdown"
-    if suffix == ".txt":
-        return "text/plain"
-    raise AstraError(
-        f"Unsupported document type: {suffix}",
-        code=ErrorCode.INVALID_PARAMETERS,
-        detail={"path": str(path)},
-    )
+    mapping = {
+        ".md": "text/markdown",
+        ".markdown": "text/markdown",
+        ".txt": "text/plain",
+        ".html": "text/html",
+        ".pdf": "application/pdf",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    }
+    mime = mapping.get(suffix)
+    if mime is None:
+        raise AstraError(
+            f"Unsupported document type: {suffix}",
+            code=ErrorCode.INVALID_PARAMETERS,
+            detail={"path": str(path)},
+        )
+    return mime

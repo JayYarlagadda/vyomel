@@ -17,6 +17,7 @@ from pydantic import BaseModel
 
 from astra.core.cancel import CancellationToken
 from astra.core.clock import Clock
+from astra.core.config import Settings
 from astra.core.types import Capability
 
 
@@ -36,6 +37,7 @@ class ToolContext:
     deadline: datetime
     cancel: CancellationToken
     clock: Clock
+    settings: Settings | None = None
     # fs.delete moves here rather than unlinking, so a cancel can restore.
     trash_dir: Path | None = None
 

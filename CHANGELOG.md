@@ -5,15 +5,24 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 
 ## [Unreleased]
 
-### M4 — Memory and RAG (in progress)
+### M4 — Memory and RAG
 
-- md/txt ingestion: heading-aware chunks, SHA-256 skip/replace (FR-506), embeddings
-  stored only on `document_chunks` (FR-504). Alembic `0005`.
+- Ingestion: md/txt/html/pdf/docx extractors (`astra/memory/extract.py`); structure-aware
+  chunking; SHA-256 skip/replace (FR-506). Alembic `0005`–`0007`.
+- Embeddings: `BgeEmbedder` via `sentence-transformers` (`[memory]` extra);
+  `get_embedder()` selects hashing in test or `ASTRA_EMBEDDING_BACKEND=hashing|bge|auto`.
 - Hybrid retrieval: HNSW cosine + `tsvector` GIN, fused with RRF k=60 (FR-503).
   Citations include path, heading_path, and char offsets (FR-505).
-- Tests use a deterministic 384-d hashing embedder, not `bge-small-en-v1.5`.
-- API: `POST /v1/memory/ingest`, `POST /v1/memory/query`. CLI: `astra memory ingest|query`.
-  Watch, entity graph, episodes, and forget are not in this slice.
+- Context graph: entities, relations, document→entity link (FR-502). `remember` /
+  `forget` / `get_entity` via API, CLI, and worker tools.
+- Episodic memory (FR-507): episodes recorded on task success; `GET /v1/memory/episodes`.
+- Memory tools: `memory.query`, `memory.get_entity`, `memory.remember`, `memory.forget`.
+- Eval: 100-doc synthetic corpus, 125 questions; recall@10 = 0.928 (hybrid, hashing).
+  Ablation table in `evals/results/2026-09-02-m4/`. NFR-04 met.
+- API: `POST /v1/memory/ingest|query|remember`, `GET /v1/memory/entities|episodes`,
+  `GET|DELETE /v1/memory/entities/{id}`. CLI: `astra memory ingest|query|show|forget|remember|episodes`.
+- Deferred to later milestones: file watch/async jobs, code/csv extractors, salience decay,
+  graph expansion in retrieval, reference resolution (FR-508).
 
 ### M3 — Verification and first real tools (in progress)
 

@@ -95,6 +95,26 @@ rules:
     decision: confirm
     show: [remote, branch, commit_count]
 
+  - id: memory-query
+    match:
+      tool: "memory.query"
+    decision: allow
+
+  - id: memory-get-entity
+    match:
+      tool: "memory.get_entity"
+    decision: allow
+
+  - id: memory-remember
+    match:
+      tool: "memory.remember"
+    decision: allow
+
+  - id: memory-forget
+    match:
+      tool: "memory.forget"
+    decision: confirm
+
 egress:
   deny_by_default: true
   allow_domains:

@@ -4,7 +4,7 @@
 
 Astra is not a chatbot. A chatbot returns text. Astra changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
 
-**Status:** M4 in progress — first memory slice (md/txt ingest, hybrid RRF). M3 verification and operator CLI are in tree. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
+**Status:** M4 complete (memory, RAG, graph, episodes, evals). M3 verification and operator CLI are in tree. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
 
 ---
 
@@ -136,9 +136,11 @@ astra policy show
 astra audit tail --task <task_id>
 astra audit verify
 
-# semantic memory (md/txt; hashing embedder until bge is wired)
+# semantic memory (ingest, query, entities, episodes)
 astra memory ingest .\notes.md
 astra memory query "ZX9QUNIQUE failover"
+astra memory remember "prefers dark mode" --type preference
+astra memory episodes --limit 10
 ```
 
 ---
@@ -151,7 +153,7 @@ No number appears here unless a script in `evals/` reproduces it. Results land a
 |---|---|---|---|
 | Task completion rate (100 multi-step tasks) | ≥ 80 % | — | `evals/suites/agent/` |
 | Tool-call schema validity | ≥ 98 % | — | `evals/suites/agent/` |
-| Retrieval recall@10 (200-doc corpus) | ≥ 0.85 | — | `evals/suites/rag/` |
+| Retrieval recall@10 (200-doc corpus) | ≥ 0.85 | **0.928** (hybrid, hashing) | `evals/results/2026-09-02-m4/` |
 | Verification catch rate on injected faults | 100 % | — | `evals/suites/desktop/` |
 | Lost/duplicated actions under chaos | 0 | — | `evals/suites/longrun/` |
 | Prompt-injection success rate | 0 | — | `evals/suites/security/` |

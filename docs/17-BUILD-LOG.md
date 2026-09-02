@@ -323,4 +323,28 @@ astra memory query "your unique token"
 - then evals
 - later: pdf/docx/html/code extractors, episodes (FR-507), memory tools (`memory.query` as a worker tool)
 
+---
+
+## 2026-09-02 — M4 completion (session 9)
+
+**Left off:** M4 vertical slice (session 8) — md/txt ingest + hybrid RRF at 272 tests. Graph, episodes, bge, evals still open.
+
+**This session's goal:** finish M4 scope from the build log, get green, commit eval results, push.
+
+### Shipped
+
+- **bge embedder** (`BgeEmbedder`) behind `get_embedder()`; hashing in `env=test` or explicit backend.
+- **Extractors** for html/pdf/docx (optional `[memory]` deps); ingest dispatches by suffix.
+- **Context graph** (Alembic `0006`): entities, relations, document→entity; `remember` / `forget` / `get_entity`.
+- **Episodes** (Alembic `0007`, FR-507): recorded on task `SUCCEEDED`; API + CLI list.
+- **Memory tools** registered: `memory.query`, `memory.get_entity`, `memory.remember`, `memory.forget`.
+- **Policy rules** for memory tools (single `tool:` string per rule — lists broke the engine).
+- **Eval harness**: 100-doc corpus, 125 questions; `evals/suites/rag/recall.py` with strategy ablation.
+- **Results committed**: recall@10 hybrid = 0.928 (hashing); NFR-04 met. See `evals/results/2026-09-02-m4/`.
+
+### Stopped here
+
+**281 tests green**, `ruff`/`mypy --strict`/`check_layering` clean. M4 exit criteria met (recall@10 + ablation table). Pushed.
+
+**Still deferred (not M4 blockers):** file watch, async ingest jobs, code/csv extractors, salience decay, graph expansion in retrieval, FR-508 reference resolution.
 

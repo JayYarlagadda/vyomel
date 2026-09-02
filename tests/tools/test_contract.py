@@ -47,6 +47,10 @@ def test_default_registry_meets_the_contract() -> None:
         "git.diff",
         "git.push",
         "git.status",
+        "memory.forget",
+        "memory.get_entity",
+        "memory.query",
+        "memory.remember",
         "shell.run",
         "task.report",
     }

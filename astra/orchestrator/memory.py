@@ -7,15 +7,28 @@ keeps ingest/retrieve behind the orchestrator layering line.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 from typing import Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from astra.core.config import Settings
 from astra.core.errors import AstraError, ErrorCode
+from astra.core.types import EntityType
+from astra.memory.episodes import list_episodes
+from astra.memory.graph import (
+    ForgetReport,
+    forget_entity,
+    get_entity,
+    remember_entity,
+)
+from astra.memory.graph import (
+    list_entities as query_entities,
+)
 from astra.memory.ingest import IngestReport, ingest_paths
 from astra.memory.retrieve import Retrieval, retrieve
-from astra.models.embeddings import Embedder, HashingEmbedder
+from astra.models.embeddings import Embedder, get_embedder
+from astra.store.models import Entity, Episode
 
 Strategy = Literal["hybrid", "vector", "lexical"]
 
@@ -23,7 +36,7 @@ Strategy = Literal["hybrid", "vector", "lexical"]
 class MemoryService:
     def __init__(self, settings: Settings, embedder: Embedder | None = None) -> None:
         self._settings = settings
-        self._embedder = embedder or HashingEmbedder()
+        self._embedder = embedder or get_embedder(settings)
 
     async def ingest(
         self,
@@ -66,3 +79,46 @@ class MemoryService:
             strategy=strategy,
             embedder=self._embedder,
         )
+
+    async def fetch_entity(self, session: AsyncSession, entity_id: str) -> Entity:
+        return await get_entity(session, entity_id)
+
+    async def list_entities(
+        self,
+        session: AsyncSession,
+        *,
+        entity_type: EntityType | None = None,
+        query: str | None = None,
+        limit: int = 50,
+    ) -> list[Entity]:
+        return await query_entities(session, entity_type=entity_type, query=query, limit=limit)
+
+    async def remember(
+        self,
+        session: AsyncSession,
+        *,
+        entity_type: EntityType,
+        name: str,
+        aliases: list[str] | None = None,
+        attributes: dict[str, object] | None = None,
+    ) -> Entity:
+        return await remember_entity(
+            session,
+            entity_type=entity_type,
+            name=name,
+            aliases=aliases,
+            attributes=attributes,
+        )
+
+    async def forget(self, session: AsyncSession, entity_id: str) -> ForgetReport:
+        return await forget_entity(session, entity_id)
+
+    async def fetch_episodes(
+        self,
+        session: AsyncSession,
+        *,
+        entity_id: str | None = None,
+        since: datetime | None = None,
+        limit: int = 50,
+    ) -> list[Episode]:
+        return await list_episodes(session, entity_id=entity_id, since=since, limit=limit)

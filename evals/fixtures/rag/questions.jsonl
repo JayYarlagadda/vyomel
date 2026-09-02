@@ -1,0 +1,125 @@
+{"query": "AXQ00000", "gold_paths": ["orbit/note-00.md"], "category": "exact_identifier"}
+{"query": "gateway retry policy orbit", "gold_paths": ["orbit/note-00.md"], "category": "factual"}
+{"query": "AXQ00001", "gold_paths": ["orbit/note-01.md"], "category": "exact_identifier"}
+{"query": "AXQ00002", "gold_paths": ["orbit/note-02.md"], "category": "exact_identifier"}
+{"query": "AXQ00003", "gold_paths": ["orbit/note-03.md"], "category": "exact_identifier"}
+{"query": "AXQ00004", "gold_paths": ["orbit/note-04.md"], "category": "exact_identifier"}
+{"query": "gateway retry policy orbit", "gold_paths": ["orbit/note-04.md"], "category": "factual"}
+{"query": "AXQ00005", "gold_paths": ["orbit/note-05.md"], "category": "exact_identifier"}
+{"query": "AXQ00006", "gold_paths": ["orbit/note-06.md"], "category": "exact_identifier"}
+{"query": "AXQ00007", "gold_paths": ["orbit/note-07.md"], "category": "exact_identifier"}
+{"query": "AXQ00008", "gold_paths": ["orbit/note-08.md"], "category": "exact_identifier"}
+{"query": "gateway retry policy orbit", "gold_paths": ["orbit/note-08.md"], "category": "factual"}
+{"query": "AXQ00009", "gold_paths": ["orbit/note-09.md"], "category": "exact_identifier"}
+{"query": "AXQ00010", "gold_paths": ["orbit/note-10.md"], "category": "exact_identifier"}
+{"query": "AXQ00011", "gold_paths": ["orbit/note-11.md"], "category": "exact_identifier"}
+{"query": "AXQ00012", "gold_paths": ["orbit/note-12.md"], "category": "exact_identifier"}
+{"query": "gateway retry policy orbit", "gold_paths": ["orbit/note-12.md"], "category": "factual"}
+{"query": "AXQ00013", "gold_paths": ["orbit/note-13.md"], "category": "exact_identifier"}
+{"query": "AXQ00014", "gold_paths": ["orbit/note-14.md"], "category": "exact_identifier"}
+{"query": "AXQ00015", "gold_paths": ["orbit/note-15.md"], "category": "exact_identifier"}
+{"query": "AXQ00016", "gold_paths": ["orbit/note-16.md"], "category": "exact_identifier"}
+{"query": "gateway retry policy orbit", "gold_paths": ["orbit/note-16.md"], "category": "factual"}
+{"query": "AXQ00017", "gold_paths": ["orbit/note-17.md"], "category": "exact_identifier"}
+{"query": "AXQ00018", "gold_paths": ["orbit/note-18.md"], "category": "exact_identifier"}
+{"query": "AXQ00019", "gold_paths": ["orbit/note-19.md"], "category": "exact_identifier"}
+{"query": "AXQ01000", "gold_paths": ["nebula/note-00.md"], "category": "exact_identifier"}
+{"query": "batch scheduler nebula", "gold_paths": ["nebula/note-00.md"], "category": "factual"}
+{"query": "AXQ01001", "gold_paths": ["nebula/note-01.md"], "category": "exact_identifier"}
+{"query": "AXQ01002", "gold_paths": ["nebula/note-02.md"], "category": "exact_identifier"}
+{"query": "AXQ01003", "gold_paths": ["nebula/note-03.md"], "category": "exact_identifier"}
+{"query": "AXQ01004", "gold_paths": ["nebula/note-04.md"], "category": "exact_identifier"}
+{"query": "batch scheduler nebula", "gold_paths": ["nebula/note-04.md"], "category": "factual"}
+{"query": "AXQ01005", "gold_paths": ["nebula/note-05.md"], "category": "exact_identifier"}
+{"query": "AXQ01006", "gold_paths": ["nebula/note-06.md"], "category": "exact_identifier"}
+{"query": "AXQ01007", "gold_paths": ["nebula/note-07.md"], "category": "exact_identifier"}
+{"query": "AXQ01008", "gold_paths": ["nebula/note-08.md"], "category": "exact_identifier"}
+{"query": "batch scheduler nebula", "gold_paths": ["nebula/note-08.md"], "category": "factual"}
+{"query": "AXQ01009", "gold_paths": ["nebula/note-09.md"], "category": "exact_identifier"}
+{"query": "AXQ01010", "gold_paths": ["nebula/note-10.md"], "category": "exact_identifier"}
+{"query": "AXQ01011", "gold_paths": ["nebula/note-11.md"], "category": "exact_identifier"}
+{"query": "AXQ01012", "gold_paths": ["nebula/note-12.md"], "category": "exact_identifier"}
+{"query": "batch scheduler nebula", "gold_paths": ["nebula/note-12.md"], "category": "factual"}
+{"query": "AXQ01013", "gold_paths": ["nebula/note-13.md"], "category": "exact_identifier"}
+{"query": "AXQ01014", "gold_paths": ["nebula/note-14.md"], "category": "exact_identifier"}
+{"query": "AXQ01015", "gold_paths": ["nebula/note-15.md"], "category": "exact_identifier"}
+{"query": "AXQ01016", "gold_paths": ["nebula/note-16.md"], "category": "exact_identifier"}
+{"query": "batch scheduler nebula", "gold_paths": ["nebula/note-16.md"], "category": "factual"}
+{"query": "AXQ01017", "gold_paths": ["nebula/note-17.md"], "category": "exact_identifier"}
+{"query": "AXQ01018", "gold_paths": ["nebula/note-18.md"], "category": "exact_identifier"}
+{"query": "AXQ01019", "gold_paths": ["nebula/note-19.md"], "category": "exact_identifier"}
+{"query": "AXQ02000", "gold_paths": ["atlas/note-00.md"], "category": "exact_identifier"}
+{"query": "invoice reconciliation atlas", "gold_paths": ["atlas/note-00.md"], "category": "factual"}
+{"query": "AXQ02001", "gold_paths": ["atlas/note-01.md"], "category": "exact_identifier"}
+{"query": "AXQ02002", "gold_paths": ["atlas/note-02.md"], "category": "exact_identifier"}
+{"query": "AXQ02003", "gold_paths": ["atlas/note-03.md"], "category": "exact_identifier"}
+{"query": "AXQ02004", "gold_paths": ["atlas/note-04.md"], "category": "exact_identifier"}
+{"query": "invoice reconciliation atlas", "gold_paths": ["atlas/note-04.md"], "category": "factual"}
+{"query": "AXQ02005", "gold_paths": ["atlas/note-05.md"], "category": "exact_identifier"}
+{"query": "AXQ02006", "gold_paths": ["atlas/note-06.md"], "category": "exact_identifier"}
+{"query": "AXQ02007", "gold_paths": ["atlas/note-07.md"], "category": "exact_identifier"}
+{"query": "AXQ02008", "gold_paths": ["atlas/note-08.md"], "category": "exact_identifier"}
+{"query": "invoice reconciliation atlas", "gold_paths": ["atlas/note-08.md"], "category": "factual"}
+{"query": "AXQ02009", "gold_paths": ["atlas/note-09.md"], "category": "exact_identifier"}
+{"query": "AXQ02010", "gold_paths": ["atlas/note-10.md"], "category": "exact_identifier"}
+{"query": "AXQ02011", "gold_paths": ["atlas/note-11.md"], "category": "exact_identifier"}
+{"query": "AXQ02012", "gold_paths": ["atlas/note-12.md"], "category": "exact_identifier"}
+{"query": "invoice reconciliation atlas", "gold_paths": ["atlas/note-12.md"], "category": "factual"}
+{"query": "AXQ02013", "gold_paths": ["atlas/note-13.md"], "category": "exact_identifier"}
+{"query": "AXQ02014", "gold_paths": ["atlas/note-14.md"], "category": "exact_identifier"}
+{"query": "AXQ02015", "gold_paths": ["atlas/note-15.md"], "category": "exact_identifier"}
+{"query": "AXQ02016", "gold_paths": ["atlas/note-16.md"], "category": "exact_identifier"}
+{"query": "invoice reconciliation atlas", "gold_paths": ["atlas/note-16.md"], "category": "factual"}
+{"query": "AXQ02017", "gold_paths": ["atlas/note-17.md"], "category": "exact_identifier"}
+{"query": "AXQ02018", "gold_paths": ["atlas/note-18.md"], "category": "exact_identifier"}
+{"query": "AXQ02019", "gold_paths": ["atlas/note-19.md"], "category": "exact_identifier"}
+{"query": "AXQ03000", "gold_paths": ["resume/note-00.md"], "category": "exact_identifier"}
+{"query": "backend role resume", "gold_paths": ["resume/note-00.md"], "category": "factual"}
+{"query": "AXQ03001", "gold_paths": ["resume/note-01.md"], "category": "exact_identifier"}
+{"query": "AXQ03002", "gold_paths": ["resume/note-02.md"], "category": "exact_identifier"}
+{"query": "AXQ03003", "gold_paths": ["resume/note-03.md"], "category": "exact_identifier"}
+{"query": "AXQ03004", "gold_paths": ["resume/note-04.md"], "category": "exact_identifier"}
+{"query": "backend role resume", "gold_paths": ["resume/note-04.md"], "category": "factual"}
+{"query": "AXQ03005", "gold_paths": ["resume/note-05.md"], "category": "exact_identifier"}
+{"query": "AXQ03006", "gold_paths": ["resume/note-06.md"], "category": "exact_identifier"}
+{"query": "AXQ03007", "gold_paths": ["resume/note-07.md"], "category": "exact_identifier"}
+{"query": "AXQ03008", "gold_paths": ["resume/note-08.md"], "category": "exact_identifier"}
+{"query": "backend role resume", "gold_paths": ["resume/note-08.md"], "category": "factual"}
+{"query": "AXQ03009", "gold_paths": ["resume/note-09.md"], "category": "exact_identifier"}
+{"query": "AXQ03010", "gold_paths": ["resume/note-10.md"], "category": "exact_identifier"}
+{"query": "AXQ03011", "gold_paths": ["resume/note-11.md"], "category": "exact_identifier"}
+{"query": "AXQ03012", "gold_paths": ["resume/note-12.md"], "category": "exact_identifier"}
+{"query": "backend role resume", "gold_paths": ["resume/note-12.md"], "category": "factual"}
+{"query": "AXQ03013", "gold_paths": ["resume/note-13.md"], "category": "exact_identifier"}
+{"query": "AXQ03014", "gold_paths": ["resume/note-14.md"], "category": "exact_identifier"}
+{"query": "AXQ03015", "gold_paths": ["resume/note-15.md"], "category": "exact_identifier"}
+{"query": "AXQ03016", "gold_paths": ["resume/note-16.md"], "category": "exact_identifier"}
+{"query": "backend role resume", "gold_paths": ["resume/note-16.md"], "category": "factual"}
+{"query": "AXQ03017", "gold_paths": ["resume/note-17.md"], "category": "exact_identifier"}
+{"query": "AXQ03018", "gold_paths": ["resume/note-18.md"], "category": "exact_identifier"}
+{"query": "AXQ03019", "gold_paths": ["resume/note-19.md"], "category": "exact_identifier"}
+{"query": "AXQ04000", "gold_paths": ["cs151/note-00.md"], "category": "exact_identifier"}
+{"query": "grading rubric cs151", "gold_paths": ["cs151/note-00.md"], "category": "factual"}
+{"query": "AXQ04001", "gold_paths": ["cs151/note-01.md"], "category": "exact_identifier"}
+{"query": "AXQ04002", "gold_paths": ["cs151/note-02.md"], "category": "exact_identifier"}
+{"query": "AXQ04003", "gold_paths": ["cs151/note-03.md"], "category": "exact_identifier"}
+{"query": "AXQ04004", "gold_paths": ["cs151/note-04.md"], "category": "exact_identifier"}
+{"query": "grading rubric cs151", "gold_paths": ["cs151/note-04.md"], "category": "factual"}
+{"query": "AXQ04005", "gold_paths": ["cs151/note-05.md"], "category": "exact_identifier"}
+{"query": "AXQ04006", "gold_paths": ["cs151/note-06.md"], "category": "exact_identifier"}
+{"query": "AXQ04007", "gold_paths": ["cs151/note-07.md"], "category": "exact_identifier"}
+{"query": "AXQ04008", "gold_paths": ["cs151/note-08.md"], "category": "exact_identifier"}
+{"query": "grading rubric cs151", "gold_paths": ["cs151/note-08.md"], "category": "factual"}
+{"query": "AXQ04009", "gold_paths": ["cs151/note-09.md"], "category": "exact_identifier"}
+{"query": "AXQ04010", "gold_paths": ["cs151/note-10.md"], "category": "exact_identifier"}
+{"query": "AXQ04011", "gold_paths": ["cs151/note-11.md"], "category": "exact_identifier"}
+{"query": "AXQ04012", "gold_paths": ["cs151/note-12.md"], "category": "exact_identifier"}
+{"query": "grading rubric cs151", "gold_paths": ["cs151/note-12.md"], "category": "factual"}
+{"query": "AXQ04013", "gold_paths": ["cs151/note-13.md"], "category": "exact_identifier"}
+{"query": "AXQ04014", "gold_paths": ["cs151/note-14.md"], "category": "exact_identifier"}
+{"query": "AXQ04015", "gold_paths": ["cs151/note-15.md"], "category": "exact_identifier"}
+{"query": "AXQ04016", "gold_paths": ["cs151/note-16.md"], "category": "exact_identifier"}
+{"query": "grading rubric cs151", "gold_paths": ["cs151/note-16.md"], "category": "factual"}
+{"query": "AXQ04017", "gold_paths": ["cs151/note-17.md"], "category": "exact_identifier"}
+{"query": "AXQ04018", "gold_paths": ["cs151/note-18.md"], "category": "exact_identifier"}
+{"query": "AXQ04019", "gold_paths": ["cs151/note-19.md"], "category": "exact_identifier"}

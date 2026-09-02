@@ -160,7 +160,7 @@ class Scheduler:
             task = await self._dispatcher.maybe_start_task(session, task, now=now) or task
         await _sync_steps(step_repo, steps, actions)
         await _block_if_awaiting_user(session, task, actions)
-        await _complete_if_done(session, task, actions, steps, now)
+        await _complete_if_done(session, task, actions, steps, now, self._settings)
         return published
 
 
@@ -235,6 +235,7 @@ async def _complete_if_done(
     actions: list[Action],
     steps: list[Step],
     now: datetime,
+    settings: Settings,
 ) -> None:
     if any(not a.status.is_terminal for a in actions):
         return
@@ -285,3 +286,8 @@ async def _complete_if_done(
         finished_at=now,
         result=reports[-1] if reports else {"actions_succeeded": len(actions)},
     )
+    from astra.memory.episodes import record_episode
+
+    task.status = dest
+    task.finished_at = now
+    await record_episode(session, task=task, actions=actions, settings=settings)

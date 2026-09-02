@@ -45,7 +45,7 @@ async def test_markdown_file_becomes_chunks_with_embeddings(
         )
         assert chunks
         assert all(len(chunk.embedding) == 384 for chunk in chunks)
-        assert all(chunk.embedding_model == HashingEmbedder.name for chunk in chunks)
+        assert all(chunk.embedding_model == HashingEmbedder().name for chunk in chunks)
 
 
 @pytest.mark.integration

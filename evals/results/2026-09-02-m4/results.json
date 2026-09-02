@@ -1,0 +1,19 @@
+{
+  "milestone": "M4",
+  "date": "2026-09-02",
+  "corpus": "evals/fixtures/corpus",
+  "questions": "evals/fixtures/rag/questions.jsonl",
+  "question_count": 125,
+  "document_count": 100,
+  "k": 10,
+  "embedder": "hashing-384",
+  "metrics": {
+    "recall_at_10": {
+      "hybrid": 0.928,
+      "lexical": 0.92,
+      "vector": 0.152
+    }
+  },
+  "nfr_04_target": 0.85,
+  "nfr_04_pass": true
+}

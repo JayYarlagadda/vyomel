@@ -168,6 +168,30 @@ class TaskOrigin(StrEnum):
     WORKFLOW = "workflow"
 
 
+class EntityType(StrEnum):
+    PERSON = "person"
+    PROJECT = "project"
+    DOCUMENT = "document"
+    APPLICATION = "application"
+    TASK_REF = "task_ref"
+    PREFERENCE = "preference"
+    WORKFLOW = "workflow"
+    ORGANIZATION = "organization"
+    EVENT = "event"
+    PLACE = "place"
+
+
+class EntityRelationType(StrEnum):
+    BELONGS_TO = "belongs_to"
+    AUTHORED_BY = "authored_by"
+    MENTIONS = "mentions"
+    DEPENDS_ON = "depends_on"
+    SCHEDULED_FOR = "scheduled_for"
+    LOCATED_AT = "located_at"
+    RELATED_TO = "related_to"
+    DERIVED_FROM = "derived_from"
+
+
 class ActuationTier(StrEnum):
     """Control hierarchy from docs/02-ARCHITECTURE.md section 6.
 

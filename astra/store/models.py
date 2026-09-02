@@ -34,6 +34,8 @@ from astra.core.types import (
     ActionStatus,
     ApprovalStatus,
     Capability,
+    EntityRelationType,
+    EntityType,
     StepStatus,
     TaskOrigin,
     TaskStatus,
@@ -404,6 +406,9 @@ class Document(Base):
     __tablename__ = "documents"
 
     id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    entity_id: Mapped[str | None] = mapped_column(
+        ForeignKey("entities.id", ondelete="SET NULL"), nullable=True
+    )
     path: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     mime: Mapped[str] = mapped_column(Text, nullable=False)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -416,6 +421,7 @@ class Document(Base):
     chunks: Mapped[list[DocumentChunk]] = relationship(
         back_populates="document", cascade="all, delete-orphan"
     )
+    entity: Mapped[Entity | None] = relationship(back_populates="documents")
 
 
 class DocumentChunk(Base):
@@ -442,3 +448,107 @@ class DocumentChunk(Base):
     document: Mapped[Document] = relationship(back_populates="chunks")
 
     __table_args__ = (Index("ix_document_chunks_document_id", "document_id"),)
+
+
+class Entity(Base):
+    """A node in the personal context graph (docs/03 §4.1)."""
+
+    __tablename__ = "entities"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    type: Mapped[EntityType] = mapped_column(_pg_enum(EntityType, "entity_type"), nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    aliases: Mapped[list[str]] = mapped_column(
+        ARRAY(Text), nullable=False, server_default=text("'{}'")
+    )
+    attributes: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+    salience: Mapped[float] = mapped_column(nullable=False, default=1.0)
+    source: Mapped[str] = mapped_column(Text, nullable=False)
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    documents: Mapped[list[Document]] = relationship(back_populates="entity")
+    outgoing_relations: Mapped[list[EntityRelation]] = relationship(
+        back_populates="from_entity",
+        foreign_keys="EntityRelation.from_id",
+        cascade="all, delete-orphan",
+    )
+    incoming_relations: Mapped[list[EntityRelation]] = relationship(
+        back_populates="to_entity",
+        foreign_keys="EntityRelation.to_id",
+        cascade="all, delete-orphan",
+    )
+
+    __table_args__ = (
+        Index("ix_entities_name_tsv", text("to_tsvector('english', name)"), postgresql_using="gin"),
+        Index("ix_entities_aliases", "aliases", postgresql_using="gin"),
+    )
+
+
+class EntityRelation(Base):
+    """A typed edge in the context graph (docs/03 §4.2)."""
+
+    __tablename__ = "entity_relations"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    from_id: Mapped[str] = mapped_column(
+        ForeignKey("entities.id", ondelete="CASCADE"), nullable=False
+    )
+    relation: Mapped[EntityRelationType] = mapped_column(
+        _pg_enum(EntityRelationType, "entity_relation"), nullable=False
+    )
+    to_id: Mapped[str] = mapped_column(
+        ForeignKey("entities.id", ondelete="CASCADE"), nullable=False
+    )
+    confidence: Mapped[float] = mapped_column(nullable=False, default=1.0)
+    evidence_ref: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    from_entity: Mapped[Entity] = relationship(
+        back_populates="outgoing_relations", foreign_keys=[from_id]
+    )
+    to_entity: Mapped[Entity] = relationship(
+        back_populates="incoming_relations", foreign_keys=[to_id]
+    )
+
+    __table_args__ = (
+        Index("ix_entity_relations_from_id", "from_id"),
+        Index("ix_entity_relations_to_id", "to_id"),
+        Index(
+            "uq_entity_relations_from_relation_to",
+            "from_id",
+            "relation",
+            "to_id",
+            unique=True,
+        ),
+    )
+
+
+class Episode(Base):
+    """Compact record of a completed task (docs/03 §4.4, FR-507)."""
+
+    __tablename__ = "episodes"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    task_id: Mapped[str] = mapped_column(
+        ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    entity_ids: Mapped[list[str]] = mapped_column(
+        ARRAY(Text), nullable=False, server_default=text("'{}'")
+    )
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    outcome: Mapped[str] = mapped_column(Text, nullable=False)
+    tools_used: Mapped[list[str]] = mapped_column(
+        ARRAY(Text), nullable=False, server_default=text("'{}'")
+    )
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    embedding: Mapped[list[float]] = mapped_column(AsyncpgVector(384), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(Text, nullable=False)
+
+    __table_args__ = (
+        Index("ix_episodes_finished_at", "finished_at"),
+        Index("ix_episodes_entity_ids", "entity_ids", postgresql_using="gin"),
+    )
