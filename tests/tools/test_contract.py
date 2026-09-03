@@ -54,11 +54,21 @@ def test_default_registry_meets_the_contract() -> None:
         "shell.run",
         "task.report",
         "web.fetch_mock",
+        "browser.open",
+        "browser.read_page",
+        "browser.query",
+        "browser.click",
+        "browser.type",
+        "browser.select",
+        "browser.scroll",
+        "browser.submit",
+        "browser.screenshot",
+        "browser.download",
     }
     by_name = {s.name: s for s in registry.catalog()}
     for spec in by_name.values():
         assert spec.input_schema
-        assert spec.actuation_tier == 1
+        assert 1 <= spec.actuation_tier <= 4
     assert by_name["fs.write_file"].base_capability is Capability.L1
     assert by_name["fs.write_file"].reversible is True
     assert by_name["fs.move"].base_capability is Capability.L2

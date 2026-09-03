@@ -132,14 +132,13 @@ Deferred: OS-level `kill -9` subprocess harness (DB-state injection is the porta
 
 ---
 
-### M7 — Browser agent *(weeks 11–12)*
-
-- Playwright integration with a dedicated persistent profile
-- Accessibility-tree-first element resolution; DOM second; coordinates last
-- Tools per `05-TOOL-SPEC.md` §3.3
-- Fixture sites + `evals/suites/browser/` with DOM-perturbation robustness
+### M7 — Browser agent *(weeks 11–12)* — done (2026-09-02)
 
 **Exit:** ≥ 80 % success on 40 browser workflows; measured actuation-tier distribution.
+
+Shipped: Playwright integration (optional backend), persistent profile dir, accessibility-first element resolver (tier 2 → DOM 3 → coordinates 4), full `05` §3.3 tool surface, HTML fixtures with perturbation variant, `evals/suites/browser/` (40 workflows, 1.0 success on fixture backend). See `evals/results/2026-09-02-m7/`.
+
+Deferred: Playwright-backed eval in default CI image; `element_exists` verifier for live pages.
 
 ---
 
@@ -235,7 +234,7 @@ Deferred: OS-level `kill -9` subprocess harness (DB-state injection is the porta
 ## 5. Critical path and risk ordering
 
 ```
-M0 ──► M1 ──► M2 ──► M3 ──► M5 ──► M6 ──► everything else
+M0 ──► M1 ──► M2 ──► M3 ──► M5 ──► M6 ──► M7 ──► everything else
        ▲ hardest, highest value, must not be rushed
                      M4 can proceed in parallel with M2/M3
 ```

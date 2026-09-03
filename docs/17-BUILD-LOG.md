@@ -438,3 +438,20 @@ astra memory query "your unique token"
 
 **Deferred:** real subprocess SIGKILL harness (portable DB injection covers the recovery path); nightly `--mode chaos` run.
 
+---
+
+## 2026-09-02 — M7 browser agent (session 15)
+
+**Left off:** M6 complete at `a625359`. Browser tools and eval suite open.
+
+**This session's goal:** M7 exit — Playwright-backed browser tools, fixture pages, 40-workflow eval ≥ 80 %.
+
+### Shipped
+
+- **`astra/tools/browser/`** — accessibility-first resolver, fixture backend, optional Playwright persistent profile, 10 tools (`browser.open` … `browser.download`).
+- **Fixture pages** — job board (incl. perturbed), gradebook, form app, paginated table.
+- **`evals/suites/browser/`** — 40 workflows, `success_rate` = 1.0 on fixture backend.
+- **Tests:** `tests/tools/test_browser.py` (FR-604). **Results:** `evals/results/2026-09-02-m7/`.
+
+**Deferred:** live Playwright eval in CI (needs `pip install astra[browser]` + `playwright install`); `element_exists` verifier wiring for browser postconditions.
+

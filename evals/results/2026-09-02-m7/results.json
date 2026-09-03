@@ -1,0 +1,14 @@
+{
+  "milestone": "M7",
+  "date": "2026-09-02",
+  "suite": "evals/suites/browser/run.py",
+  "backend": "fixture",
+  "workflows": 40,
+  "passed": 40,
+  "success_rate": 1.0,
+  "actuation_tier_distribution": {
+    "2": 120,
+    "3": 80,
+    "4": 40
+  }
+}

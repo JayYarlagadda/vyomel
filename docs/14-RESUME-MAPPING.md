@@ -25,7 +25,7 @@ The resume already lists Astra. That inverts the usual order: instead of buildin
 | C1 | "persistent … platform" | Postgres-as-truth; `tests/runtime/test_persistence.py`; restart survives | M0–M1 | ◐ tasks, steps, and actions persist; worker crash-replay in `test_crash_recovery.py` |
 | C2 | "converts natural-language requests into … multi-step workflows" | `astra/planner/`; `tests/planner/test_dag.py`; `evals/suites/agent/` | M5 | ☐ |
 | C3 | "permission-aware" | `astra/security/`; capability lattice; `tests/security/` | M2 | ☑ classification with escalation, default-deny policy, L4 invariant under Hypothesis fuzzing, single-use approvals bound to parameters and level, hash-chained append-only audit |
-| C4 | "across browser … tools" | `astra/tools/browser/`; `evals/suites/browser/` | M7 | ☐ |
+| C4 | "across browser … tools" | `astra/tools/browser/`; `evals/suites/browser/` | M7 | ☑ 40 fixture workflows, 1.0 success_rate, a11y-first resolver |
 | C5 | "… desktop …" | `astra/tools/desktop/`; `evals/suites/desktop/` | M8 | ☐ |
 | C6 | "… and API tools" | `astra/tools/api/` (Gmail, Calendar, GitHub) | M9 | ☐ |
 | C7 | "RAG-based personal context" | `astra/memory/`; hybrid retrieval; `evals/suites/rag/` | M4 | ◐ md/txt ingest, hashing embedder, hybrid RRF + citations; bge/evals still open |

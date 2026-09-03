@@ -98,6 +98,10 @@ class Settings(BaseSettings):
     planner_backend: Literal["auto", "mock", "mock-alt", "openai", "local"] = "auto"
     offline: bool = False
 
+    # --- browser ---
+    browser_backend: Literal["auto", "fixture", "playwright"] = "auto"
+    browser_fixtures_dir: Path = Path("astra/tools/browser/fixtures")
+
     # --- observability ---
     otel_enabled: bool = False
     otel_endpoint: str = "http://localhost:4317"
@@ -152,12 +156,22 @@ class Settings(BaseSettings):
         return self.workspace_root / "blobs"
 
     @property
+    def browser_profile_dir(self) -> Path:
+        return self.workspace_root / "browser-profile"
+
+    @property
     def sync_database_url(self) -> str:
         """Alembic and other sync consumers need the psycopg-free driver stripped."""
         return self.database_url.replace("+asyncpg", "")
 
     def ensure_directories(self) -> None:
-        for directory in (self.workspace_root, self.scratch_dir, self.trash_dir, self.blob_dir):
+        for directory in (
+            self.workspace_root,
+            self.scratch_dir,
+            self.trash_dir,
+            self.blob_dir,
+            self.browser_profile_dir,
+        ):
             directory.mkdir(parents=True, exist_ok=True)
 
 

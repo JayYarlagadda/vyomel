@@ -140,7 +140,7 @@ plugins = ["pydantic.mypy"]
 exclude = ["^evals/", "^\\.venv/"]
 
 [[tool.mypy.overrides]]
-module = ["uiautomation.*", "pywinauto.*", "mss.*", "pgvector.*", "trafilatura.*", "sentence_transformers.*"]
+module = ["uiautomation.*", "pywinauto.*", "mss.*", "pgvector.*", "trafilatura.*", "sentence_transformers.*", "playwright.*"]
 ignore_missing_imports = true
 
 # ----------------------------------------------------------------------------
