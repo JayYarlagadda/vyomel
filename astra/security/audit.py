@@ -43,6 +43,7 @@ class AuditEvent:
     """Event type constants. Strings, but not string literals scattered in code."""
 
     TASK_CREATED = "task.created"
+    PLAN_REQUESTED = "plan.requested"
     PLAN_INSTALLED = "plan.installed"
     POLICY_ALLOWED = "policy.allowed"
     POLICY_CONFIRM = "policy.confirm_required"

@@ -34,7 +34,8 @@ async def test_create_task_persists_and_is_retrievable(client: AsyncClient) -> N
     )
     assert response.status_code == 201
     created = response.json()
-    assert created["status"] == "CREATED"
+    assert created["status"] == "READY"
+    assert created["plan_version"] == 1
     assert created["capability_ceiling"] == "L1"
     assert created["deadline_at"] is not None
 
@@ -75,7 +76,7 @@ async def test_invalid_instruction_is_rejected(client: AsyncClient) -> None:
 
 
 async def test_list_tasks_filters_by_status(client: AsyncClient) -> None:
-    await client.post("/v1/tasks", json={"instruction": "one"})
-    response = await client.get("/v1/tasks", params={"status": "CREATED", "limit": 5})
+    await client.post("/v1/tasks", json={"instruction": "summarize inbox", "dry_run": True})
+    response = await client.get("/v1/tasks", params={"status": "PLANNING", "limit": 5})
     assert response.status_code == 200
-    assert all(item["status"] == "CREATED" for item in response.json()["items"])
+    assert all(item["status"] == "PLANNING" for item in response.json()["items"])

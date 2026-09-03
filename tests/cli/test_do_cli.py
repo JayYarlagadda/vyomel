@@ -34,7 +34,7 @@ def _task(**overrides: Any) -> dict[str, Any]:
 
 @pytest.mark.req("FR-101")
 def test_do_posts_instruction_and_ceiling(recorder: Install) -> None:
-    rec = recorder({("POST", "/v1/tasks"): _task()})
+    rec = recorder({("POST", "/v1/tasks"): _task(status="READY", plan_version=1)})
 
     result = runner.invoke(app, ["do", "list docs", "--ceiling", "L1"])
 
@@ -44,8 +44,7 @@ def test_do_posts_instruction_and_ceiling(recorder: Install) -> None:
     assert sent["capability_ceiling"] == "L1"
     assert sent["origin"] == "cli"
     assert sent["dry_run"] is False
-    assert "01TASK" in result.output
-    assert "CREATED" in result.output
+    assert "READY" in result.output
 
 
 def test_do_attaches_a_plan_file(recorder: Install, tmp_path: Path) -> None:

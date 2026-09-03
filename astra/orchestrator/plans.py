@@ -6,15 +6,13 @@ test) supplies. The runtime executes it; this module only persists it.
 
 from __future__ import annotations
 
-from typing import Any
-
-from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from astra.core.clock import Clock, SystemClock
 from astra.core.config import Settings
 from astra.core.errors import AstraError, ErrorCode
 from astra.core.ids import content_hash, idempotency_key, new_id
+from astra.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
 from astra.core.types import ActionStatus, StepStatus, TaskStatus, Trust
 from astra.runtime.dag import ActionNode, CyclicPlanError, validate_acyclic
 from astra.runtime.state import TaskTrigger, apply_task
@@ -30,34 +28,14 @@ class PlanError(AstraError):
     code = ErrorCode.INVALID_PARAMETERS
 
 
-class ActionSpec(BaseModel):
-    alias: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
-    tool: str
-    parameters: dict[str, Any] = Field(default_factory=dict)
-    depends_on: list[str] = Field(default_factory=list)
-
-
-class StepSpec(BaseModel):
-    alias: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
-    title: str = Field(min_length=1, max_length=200)
-    intent: str = Field(min_length=1, max_length=2_000)
-    actions: list[ActionSpec] = Field(min_length=1)
-    depends_on: list[str] = Field(default_factory=list)
-    tolerates_unverified: bool = False
-
-
-class HandwrittenPlan(BaseModel):
-    steps: list[StepSpec] = Field(min_length=1)
-
-    @model_validator(mode="after")
-    def _unique_aliases(self) -> HandwrittenPlan:
-        step_aliases = [s.alias for s in self.steps]
-        if len(step_aliases) != len(set(step_aliases)):
-            raise ValueError("step aliases must be unique")
-        action_aliases = [a.alias for s in self.steps for a in s.actions]
-        if len(action_aliases) != len(set(action_aliases)):
-            raise ValueError("action aliases must be unique across the plan")
-        return self
+# Re-exported for callers that imported plan types from here before M5.
+__all__ = [
+    "ActionSpec",
+    "HandwrittenPlan",
+    "PlanError",
+    "PlanService",
+    "StepSpec",
+]
 
 
 class PlanService:
@@ -81,7 +59,14 @@ class PlanService:
         # level at dispatch; it does not re-derive it.
         self._escalation = escalation or store_for(settings).get().escalation
 
-    async def install(self, task: Task, plan: HandwrittenPlan, *, activate: bool = True) -> Task:
+    async def install(
+        self,
+        task: Task,
+        plan: HandwrittenPlan,
+        *,
+        activate: bool = True,
+        trust: Trust = Trust.USER,
+    ) -> Task:
         """Persist a classified DAG. ``activate=False`` is dry-run: the rows exist
         so ``GET /plan`` is truthful, but the task stays ``PLANNING`` and the
         scheduler will not dispatch.
@@ -96,7 +81,7 @@ class PlanService:
             raise PlanError(f"task {task.id} could not enter PLANNING from {task.status}")
 
         try:
-            steps, actions, edges = self._materialize(task, plan)
+            steps, actions, edges = self._materialize(task, plan, trust=trust)
         except (PlanError, CyclicPlanError) as exc:
             dest = apply_task(TaskStatus.PLANNING, TaskTrigger.PLAN_INVALID)
             await repo.cas_status(
@@ -126,7 +111,7 @@ class PlanService:
             updated = task
         await self._audit.append(
             self._session,
-            actor="orchestrator:handwritten",
+            actor="orchestrator:handwritten" if trust is Trust.USER else "orchestrator:planner",
             event_type=AuditEvent.PLAN_INSTALLED,
             task_id=task.id,
             capability_level=max(a.capability_level for a in actions),
@@ -149,7 +134,7 @@ class PlanService:
         return steps, actions
 
     def _materialize(
-        self, task: Task, plan: HandwrittenPlan
+        self, task: Task, plan: HandwrittenPlan, *, trust: Trust
     ) -> tuple[list[Step], list[Action], list[StepEdge]]:
         step_ids = {spec.alias: new_id() for spec in plan.steps}
         action_ids = {a.alias: new_id() for s in plan.steps for a in s.actions}
@@ -240,11 +225,9 @@ class PlanService:
                         parameters=parameters,
                         base=tool.classify(parsed),
                         actuation_tier=tool.actuation_tier,
-                        # A handwritten plan is the user speaking directly. When
-                        # M5 generates plans from model output derived from
-                        # fetched content, that trust level changes and taint
-                        # escalation starts firing here.
-                        trust=Trust.USER,
+                        # Handwritten plans are USER trust; planner output is
+                        # TOOL_UNTRUSTED until boundary markers exist (M5).
+                        trust=trust,
                     ),
                     self._escalation,
                 )

@@ -227,14 +227,14 @@ def do(
     dry_run: Annotated[bool, typer.Option(help="Install a plan without dispatching it.")] = False,
     plan: Annotated[
         Path | None,
-        typer.Option(help="Handwritten plan JSON (M5 will generate this from the instruction)."),
+        typer.Option(help="Handwritten plan JSON (bypasses the planner)."),
     ] = None,
     watch: Annotated[bool, typer.Option(help="Poll until the task settles or waits for you.")] = (
         False
     ),
     interval: Annotated[float, typer.Option(help="Watch poll interval, seconds.")] = 1.0,
 ) -> None:
-    """Create a task. Without a planner, pass --plan to run a handwritten DAG."""
+    """Create a task. The M5 planner decomposes the instruction unless --plan is given."""
     from astra.cli.client import request
 
     payload: dict[str, object] = {
@@ -257,12 +257,7 @@ def do(
     body = request(console, "POST", "/v1/tasks", json=payload)
     _print_task_line(body)
     status = str(body["status"])
-    if status == "CREATED":
-        console.print(
-            "[dim]No plan yet. Pass --plan until the M5 planner exists, or "
-            "POST a handwritten plan.[/dim]"
-        )
-    elif status == "PLANNING" and dry_run:
+    if status == "PLANNING" and dry_run:
         console.print("[dim]dry-run: plan installed and classified; not dispatched.[/dim]")
     if watch and status not in {"CREATED", "PLANNING"}:
         _watch_task(body["id"], interval=interval)
@@ -465,9 +460,7 @@ def memory_remember(
     entity_type: Annotated[
         str, typer.Option("--type", help="Entity type enum value.")
     ] = "preference",
-    alias: Annotated[
-        list[str] | None, typer.Option("--alias", help="Additional aliases.")
-    ] = None,
+    alias: Annotated[list[str] | None, typer.Option("--alias", help="Additional aliases.")] = None,
 ) -> None:
     """Persist an explicit fact into the context graph."""
     from astra.cli.client import request

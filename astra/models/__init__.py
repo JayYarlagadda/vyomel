@@ -1,4 +1,4 @@
-"""Model providers. Embeddings land first; chat routing is M5."""
+"""Model providers. Embeddings and chat routing."""
 
 from astra.models.embeddings import (
     EMBEDDING_DIM,
@@ -7,6 +7,7 @@ from astra.models.embeddings import (
     HashingEmbedder,
     get_embedder,
 )
+from astra.models.router import get_planner_provider
 
 __all__ = [
     "EMBEDDING_DIM",
@@ -14,4 +15,5 @@ __all__ = [
     "Embedder",
     "HashingEmbedder",
     "get_embedder",
+    "get_planner_provider",
 ]

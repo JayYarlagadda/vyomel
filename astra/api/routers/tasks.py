@@ -27,6 +27,7 @@ from astra.api.schemas import (
 )
 from astra.core.config import Settings, get_settings
 from astra.core.types import TaskStatus
+from astra.orchestrator.planning import create_task as create_planned_task
 from astra.orchestrator.plans import PlanService
 from astra.orchestrator.runtime import get_registry
 from astra.orchestrator.tasks import TaskBounds, TaskProgressCounts, TaskService
@@ -80,16 +81,18 @@ async def create_task(
     hints = dict(payload.context_hints)
     if payload.dry_run:
         hints["dry_run"] = True
-    task = await service.create(
+    task = await create_planned_task(
+        session,
+        settings,
+        get_registry(),
         instruction=payload.instruction,
         origin=payload.origin,
         capability_ceiling=payload.capability_ceiling,
         context_hints=hints,
         bounds=bounds,
+        plan_override=payload.plan,
+        dry_run=payload.dry_run,
     )
-    if payload.plan is not None:
-        planner = PlanService(session, settings, get_registry())
-        task = await planner.install(task, payload.plan, activate=not payload.dry_run)
     return _to_response(task, await service.progress(task.id))
 
 

@@ -89,6 +89,7 @@ class Settings(BaseSettings):
     embedding_model: str = "BAAI/bge-small-en-v1.5"
     # auto: hashing in test, bge elsewhere. hashing forces the test stand-in.
     embedding_backend: Literal["auto", "hashing", "bge"] = "auto"
+    planner_backend: Literal["auto", "mock"] = "auto"
     offline: bool = False
 
     # --- observability ---

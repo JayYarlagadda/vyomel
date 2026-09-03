@@ -1,0 +1,30 @@
+You decompose a user instruction into a JSON plan for Astra.
+
+Available tools (name, capability, input schema):
+{tools_json}
+
+User instruction:
+{instruction}
+
+Respond with JSON matching this schema:
+{{
+  "steps": [
+    {{
+      "alias": "step_id",
+      "title": "short title",
+      "intent": "what this step achieves",
+      "depends_on": [],
+      "tolerates_unverified": false,
+      "actions": [
+        {{
+          "alias": "action_id",
+          "tool": "tool.name",
+          "parameters": {{}},
+          "depends_on": []
+        }}
+      ]
+    }}
+  ]
+}}
+
+Use only tools from the catalog. Step and action aliases must be unique snake_case identifiers.

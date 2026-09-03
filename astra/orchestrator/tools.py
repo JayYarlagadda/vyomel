@@ -26,21 +26,8 @@ from astra.security.audit import AuditEvent, AuditTrail
 from astra.security.capability import Invocation, classify
 from astra.security.policy import PolicyRequest, store_for
 from astra.tools.base import Tool, ToolContext
+from astra.tools.catalog import CatalogEntry
 from astra.tools.registry import ToolRegistry
-
-
-@dataclass(frozen=True, slots=True)
-class CatalogEntry:
-    name: str
-    version: str
-    description: str
-    base_capability: Capability
-    reversible: bool
-    idempotent: bool
-    actuation_tier: int
-    concurrency_key: str | None
-    input_schema: dict[str, Any]
-    output_schema: dict[str, Any]
 
 
 @dataclass(frozen=True, slots=True)
@@ -211,3 +198,6 @@ class DirectInvoker:
             payload={"tool": tool.name, "status": "error", "error": error},
         )
         await self._session.commit()
+
+
+__all__ = ["CatalogEntry", "DirectInvoker", "InvokeResult", "ToolCatalog"]

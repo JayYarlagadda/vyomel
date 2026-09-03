@@ -348,3 +348,22 @@ astra memory query "your unique token"
 
 **Still deferred (not M4 blockers):** file watch, async ingest jobs, code/csv extractors, salience decay, graph expansion in retrieval, FR-508 reference resolution.
 
+---
+
+## 2026-09-02 — M5 planner slice 1 (session 10)
+
+**Left off:** M4 complete at 281 tests; CI failing on `ruff format` for `cli/main.py`.
+
+**This session's goal:** fix CI, land first M5 vertical slice — NL instruction to executed plan.
+
+### Shipped
+
+- **CI fix:** `ruff format` on `memory_remember` alias annotation.
+- **`astra/planner/decompose.py`:** capability-filtered catalog, schema validation with retries (FR-103), prompt hash in audit.
+- **`astra/models/providers/mock.py`:** deterministic mock planner (list → `fs.list_dir`, else `task.report`).
+- **`astra/orchestrator/planning.py`:** `POST /v1/tasks` without `plan` now decomposes and installs via `PlanService`.
+- **Plan types** moved to `astra/core/plan_spec.py`; `Trust.TOOL_UNTRUSTED` on real LLM output, `USER` for mock.
+- **Tests:** `tests/planner/*`, `tests/api/test_planner.py`. **292 tests green.**
+
+**Not yet:** replanning (FR-106), token budget gate (FR-108), cloud providers/router, `evals/suites/agent/`, prompt-injection boundary markers.
+

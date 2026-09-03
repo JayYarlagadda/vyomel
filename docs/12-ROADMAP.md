@@ -112,7 +112,7 @@ code/csv extractors, salience decay, graph expansion in retrieval.
 
 ---
 
-### M5 — Planner *(weeks 8–9)*
+### M5 — Planner *(weeks 8–9)* — in progress (2026-09-02)
 
 - Model provider abstraction + router (privacy/cost/complexity)
 - Structured-output plan generation; schema validation with bounded re-prompting
@@ -124,7 +124,7 @@ code/csv extractors, salience decay, graph expansion in retrieval.
 
 **Exit:** natural language → executed plan end-to-end; `tool_call_accuracy` and `task_completion_rate` measured and committed for ≥ 2 model configurations.
 
-**This is the milestone where the primary resume bullet becomes fully true.**
+Partial (2026-09-02): mock planner provider, `decompose()` with schema retries and capability-filtered catalog, `POST /v1/tasks` without `plan` auto-plans, prompt template + hash in audit. Not yet: cloud providers, replanning, budget gate, agent evals.
 
 ---
 

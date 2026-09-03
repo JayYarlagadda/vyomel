@@ -27,7 +27,7 @@ ALLOWED: dict[str, set[str]] = {
     "tools": {"perception", "models", "obs", "memory", "store"},
     "verify": {"perception", "tools", "models", "obs"},
     "runtime": {"tools", "verify", "security", "memory", "store", "models", "obs"},
-    "planner": {"models", "memory", "tools", "obs"},
+    "planner": {"models", "memory", "tools", "obs", "prompts"},
     "orchestrator": {"planner", "security", "memory", "runtime", "store", "models", "obs", "tools"},
     "api": {"orchestrator", "store", "obs", "security"},
     "cli": {"api", "orchestrator", "store", "obs"},
