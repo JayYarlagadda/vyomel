@@ -26,6 +26,7 @@ from astra.runtime.retry import delay_s
 from astra.runtime.state import ActionTrigger, apply_action
 from astra.security.audit import AuditEvent, AuditTrail
 from astra.store.db import session_scope
+from astra.store.blobs import spill_if_large
 from astra.store.models import Action
 from astra.store.repos import ActionRepo, TaskRepo, VerificationRepo
 from astra.tools.base import ToolContext
@@ -304,6 +305,11 @@ async def _run_claimed(
             await watch_task
 
     result = output.model_dump(mode="json")
+    stored = spill_if_large(
+        result,
+        blob_dir=settings.blob_dir,
+        threshold=settings.blob_spill_threshold_bytes,
+    )
     postconditions = list(action.postconditions or [])
     if not postconditions:
         postconditions = tool.verification_plan(params, output)
@@ -321,7 +327,7 @@ async def _run_claimed(
             action.id,
             expected=ActionStatus.RUNNING,
             new=dest,
-            result=result,
+            result=stored,
             finished_at=clock.now(),
             lease_owner=None,
             lease_until=None,
@@ -334,7 +340,7 @@ async def _run_claimed(
             action.id,
             expected=ActionStatus.RUNNING,
             new=dest,
-            result=result,
+            result=stored,
             finished_at=clock.now(),
             lease_owner=None,
             lease_until=None,
@@ -347,7 +353,7 @@ async def _run_claimed(
         code=ErrorCode.VERIFICATION_FAILED,
         message="postcondition failed",
         retryable=False,
-        result=result,
+        result=stored,
         observation=_failing_observation(report),
     )
 

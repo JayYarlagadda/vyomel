@@ -402,3 +402,20 @@ astra memory query "your unique token"
 
 **Not yet:** blob spill, `evals/suites/longrun/` chaos harness, mock web tool, 30-minute task fixture.
 
+---
+
+## 2026-09-02 — M6 blob spill (session 13)
+
+**Left off:** heartbeat shipped in `5f1c8ac`. Blob spill and chaos harness open.
+
+**This session's goal:** spill large `actions.result` payloads to content-addressed blobs.
+
+### Shipped
+
+- **`astra/store/blobs.py`** — `spill_if_large`, `resolve_result`, content-addressed write/read.
+- **`Settings.blob_spill_threshold_bytes`** (default 64 KiB).
+- **Worker** spills before persisting results; scheduler, episodes, and cancel resolve on read.
+- **`test.large_payload`** fixture + `tests/store/test_blobs.py`, `tests/runtime/test_blob_spill.py`.
+
+**Not yet:** `evals/suites/longrun/` chaos harness, mock web tool, 30-minute task fixture.
+

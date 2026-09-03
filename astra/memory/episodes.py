@@ -12,6 +12,7 @@ from astra.core.config import Settings
 from astra.core.ids import new_id
 from astra.core.types import ActionStatus, TaskStatus
 from astra.models.embeddings import Embedder, get_embedder
+from astra.store.blobs import resolve_result
 from astra.store.models import Action, Episode, Task
 
 
@@ -40,7 +41,7 @@ async def record_episode(
 
     encoder = embedder or get_embedder(settings)
     reports = [
-        action.result
+        resolve_result(action.result, blob_dir=settings.blob_dir)
         for action in actions
         if action.tool == "task.report"
         and action.status is ActionStatus.SUCCEEDED

@@ -23,6 +23,7 @@ from astra.runtime.reaper import Reaper
 from astra.runtime.replan_gate import NullReplanGate, ReplanGate
 from astra.runtime.state import TaskTrigger, apply_task
 from astra.security.policy import store_for
+from astra.store.blobs import resolve_result
 from astra.store.db import session_scope
 from astra.store.models import Action, Step, Task
 from astra.store.repos import ActionRepo, StepRepo, TaskRepo
@@ -289,7 +290,7 @@ async def _complete_if_done(
         return
 
     reports = [
-        a.result
+        resolve_result(a.result, blob_dir=settings.blob_dir)
         for a in actions
         if a.tool == "task.report" and a.status is ActionStatus.SUCCEEDED and a.result
     ]

@@ -31,6 +31,7 @@ CEILING_MAX_TOKEN_BUDGET = 2_000_000
 CEILING_MAX_COST_USD = 20.0
 CEILING_APPROVAL_TTL_S = 86_400
 CEILING_CANCEL_GRACE_S = 60.0
+CEILING_BLOB_SPILL_THRESHOLD_BYTES = 10_485_760  # 10 MiB
 
 
 class Settings(BaseSettings):
@@ -83,6 +84,8 @@ class Settings(BaseSettings):
     # How often a worker extends ``lease_until`` while a tool is executing (docs/07 §4.4).
     # Set to 0 to disable (tests only).
     heartbeat_interval_s: Annotated[float, Field(ge=0)] = 10.0
+    # Spill ``actions.result`` to the blob store when JSON exceeds this size (docs/07 §9).
+    blob_spill_threshold_bytes: Annotated[int, Field(ge=0)] = 65_536
 
     # --- models ---
     openai_api_key: SecretStr = SecretStr("")
@@ -121,6 +124,11 @@ class Settings(BaseSettings):
             ("max_cost_usd", self.max_cost_usd, CEILING_MAX_COST_USD),
             ("approval_ttl_s", self.approval_ttl_s, CEILING_APPROVAL_TTL_S),
             ("cancel_grace_s", self.cancel_grace_s, CEILING_CANCEL_GRACE_S),
+            (
+                "blob_spill_threshold_bytes",
+                self.blob_spill_threshold_bytes,
+                CEILING_BLOB_SPILL_THRESHOLD_BYTES,
+            ),
         ]
         for name, value, ceiling in ceilings:
             if value > ceiling:

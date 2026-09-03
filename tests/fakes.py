@@ -237,6 +237,30 @@ class Hold(Tool):
         return HoldOutput()
 
 
+class LargePayloadInput(BaseModel):
+    size_bytes: int = Field(ge=1, le=500_000)
+
+
+class LargePayloadOutput(BaseModel):
+    payload: str
+
+
+class LargePayload(Tool):
+    """Returns a large string so blob spill can be exercised."""
+
+    name: ClassVar[str] = "test.large_payload"
+    version: ClassVar[str] = "1.0.0"
+    description: ClassVar[str] = "Return a large payload. Test fixture only."
+    Input: ClassVar[type[BaseModel]] = LargePayloadInput
+    Output: ClassVar[type[BaseModel]] = LargePayloadOutput
+    base_capability: ClassVar[Capability] = Capability.L0
+    idempotent: ClassVar[bool] = True
+
+    async def execute(self, params: BaseModel, ctx: ToolContext) -> BaseModel:
+        assert isinstance(params, LargePayloadInput)
+        return LargePayloadOutput(payload="x" * params.size_bytes)
+
+
 def registry_with_fakes() -> ToolRegistry:
     registry = default_registry()
     registry.register(Sleep())
@@ -245,4 +269,5 @@ def registry_with_fakes() -> ToolRegistry:
     registry.register(LyingWrite())
     registry.register(FailHard())
     registry.register(Hold())
+    registry.register(LargePayload())
     return registry

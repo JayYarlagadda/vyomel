@@ -32,6 +32,7 @@ def test_defaults_are_within_ceilings() -> None:
         ("max_cost_usd", 1_000.0),
         ("approval_ttl_s", 9_999_999),
         ("cancel_grace_s", 1_000.0),
+        ("blob_spill_threshold_bytes", 99_999_999),
     ],
 )
 def test_ceilings_reject_excessive_values(field: str, value: float) -> None:

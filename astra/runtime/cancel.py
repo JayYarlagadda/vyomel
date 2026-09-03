@@ -40,6 +40,7 @@ from astra.core.types import ActionStatus, StepStatus, TaskStatus
 from astra.runtime.dag import ActionNode, reverse_topo
 from astra.runtime.state import ActionTrigger, TaskTrigger, apply_action, apply_task
 from astra.security.audit import AuditEvent, AuditTrail
+from astra.store.blobs import resolve_result
 from astra.store.models import Action, Step, Task
 from astra.store.repos import ActionRepo, StepRepo, TaskRepo
 from astra.tools.base import ToolContext
@@ -313,7 +314,8 @@ class Canceller:
             raise RuntimeError(f"unknown tool {action.tool}") from exc
         try:
             params = tool.Input.model_validate(action.parameters)
-            result = tool.Output.model_validate(action.result or {})
+            raw = resolve_result(action.result, blob_dir=self._settings.blob_dir) or {}
+            result = tool.Output.model_validate(raw)
         except ValidationError as exc:
             raise RuntimeError(f"cannot rehydrate {action.tool} payload") from exc
         ctx = ToolContext(
