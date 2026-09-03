@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
 from astra.tools.web import WebFetchMock, WebFetchMockInput
+
+
 async def test_fetch_mock_is_deterministic(tmp_path) -> None:
     from datetime import UTC, datetime, timedelta
 

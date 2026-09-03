@@ -7,6 +7,8 @@ from threading import Lock
 from typing import Any
 from urllib.parse import urlparse
 
+from anyio import Path as AsyncPath
+
 from astra.core.config import Settings
 from astra.core.errors import ErrorCode, ToolError
 from astra.tools.browser.fixture import FixtureSession
@@ -48,7 +50,9 @@ class PlaywrightSession:
             headless=True,
         )
         self._context = self._browser
-        self._page = self._context.pages[0] if self._context.pages else await self._context.new_page()
+        self._page = (
+            self._context.pages[0] if self._context.pages else await self._context.new_page()
+        )
         return self._page
 
     async def open(self, url: str) -> PageSnapshot:
@@ -75,12 +79,19 @@ class PlaywrightSession:
             locator = page.get_by_role(target.role, name=target.name)
             record_actuation_tier(2)
             await locator.first.wait_for(state="attached", timeout=5_000)
-            return ElementRef(ref=f"pw:{target.role}:{target.name}", role=target.role, name=target.name, actuation_tier=2)
+            return ElementRef(
+                ref=f"pw:{target.role}:{target.name}",
+                role=target.role,
+                name=target.name,
+                actuation_tier=2,
+            )
         if target.selector:
             locator = page.locator(target.selector)
             record_actuation_tier(3)
             await locator.first.wait_for(state="attached", timeout=5_000)
-            return ElementRef(ref=f"pw:{target.selector}", role="element", name=target.selector, actuation_tier=3)
+            return ElementRef(
+                ref=f"pw:{target.selector}", role="element", name=target.selector, actuation_tier=3
+            )
         raise ToolError("query requires role+name or selector", code=ErrorCode.INVALID_PARAMETERS)
 
     async def click(self, target: Target) -> dict[str, Any]:
@@ -102,7 +113,9 @@ class PlaywrightSession:
         elif target.selector:
             locator = self._page.locator(target.selector).first
         else:
-            raise ToolError("type requires role+name or selector", code=ErrorCode.INVALID_PARAMETERS)
+            raise ToolError(
+                "type requires role+name or selector", code=ErrorCode.INVALID_PARAMETERS
+            )
         input_type = await locator.get_attribute("type")
         if input_type == "password" and not allow_password:
             raise ToolError(
@@ -120,7 +133,9 @@ class PlaywrightSession:
         if target.selector:
             await self._page.locator(target.selector).select_option(value)
         else:
-            await self._page.get_by_role(target.role or "combobox", name=target.name or "").select_option(value)
+            await self._page.get_by_role(
+                target.role or "combobox", name=target.name or ""
+            ).select_option(value)
         element = await self.query(target)
         return {"selected": value, "ref": element.ref, "actuation_tier": element.actuation_tier}
 
@@ -145,7 +160,8 @@ class PlaywrightSession:
             return self._fixture.screenshot(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         await self._page.screenshot(path=str(path))
-        return {"path": str(path), "bytes": path.stat().st_size}
+        stat = await AsyncPath(path).stat()
+        return {"path": str(path), "bytes": stat.st_size}
 
     async def download(self, target: Target, dest: Path) -> dict[str, Any]:
         if self._page is None or urlparse(self._fixture.url).scheme == "fixture":

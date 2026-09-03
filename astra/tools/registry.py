@@ -66,10 +66,10 @@ class ToolRegistry:
 
 
 def default_registry() -> ToolRegistry:
+    from astra.tools.browser import register_browser_tools
     from astra.tools.fs import Copy, Delete, ListDir, Move, ReadFile, WriteFile
     from astra.tools.git import GitCommit, GitDiff, GitPush, GitStatus
     from astra.tools.memory import MemoryForget, MemoryGetEntity, MemoryQuery, MemoryRemember
-    from astra.tools.browser import register_browser_tools
     from astra.tools.report import TaskReport
     from astra.tools.shell import ShellRun
     from astra.tools.web import WebFetchMock
