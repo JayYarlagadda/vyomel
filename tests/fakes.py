@@ -194,6 +194,49 @@ class FailHard(Tool):
         )
 
 
+class HoldInput(BaseModel):
+    pass
+
+
+class HoldOutput(BaseModel):
+    held: bool = True
+
+
+_hold_started = asyncio.Event()
+_hold_release = asyncio.Event()
+
+
+def reset_hold() -> None:
+    _hold_started.clear()
+    _hold_release.clear()
+
+
+def signal_hold_started() -> asyncio.Event:
+    return _hold_started
+
+
+def release_hold() -> None:
+    _hold_release.set()
+
+
+class Hold(Tool):
+    """Blocks until ``release_hold()`` — for lease-heartbeat tests."""
+
+    name: ClassVar[str] = "test.hold"
+    version: ClassVar[str] = "1.0.0"
+    description: ClassVar[str] = "Block until released. Test fixture only."
+    Input: ClassVar[type[BaseModel]] = HoldInput
+    Output: ClassVar[type[BaseModel]] = HoldOutput
+    base_capability: ClassVar[Capability] = Capability.L0
+    idempotent: ClassVar[bool] = True
+    default_timeout_s: ClassVar[int] = 30
+
+    async def execute(self, params: BaseModel, ctx: ToolContext) -> BaseModel:
+        _hold_started.set()
+        await _hold_release.wait()
+        return HoldOutput()
+
+
 def registry_with_fakes() -> ToolRegistry:
     registry = default_registry()
     registry.register(Sleep())
@@ -201,4 +244,5 @@ def registry_with_fakes() -> ToolRegistry:
     registry.register(Opaque())
     registry.register(LyingWrite())
     registry.register(FailHard())
+    registry.register(Hold())
     return registry

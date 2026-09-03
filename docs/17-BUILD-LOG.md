@@ -385,3 +385,20 @@ astra memory query "your unique token"
 
 **Deferred:** FR-705 failover, production cloud routing tuning, full `evals/harness/` runner.
 
+---
+
+## 2026-09-02 — M6 heartbeat (session 12)
+
+**Left off:** M5 complete at 306 tests. M6 open: chaos harness, blob spill, heartbeat, longrun eval.
+
+**This session's goal:** first M6 slice — heartbeat lease extension for slow actions.
+
+### Shipped
+
+- **`ActionRepo.extend_lease()`** — CAS-guarded `lease_until` bump for `RUNNING` rows owned by the calling worker.
+- **`Settings.heartbeat_interval_s`** (default 10s; 0 disables for tests).
+- **Worker heartbeat loop** — background task extends the lease every interval while a tool executes (`docs/07` §4.4).
+- **`test.hold` fixture tool** + `tests/runtime/test_heartbeat.py` (FR-208).
+
+**Not yet:** blob spill, `evals/suites/longrun/` chaos harness, mock web tool, 30-minute task fixture.
+

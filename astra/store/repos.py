@@ -66,6 +66,26 @@ class ActionRepo:
         )
         return result.scalar_one_or_none()
 
+    async def extend_lease(
+        self,
+        action_id: str,
+        *,
+        worker_id: str,
+        lease_until: datetime,
+    ) -> Action | None:
+        """Extend a RUNNING lease owned by ``worker_id`` (heartbeat)."""
+        result = await self._session.execute(
+            update(Action)
+            .where(
+                Action.id == action_id,
+                Action.status == ActionStatus.RUNNING,
+                Action.lease_owner == worker_id,
+            )
+            .values(lease_until=lease_until)
+            .returning(Action)
+        )
+        return result.scalar_one_or_none()
+
     async def cas_status(
         self,
         action_id: str,

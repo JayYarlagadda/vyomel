@@ -80,6 +80,9 @@ class Settings(BaseSettings):
     # How long a RUNNING execute may keep going after the task is cancelled
     # before the worker cancels the coroutine (docs/07 §8).
     cancel_grace_s: Annotated[float, Field(ge=0)] = 10.0
+    # How often a worker extends ``lease_until`` while a tool is executing (docs/07 §4.4).
+    # Set to 0 to disable (tests only).
+    heartbeat_interval_s: Annotated[float, Field(ge=0)] = 10.0
 
     # --- models ---
     openai_api_key: SecretStr = SecretStr("")

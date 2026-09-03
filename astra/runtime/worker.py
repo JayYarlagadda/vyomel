@@ -117,6 +117,7 @@ class Worker:
                 cancel=self._cancel,
                 audit=self._audit,
                 actor=f"worker:{self._worker_id}",
+                worker_id=self._worker_id,
             )
             await session.refresh(action)
             await self._record_outcome(session, action)
@@ -157,6 +158,7 @@ async def _run_claimed(
     cancel: CancellationToken,
     audit: AuditTrail,
     actor: str,
+    worker_id: str,
 ) -> None:
     now = clock.now()
     try:
@@ -232,6 +234,19 @@ async def _run_claimed(
             worker_cancel=cancel,
         )
     )
+    heartbeat_stop = asyncio.Event()
+    heartbeat_task: asyncio.Task[None] | None = None
+    if settings.heartbeat_interval_s > 0:
+        heartbeat_task = asyncio.create_task(
+            _heartbeat_loop(
+                action_id=action.id,
+                worker_id=worker_id,
+                timeout_s=action.timeout_s,
+                interval_s=settings.heartbeat_interval_s,
+                clock=clock,
+                stop=heartbeat_stop,
+            )
+        )
     try:
         output = await asyncio.wait_for(execute_task, timeout=action.timeout_s)
     except TimeoutError:
@@ -279,6 +294,11 @@ async def _run_claimed(
         )
         return
     finally:
+        heartbeat_stop.set()
+        if heartbeat_task is not None:
+            heartbeat_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await heartbeat_task
         watch_task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await watch_task
@@ -417,6 +437,29 @@ async def _finish_cancelled(
         return
     await session.commit()
     log.info("astra.runtime.action_cancelled", action_id=action.id)
+
+
+async def _heartbeat_loop(
+    *,
+    action_id: str,
+    worker_id: str,
+    timeout_s: int,
+    interval_s: float,
+    clock: Clock,
+    stop: asyncio.Event,
+) -> None:
+    """Extend the action lease while the tool is still executing."""
+    while not stop.is_set():
+        await asyncio.sleep(interval_s)
+        if stop.is_set():
+            return
+        now = clock.now()
+        async with session_scope() as session:
+            await ActionRepo(session).extend_lease(
+                action_id,
+                worker_id=worker_id,
+                lease_until=now + timedelta(seconds=timeout_s),
+            )
 
 
 async def _watch_for_cancel(
