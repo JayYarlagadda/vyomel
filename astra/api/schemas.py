@@ -43,6 +43,10 @@ class CreateTaskRequest(BaseModel):
     plan: HandwrittenPlan | None = None
 
 
+class ReplyRequest(BaseModel):
+    message: Annotated[str, Field(min_length=1, max_length=4_000)]
+
+
 class TaskProgress(BaseModel):
     steps_total: int = 0
     steps_done: int = 0

@@ -167,10 +167,38 @@ class LyingWrite(Tool):
         )
 
 
+class FailHardInput(BaseModel):
+    reason: str = "boom"
+
+
+class FailHardOutput(BaseModel):
+    ok: bool = False
+
+
+class FailHard(Tool):
+    """Always fails without retry — for replan tests."""
+
+    name: ClassVar[str] = "test.fail_hard"
+    version: ClassVar[str] = "1.0.0"
+    description: ClassVar[str] = "Fails permanently. Test fixture only."
+    Input: ClassVar[type[BaseModel]] = FailHardInput
+    Output: ClassVar[type[BaseModel]] = FailHardOutput
+    base_capability: ClassVar[Capability] = Capability.L0
+    idempotent: ClassVar[bool] = True
+
+    async def execute(self, params: BaseModel, ctx: ToolContext) -> BaseModel:
+        raise ToolError(
+            getattr(params, "reason", "boom"),
+            code=ErrorCode.PRECONDITION_FAILED,
+            retryable=False,
+        )
+
+
 def registry_with_fakes() -> ToolRegistry:
     registry = default_registry()
     registry.register(Sleep())
     registry.register(Notify())
     registry.register(Opaque())
     registry.register(LyingWrite())
+    registry.register(FailHard())
     return registry

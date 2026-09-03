@@ -12,6 +12,7 @@ from astra.core.types import Capability, TaskOrigin, Trust
 from astra.orchestrator.plans import PlanService
 from astra.orchestrator.tasks import TaskBounds, TaskService
 from astra.orchestrator.tools import ToolCatalog
+from astra.planner.budget import enforce_token_budget
 from astra.planner.decompose import decompose
 from astra.security.audit import AuditEvent, AuditTrail
 from astra.store.models import Task
@@ -51,6 +52,13 @@ async def create_task(
         capability_ceiling=capability_ceiling,
         settings=settings,
         registry=registry,
+        session=session,
+        task_id=task.id,
+    )
+    enforce_token_budget(
+        result.plan,
+        token_budget=task.token_budget,
+        instruction_chars=len(instruction),
     )
     task.normalized_intent = result.normalized_intent
     await session.flush()

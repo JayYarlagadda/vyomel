@@ -1,4 +1,4 @@
-"""Deterministic planner provider for tests and offline dev (FR-706)."""
+"""Deterministic planner providers for tests and offline dev (FR-706)."""
 
 from __future__ import annotations
 
@@ -13,9 +13,10 @@ _PATH_RE = re.compile(r"(?:[A-Za-z]:[\\/][^\s\"']+)|(?:\"([^\"]+)\")|(?:'([^']+)
 
 
 class MockPlannerProvider:
-    """Rule-based decomposition — no network, fully reproducible."""
+    """Rule-based decomposition and replanning — no network, fully reproducible."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, variant: str = "v1") -> None:
+        self._variant = variant
         self._info = ProviderInfo(
             name="mock-planner",
             is_remote=False,
@@ -29,21 +30,23 @@ class MockPlannerProvider:
 
     async def complete(self, req: ModelRequest) -> ModelResponse:
         started = perf_counter()
-        instruction = _instruction_from(req)
-        normalized = instruction.strip()
-        plan = _plan_for_instruction(normalized)
+        if req.purpose == "planner.replan":
+            plan = _recovery_plan()
+        else:
+            instruction = _instruction_from(req)
+            plan = _plan_for_instruction(instruction.strip())
         payload = plan.model_dump(mode="json")
         latency_ms = (perf_counter() - started) * 1_000
+        model_name = f"mock-planner-{self._variant}"
         return ModelResponse(
             content=json.dumps(payload),
-            model="mock-planner-v1",
+            model=model_name,
             provider=self._info.name,
-            prompt_tokens=max(1, len(instruction) // 4),
+            prompt_tokens=max(1, sum(len(m.content) for m in req.messages) // 4),
             completion_tokens=max(1, len(json.dumps(payload)) // 4),
             latency_ms=latency_ms,
             parsed=payload,
-            prompt_hash=req.messages[-1].content if req.messages else None,
-            prompt_version="mock",
+            prompt_version=f"mock-{self._variant}",
         )
 
 
@@ -51,11 +54,30 @@ def _instruction_from(req: ModelRequest) -> str:
     for message in reversed(req.messages):
         if message.role == "user":
             body = message.content
-            marker = "User instruction:\n"
-            if marker in body:
-                return body.split(marker, 1)[1].strip()
+            for marker in ("Original instruction:\n", "User instruction:\n"):
+                if marker in body:
+                    return body.split(marker, 1)[1].split("\n\n", 1)[0].strip()
             return body
     return ""
+
+
+def _recovery_plan() -> HandwrittenPlan:
+    return HandwrittenPlan(
+        steps=[
+            StepSpec(
+                alias="recovery",
+                title="Recover from failure",
+                intent="Report outcome after replan",
+                actions=[
+                    ActionSpec(
+                        alias="report",
+                        tool="task.report",
+                        parameters={"summary": "recovered after replan", "findings": []},
+                    )
+                ],
+            )
+        ]
+    )
 
 
 def _plan_for_instruction(instruction: str) -> HandwrittenPlan:

@@ -1,4 +1,4 @@
-"""Natural-language decomposition (FR-102, FR-103)."""
+"""Bounded replanning after step failure (FR-106)."""
 
 from __future__ import annotations
 
@@ -6,68 +6,63 @@ import json
 from dataclasses import dataclass
 
 from pydantic import ValidationError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from astra.core.config import Settings
 from astra.core.errors import AstraError, ErrorCode
 from astra.core.plan_spec import HandwrittenPlan
-from astra.core.types import Capability, Sensitivity, Trust
+from astra.core.types import Capability, Trust
 from astra.models.providers.protocol import ModelProvider
 from astra.models.router import get_planner_provider
 from astra.models.types import ChatMessage, ModelRequest
 from astra.planner.catalog import catalog_for_prompt, filter_catalog
+from astra.planner.decompose import MAX_SCHEMA_RETRIES, _validate_tools
 from astra.prompts.boundaries import wrap_untrusted
 from astra.prompts.loader import load_prompt
 from astra.tools.catalog import CatalogEntry
 from astra.tools.registry import ToolRegistry
 
-MAX_SCHEMA_RETRIES = 2
 
-
-class PlannerError(AstraError):
+class ReplanError(AstraError):
     code = ErrorCode.INVALID_PARAMETERS
 
 
 @dataclass(frozen=True, slots=True)
-class DecomposeResult:
+class ReplanResult:
     plan: HandwrittenPlan
-    normalized_intent: str
     model: str
     provider: str
     prompt_hash: str
-    prompt_version: str
 
 
-async def decompose(
-    instruction: str,
+async def replan(
     *,
+    instruction: str,
+    failed_step: str,
+    error: str,
+    observation: str,
     catalog: list[CatalogEntry],
     capability_ceiling: Capability,
     settings: Settings,
     registry: ToolRegistry,
     provider: ModelProvider | None = None,
-    session: AsyncSession | None = None,
-    task_id: str | None = None,
-) -> DecomposeResult:
+) -> ReplanResult:
     scoped = filter_catalog(catalog, ceiling=capability_ceiling)
-    if not scoped:
-        raise PlannerError("no tools available under the task capability ceiling")
-
-    prompt = load_prompt("planner", "decompose.v1")
+    prompt = load_prompt("planner", "replan.v1")
     tools_json = json.dumps(catalog_for_prompt(scoped), indent=2, sort_keys=True)
     user_body = prompt.body.format(
-        instruction=wrap_untrusted(instruction.strip(), source="user", trust=Trust.USER),
+        failed_step=failed_step,
+        error=wrap_untrusted(error, source="runtime", trust=Trust.TOOL_UNTRUSTED),
+        observation=wrap_untrusted(observation, source="runtime", trust=Trust.TOOL_UNTRUSTED),
+        instruction=instruction,
         tools_json=tools_json,
     )
-    model = provider or get_planner_provider(
-        settings, session=session, task_id=task_id, sensitivity=Sensitivity.PUBLIC
-    )
+    model = provider or get_planner_provider(settings)
 
     last_error: str | None = None
     for _attempt in range(MAX_SCHEMA_RETRIES + 1):
         response = await model.complete(
             ModelRequest(
-                purpose="planner.decompose",
+                purpose="planner.replan",
                 messages=(
                     ChatMessage(role="system", content="You output only valid JSON plans."),
                     ChatMessage(role="user", content=user_body),
@@ -82,7 +77,7 @@ async def decompose(
             try:
                 raw = json.loads(response.content)
             except json.JSONDecodeError as exc:
-                last_error = f"model returned non-JSON: {exc}"
+                last_error = str(exc)
                 continue
         try:
             plan = HandwrittenPlan.model_validate(raw)
@@ -90,31 +85,10 @@ async def decompose(
             last_error = str(exc)
             continue
         _validate_tools(plan, registry=registry, allowed={entry.name for entry in scoped})
-        return DecomposeResult(
+        return ReplanResult(
             plan=plan,
-            normalized_intent=instruction.strip(),
             model=response.model,
             provider=response.provider,
             prompt_hash=prompt.content_hash,
-            prompt_version=prompt.version,
         )
-
-    raise PlannerError(
-        f"plan failed schema validation after {MAX_SCHEMA_RETRIES + 1} attempts: {last_error}"
-    )
-
-
-def _validate_tools(
-    plan: HandwrittenPlan,
-    *,
-    registry: ToolRegistry,
-    allowed: set[str],
-) -> None:
-    for step in plan.steps:
-        for action in step.actions:
-            if action.tool not in allowed:
-                raise PlannerError(
-                    f"action {action.alias} uses {action.tool!r}, which is not in the "
-                    "capability-filtered catalog"
-                )
-            registry.get(action.tool)
+    raise ReplanError(f"replan failed schema validation: {last_error}")

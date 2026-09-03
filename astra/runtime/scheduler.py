@@ -20,6 +20,7 @@ from astra.runtime.dispatcher import Dispatcher
 from astra.runtime.gate import PolicyGate
 from astra.runtime.queue import ActionQueue
 from astra.runtime.reaper import Reaper
+from astra.runtime.replan_gate import NullReplanGate, ReplanGate
 from astra.runtime.state import TaskTrigger, apply_task
 from astra.security.policy import store_for
 from astra.store.db import session_scope
@@ -41,6 +42,7 @@ class Scheduler:
         registry: ToolRegistry,
         clock: Clock | None = None,
         gate: PolicyGate | None = None,
+        replan_gate: ReplanGate | None = None,
     ) -> None:
         self._settings = settings
         self._queue = queue
@@ -51,6 +53,7 @@ class Scheduler:
             approval_ttl_s=settings.approval_ttl_s,
             clock=self._clock,
         )
+        self._replan_gate = replan_gate or NullReplanGate()
         self._dispatcher = Dispatcher(
             queue,
             registry,
@@ -160,7 +163,9 @@ class Scheduler:
             task = await self._dispatcher.maybe_start_task(session, task, now=now) or task
         await _sync_steps(step_repo, steps, actions)
         await _block_if_awaiting_user(session, task, actions)
-        await _complete_if_done(session, task, actions, steps, now, self._settings)
+        await _complete_if_done(
+            session, task, actions, steps, now, self._settings, self._replan_gate
+        )
         return published
 
 
@@ -236,6 +241,7 @@ async def _complete_if_done(
     steps: list[Step],
     now: datetime,
     settings: Settings,
+    replan_gate: ReplanGate,
 ) -> None:
     if any(not a.status.is_terminal for a in actions):
         return
@@ -243,7 +249,16 @@ async def _complete_if_done(
         return
 
     if any(a.status is ActionStatus.FAILED for a in actions):
-        dest = apply_task(task.status, TaskTrigger.REQUIRED_FAILED)
+        if task.replan_count < settings.max_replans:
+            replanned = await replan_gate.try_replan(session, task, actions, steps)
+            if replanned:
+                return
+        trigger = (
+            TaskTrigger.REPLAN_EXHAUSTED
+            if task.replan_count >= settings.max_replans
+            else TaskTrigger.REQUIRED_FAILED
+        )
+        dest = apply_task(task.status, trigger)
         await TaskRepo(session).cas_status(
             task.id,
             expected=task.status,

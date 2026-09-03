@@ -16,6 +16,7 @@ from astra.core.clock import Clock, SystemClock
 from astra.core.config import Settings
 from astra.core.ids import new_id
 from astra.core.logging import configure_logging, get_logger
+from astra.orchestrator.replanning import make_replan_gate
 from astra.runtime.gate import PolicyGate
 from astra.runtime.queue import ActionQueue
 from astra.runtime.scheduler import Scheduler
@@ -53,7 +54,14 @@ def make_scheduler(
     *,
     gate: PolicyGate | None = None,
 ) -> Scheduler:
-    return Scheduler(settings, queue, get_registry(), clock=clock or SystemClock(), gate=gate)
+    return Scheduler(
+        settings,
+        queue,
+        get_registry(),
+        clock=clock or SystemClock(),
+        gate=gate,
+        replan_gate=make_replan_gate(settings, get_registry()),
+    )
 
 
 def make_worker(

@@ -112,19 +112,13 @@ code/csv extractors, salience decay, graph expansion in retrieval.
 
 ---
 
-### M5 — Planner *(weeks 8–9)* — in progress (2026-09-02)
-
-- Model provider abstraction + router (privacy/cost/complexity)
-- Structured-output plan generation; schema validation with bounded re-prompting
-- DAG construction, acyclicity validation, budget estimation
-- Bounded replanning with failure context
-- Capability-filtered tool catalog presented to the model
-- Versioned prompts with hashes recorded on every call
-- `evals/suites/agent/` with 100 tasks over mock tools
+### M5 — Planner *(weeks 8–9)* — done (2026-09-02)
 
 **Exit:** natural language → executed plan end-to-end; `tool_call_accuracy` and `task_completion_rate` measured and committed for ≥ 2 model configurations.
 
-Partial (2026-09-02): mock planner provider, `decompose()` with schema retries and capability-filtered catalog, `POST /v1/tasks` without `plan` auto-plans, prompt template + hash in audit. Not yet: cloud providers, replanning, budget gate, agent evals.
+Shipped: mock + mock-alt planners, OpenAI-compatible adapter, router with privacy block, `model_calls` accounting, deterministic cache, decompose/replan with schema retries, step contracts, token budget gate, replan runtime hook, boundary markers, `POST /reply`, agent eval (100 tasks, 1.0/1.0 on both configs). See `evals/results/2026-09-02-m5/`.
+
+Deferred: cloud provider production tuning, FR-705 failover/circuit breaker, `evals/harness/` full runner, prompt-injection boundary markers in all model paths.
 
 ---
 

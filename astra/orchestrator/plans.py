@@ -81,7 +81,10 @@ class PlanService:
             raise PlanError(f"task {task.id} could not enter PLANNING from {task.status}")
 
         try:
-            steps, actions, edges = self._materialize(task, plan, trust=trust)
+            version = (task.plan_version or 0) + 1
+            steps, actions, edges = self._materialize(
+                task, plan, trust=trust, plan_version=version, start_ordinal=0
+            )
         except (PlanError, CyclicPlanError) as exc:
             dest = apply_task(TaskStatus.PLANNING, TaskTrigger.PLAN_INVALID)
             await repo.cas_status(
@@ -99,16 +102,18 @@ class PlanService:
 
         if activate:
             dest = apply_task(TaskStatus.PLANNING, TaskTrigger.PLAN_VALIDATED)
+            version = (task.plan_version or 0) + 1
             updated = await repo.cas_status(
-                task.id, expected=TaskStatus.PLANNING, new=dest, plan_version=1
+                task.id, expected=TaskStatus.PLANNING, new=dest, plan_version=version
             )
             assert updated is not None
         else:
             # dry_run: persist the classified DAG but do not enter READY, so the
             # scheduler cannot dispatch. PLANNING is not in runnable().
-            task.plan_version = 1
+            task.plan_version = (task.plan_version or 0) + 1
             await self._session.flush()
             updated = task
+        version = updated.plan_version
         await self._audit.append(
             self._session,
             actor="orchestrator:handwritten" if trust is Trust.USER else "orchestrator:planner",
@@ -116,15 +121,49 @@ class PlanService:
             task_id=task.id,
             capability_level=max(a.capability_level for a in actions),
             payload={
-                # The hash pins *which* plan ran. When M5 generates plans, the
-                # model and prompt version join it here.
                 "plan_hash": content_hash(plan.model_dump(mode="json")),
-                "plan_version": 1,
+                "plan_version": version,
                 "steps": len(steps),
                 "actions": [{"tool": a.tool, "level": a.capability_level.value} for a in actions],
             },
         )
         return updated
+
+    async def append_replan(
+        self,
+        task: Task,
+        plan: HandwrittenPlan,
+        *,
+        trust: Trust = Trust.TOOL_UNTRUSTED,
+    ) -> Task:
+        existing_steps, _ = await self.load(task.id)
+        version = task.plan_version + 1
+        steps, actions, edges = self._materialize(
+            task,
+            plan,
+            trust=trust,
+            plan_version=version,
+            start_ordinal=len(existing_steps),
+        )
+        self._session.add_all(steps)
+        self._session.add_all(edges)
+        self._session.add_all(actions)
+        task.plan_version = version
+        await self._session.flush()
+        await self._audit.append(
+            self._session,
+            actor="orchestrator:replan",
+            event_type=AuditEvent.PLAN_INSTALLED,
+            task_id=task.id,
+            capability_level=max(a.capability_level for a in actions),
+            payload={
+                "plan_hash": content_hash(plan.model_dump(mode="json")),
+                "plan_version": version,
+                "replan": True,
+                "steps": len(steps),
+            },
+        )
+        return task
 
     async def load(self, task_id: str) -> tuple[list[Step], list[Action]]:
         from astra.store.repos import ActionRepo, StepRepo
@@ -134,7 +173,13 @@ class PlanService:
         return steps, actions
 
     def _materialize(
-        self, task: Task, plan: HandwrittenPlan, *, trust: Trust
+        self,
+        task: Task,
+        plan: HandwrittenPlan,
+        *,
+        trust: Trust,
+        plan_version: int,
+        start_ordinal: int,
     ) -> tuple[list[Step], list[Action], list[StepEdge]]:
         step_ids = {spec.alias: new_id() for spec in plan.steps}
         action_ids = {a.alias: new_id() for s in plan.steps for a in s.actions}
@@ -189,11 +234,11 @@ class PlanService:
                 Step(
                     id=step_id,
                     task_id=task.id,
-                    ordinal=ordinal,
+                    ordinal=start_ordinal + ordinal,
                     title=spec.title,
                     intent=spec.intent,
                     status=StepStatus.PLANNED,
-                    plan_version=1,
+                    plan_version=plan_version,
                     depends_on=[step_ids[d] for d in spec.depends_on],
                     tolerates_unverified=spec.tolerates_unverified,
                 )
@@ -204,8 +249,13 @@ class PlanService:
                         task_id=task.id,
                         from_step_id=step_ids[dep],
                         to_step_id=step_id,
-                        plan_version=1,
+                        plan_version=plan_version,
                     )
+                )
+            if spec.required_capability and spec.required_capability > task.capability_ceiling:
+                raise PlanError(
+                    f"step {spec.alias} requires {spec.required_capability}, "
+                    f"task ceiling is {task.capability_ceiling}"
                 )
             for action in spec.actions:
                 try:
@@ -240,6 +290,14 @@ class PlanService:
                         f"{task.capability_ceiling}"
                     )
                 dep_aliases = action.depends_on or implicit[action.alias]
+                max_retries = (
+                    action.max_retries
+                    if action.max_retries is not None
+                    else self._settings.max_retries
+                )
+                timeout_s = action.timeout_s or min(
+                    tool.default_timeout_s, self._settings.action_timeout_s
+                )
                 actions.append(
                     Action(
                         id=action_ids[action.alias],
@@ -248,6 +306,8 @@ class PlanService:
                         tool=tool.name,
                         tool_version=tool.version,
                         parameters=parameters,
+                        preconditions=action.preconditions,
+                        postconditions=action.postconditions,
                         capability_level=capability,
                         reversible=tool.reversible,
                         idempotency_key=idempotency_key(
@@ -255,12 +315,12 @@ class PlanService:
                             parameters=parameters,
                             task_id=task.id,
                             step_id=step_id,
-                            plan_version=1,
+                            plan_version=plan_version,
                         ),
                         depends_on=[action_ids[d] for d in dep_aliases],
                         status=ActionStatus.PLANNED,
-                        max_retries=self._settings.max_retries,
-                        timeout_s=min(tool.default_timeout_s, self._settings.action_timeout_s),
+                        max_retries=max_retries,
+                        timeout_s=timeout_s,
                     )
                 )
         return steps, actions, edges

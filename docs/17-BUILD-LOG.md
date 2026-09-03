@@ -367,3 +367,21 @@ astra memory query "your unique token"
 
 **Not yet:** replanning (FR-106), token budget gate (FR-108), cloud providers/router, `evals/suites/agent/`, prompt-injection boundary markers.
 
+---
+
+## 2026-09-02 — M5 completion (session 11)
+
+**Left off:** M5 slice 1 — mock decompose, auto-plan on task create. Replanning, models, evals open.
+
+**This session's goal:** finish M5 exit criteria.
+
+### Shipped
+
+- **Models:** `ModelProvider`, mock + mock-alt + OpenAI-compatible adapter, router with `SENSITIVE` privacy block, `AccountingProvider`, `CachedProvider`, `model_calls` migration `0008`.
+- **Planner:** step contracts (FR-105), token budget gate (FR-108), `replan()` + `OrchestratorReplanGate` wired into scheduler, boundary markers.
+- **API:** `POST /v1/tasks/{id}/reply` for `NEEDS_HUMAN`.
+- **Eval:** 100 agent tasks; `task_completion_rate` = `tool_call_accuracy` = 1.0 for mock-v1 and mock-v2. `evals/results/2026-09-02-m5/`.
+- **Tests:** all FR-1xx and FR-7xx requirement tests. **306 tests green.**
+
+**Deferred:** FR-705 failover, production cloud routing tuning, full `evals/harness/` runner.
+

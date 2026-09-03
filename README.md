@@ -4,7 +4,7 @@
 
 Astra is not a chatbot. A chatbot returns text. Astra changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
 
-**Status:** M5 in progress (mock planner, NL → plan). M4 memory/RAG complete. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
+**Status:** M5 complete (planner, models, replanning, agent evals). See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
 
 ---
 
@@ -151,8 +151,8 @@ No number appears here unless a script in `evals/` reproduces it. Results land a
 
 | Metric | Target | Current | Source |
 |---|---|---|---|
-| Task completion rate (100 multi-step tasks) | ≥ 80 % | — | `evals/suites/agent/` |
-| Tool-call schema validity | ≥ 98 % | — | `evals/suites/agent/` |
+| Task completion rate (100 multi-step tasks) | ≥ 80 % | **1.000** (mock, 100 tasks) | `evals/results/2026-09-02-m5/` |
+| Tool-call schema validity | ≥ 98 % | **1.000** (mock planner) | `evals/results/2026-09-02-m5/` |
 | Retrieval recall@10 (200-doc corpus) | ≥ 0.85 | **0.928** (hybrid, hashing) | `evals/results/2026-09-02-m4/` |
 | Verification catch rate on injected faults | 100 % | — | `evals/suites/desktop/` |
 | Lost/duplicated actions under chaos | 0 | — | `evals/suites/longrun/` |

@@ -1,0 +1,18 @@
+{
+  "milestone": "M5",
+  "date": "2026-09-02",
+  "tasks": "evals/fixtures/agent/tasks.jsonl",
+  "task_count": 100,
+  "configurations": {
+    "mock-planner-v1": {
+      "backend": "mock",
+      "task_completion_rate": 1.0,
+      "tool_call_accuracy": 1.0
+    },
+    "mock-planner-v2": {
+      "backend": "mock-alt",
+      "task_completion_rate": 1.0,
+      "tool_call_accuracy": 1.0
+    }
+  }
+}

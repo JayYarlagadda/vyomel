@@ -39,6 +39,7 @@ class ModelResponse:
     parsed: dict[str, Any] | None = None
     prompt_hash: str | None = None
     prompt_version: str | None = None
+    cache_hit: bool = False
 
 
 @dataclass(frozen=True, slots=True)

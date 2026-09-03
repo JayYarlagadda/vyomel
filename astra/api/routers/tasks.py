@@ -20,6 +20,7 @@ from astra.api.schemas import (
     CreateTaskRequest,
     IrreversibleEffectResponse,
     PlanResponse,
+    ReplyRequest,
     StepResponse,
     TaskListResponse,
     TaskProgress,
@@ -93,6 +94,16 @@ async def create_task(
         plan_override=payload.plan,
         dry_run=payload.dry_run,
     )
+    return _to_response(task, await service.progress(task.id))
+
+
+@router.post("/{task_id}/reply", response_model=TaskResponse)
+async def reply_to_task(
+    task_id: str,
+    payload: ReplyRequest,
+    service: Annotated[TaskService, Depends(_service)],
+) -> TaskResponse:
+    task = await service.reply(task_id, payload.message)
     return _to_response(task, await service.progress(task.id))
 
 

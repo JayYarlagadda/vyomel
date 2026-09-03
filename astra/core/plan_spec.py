@@ -6,12 +6,18 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
+from astra.core.types import Capability
+
 
 class ActionSpec(BaseModel):
     alias: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
     tool: str
     parameters: dict[str, Any] = Field(default_factory=dict)
     depends_on: list[str] = Field(default_factory=list)
+    preconditions: dict[str, Any] = Field(default_factory=dict)
+    postconditions: list[dict[str, Any]] = Field(default_factory=list)
+    timeout_s: int | None = Field(default=None, ge=1)
+    max_retries: int | None = Field(default=None, ge=0)
 
 
 class StepSpec(BaseModel):
@@ -21,6 +27,7 @@ class StepSpec(BaseModel):
     actions: list[ActionSpec] = Field(min_length=1)
     depends_on: list[str] = Field(default_factory=list)
     tolerates_unverified: bool = False
+    required_capability: Capability | None = None
 
 
 class HandwrittenPlan(BaseModel):

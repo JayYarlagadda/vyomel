@@ -552,3 +552,34 @@ class Episode(Base):
         Index("ix_episodes_finished_at", "finished_at"),
         Index("ix_episodes_entity_ids", "entity_ids", postgresql_using="gin"),
     )
+
+
+class ModelCall(Base):
+    __tablename__ = "model_calls"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True, default=new_id)
+    task_id: Mapped[str | None] = mapped_column(
+        ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True
+    )
+    action_id: Mapped[str | None] = mapped_column(
+        ForeignKey("actions.id", ondelete="SET NULL"), nullable=True
+    )
+    provider: Mapped[str] = mapped_column(Text, nullable=False)
+    model: Mapped[str] = mapped_column(Text, nullable=False)
+    purpose: Mapped[str] = mapped_column(Text, nullable=False)
+    prompt_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    completion_tokens: Mapped[int] = mapped_column(Integer, nullable=False)
+    ttft_ms: Mapped[float] = mapped_column(nullable=False)
+    latency_ms: Mapped[float] = mapped_column(nullable=False)
+    cost_usd: Mapped[Decimal] = mapped_column(Numeric(12, 6), nullable=False, default=Decimal("0"))
+    sensitivity: Mapped[str] = mapped_column(Text, nullable=False, default="PUBLIC")
+    cache_hit: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    prompt_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+    __table_args__ = (
+        Index("ix_model_calls_task_id", "task_id"),
+        Index("ix_model_calls_created_at", "created_at"),
+    )

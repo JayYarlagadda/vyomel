@@ -5,6 +5,20 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 
 ## [Unreleased]
 
+### M5 — Planner
+
+- Model provider abstraction: `ModelProvider` protocol, mock + OpenAI-compatible adapters
+- Model router with privacy hard-block (`SENSITIVE` never routes remote, FR-703)
+- `model_calls` accounting table + `AccountingProvider` wrapper (FR-704)
+- Deterministic response cache for eval (`CachedProvider`, FR-706)
+- NL decomposition with schema retries, capability-filtered catalog, prompt hashes
+- Step contracts on plan wire format (FR-105); token budget gate (FR-108)
+- Bounded replanning on tool failure; `NEEDS_HUMAN` when exhausted (FR-106)
+- Prompt-injection boundary markers for untrusted runtime context
+- `POST /v1/tasks/{id}/reply` for `NEEDS_HUMAN` resume
+- Agent eval: 100 tasks; `task_completion_rate` and `tool_call_accuracy` = 1.0
+  for mock-v1 and mock-v2. Results in `evals/results/2026-09-02-m5/`.
+
 ### M4 — Memory and RAG
 
 - Ingestion: md/txt/html/pdf/docx extractors (`astra/memory/extract.py`); structure-aware

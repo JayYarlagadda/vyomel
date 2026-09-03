@@ -1,0 +1,8 @@
+# Model routing defaults (docs/09-MODEL-SERVING.md)
+planner:
+  default: mock
+  variants:
+  - name: mock-planner-v1
+    backend: mock
+  - name: mock-planner-v2
+    backend: mock-alt

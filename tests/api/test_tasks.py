@@ -52,6 +52,22 @@ async def test_requested_bounds_may_only_tighten(client: AsyncClient) -> None:
         "/v1/tasks",
         json={
             "instruction": "long research job",
+            "plan": {
+                "steps": [
+                    {
+                        "alias": "report",
+                        "title": "Report",
+                        "intent": "finish",
+                        "actions": [
+                            {
+                                "alias": "done",
+                                "tool": "task.report",
+                                "parameters": {"summary": "ok", "findings": []},
+                            }
+                        ],
+                    }
+                ]
+            },
             # Far above the configured default; must be clamped, not honored.
             "bounds": {"max_wall_clock_s": 999_999, "max_token_budget": 1},
         },

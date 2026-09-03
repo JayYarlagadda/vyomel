@@ -1,0 +1,100 @@
+{"instruction": "list D:/workspace/project-0", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 0", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-1", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 1", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-2", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 2", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-3", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 3", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-4", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 4", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-5", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 5", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-6", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 6", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-7", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 7", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-8", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 8", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-9", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 9", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-10", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 10", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-11", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 11", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-12", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 12", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-13", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 13", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-14", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 14", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-15", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 15", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-16", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 16", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-17", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 17", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-18", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 18", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-19", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 19", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-20", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 20", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-21", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 21", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-22", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 22", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-23", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 23", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-24", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 24", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-25", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 25", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-26", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 26", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-27", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 27", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-28", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 28", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-29", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 29", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-30", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 30", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-31", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 31", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-32", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 32", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-33", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 33", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-34", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 34", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-35", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 35", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-36", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 36", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-37", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 37", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-38", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 38", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-39", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 39", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-40", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 40", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-41", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 41", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-42", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 42", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-43", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 43", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-44", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 44", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-45", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 45", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-46", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 46", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-47", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 47", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-48", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 48", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-49", "expected_tool": "fs.list_dir"}
+{"instruction": "summarize quarterly report number 49", "expected_tool": "task.report"}

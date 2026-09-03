@@ -15,12 +15,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from astra.core.clock import Clock, SystemClock
 from astra.core.config import Settings
-from astra.core.errors import NotFoundError
+from astra.core.errors import ConflictError, NotFoundError
 from astra.core.ids import new_id
 from astra.core.types import ActionStatus, Capability, StepStatus, TaskOrigin, TaskStatus
 from astra.runtime.cancel import Canceller, CancelReport
+from astra.runtime.state import TaskTrigger, apply_task
 from astra.security.audit import AuditEvent, AuditTrail
 from astra.store.models import Action, Step, Task
+from astra.store.repos import TaskRepo
 
 
 @dataclass(frozen=True, slots=True)
@@ -163,3 +165,32 @@ class TaskService:
             clock=self._clock,
             audit=self._audit,
         ).cancel(self._session, task_id, compensate=compensate, actor=actor)
+
+    async def reply(self, task_id: str, message: str) -> Task:
+        task = await self.get(task_id)
+        if task.status is not TaskStatus.NEEDS_HUMAN:
+            raise ConflictError(
+                f"task {task_id} is {task.status.value}, not waiting for human input",
+                detail={"task_id": task_id, "status": task.status.value},
+            )
+        hints = dict(task.context_hints)
+        replies = list(hints.get("human_replies", []))
+        replies.append(message)
+        hints["human_replies"] = replies
+        dest = apply_task(task.status, TaskTrigger.HUMAN_REPLIED)
+        updated = await TaskRepo(self._session).cas_status(
+            task_id,
+            expected=task.status,
+            new=dest,
+            context_hints=hints,
+        )
+        if updated is None:
+            raise ConflictError(f"task {task_id} could not resume from NEEDS_HUMAN")
+        await self._audit.append(
+            self._session,
+            actor="user:reply",
+            event_type=AuditEvent.TASK_CREATED,
+            task_id=task_id,
+            payload={"message": message[:500]},
+        )
+        return updated
