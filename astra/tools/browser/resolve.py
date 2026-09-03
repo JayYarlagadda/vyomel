@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from html.parser import HTMLParser
-from typing import Any
 
 from astra.tools.browser.metrics import record_actuation_tier
 from astra.tools.browser.types import A11yNode, ActuationTier, ElementRef, Target
@@ -26,7 +25,7 @@ _ROLE_FOR_TAG: dict[str, str] = {
 
 
 class _DomNode:
-    __slots__ = ("tag", "attrs", "children", "text")
+    __slots__ = ("attrs", "children", "tag", "text")
 
     def __init__(self) -> None:
         self.tag = ""
@@ -119,10 +118,15 @@ def _match_target(node: _DomNode, target: Target) -> bool:
         return False
     if target.selector:
         selector_id = target.selector.lstrip("#")
-        if node.attrs.get("id") != selector_id and node.attrs.get("class") != selector_id:
-            if f"#{node.attrs.get('id', '')}" != target.selector:
-                if target.selector not in node.attrs.get("class", ""):
-                    return False
+        node_id = node.attrs.get("id", "")
+        node_class = node.attrs.get("class", "")
+        if (
+            node_id != selector_id
+            and node_class != selector_id
+            and f"#{node_id}" != target.selector
+            and target.selector not in node_class
+        ):
+            return False
     return True
 
 

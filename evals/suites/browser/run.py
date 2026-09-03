@@ -1,4 +1,5 @@
 """Browser workflow eval (docs/11-EVALUATION.md §5, M7 exit criteria)."""
+# ruff: noqa: E402
 
 from __future__ import annotations
 
@@ -13,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from evals.suites.browser.workflows import Workflow, build_workflows
+
 from astra.core.cancel import CancellationToken
 from astra.core.clock import SystemClock
 from astra.core.config import Settings
@@ -21,7 +24,6 @@ from astra.tools.base import ToolContext
 from astra.tools.browser.metrics import actuation_tier_distribution, reset_actuation_tiers
 from astra.tools.browser.session import reset_sessions
 from astra.tools.registry import default_registry
-from evals.suites.browser.workflows import Workflow, build_workflows
 
 
 async def run_workflow(workflow: Workflow, settings: Settings, registry, scratch: Path) -> bool:

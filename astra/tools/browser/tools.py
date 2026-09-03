@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
@@ -280,7 +279,9 @@ class BrowserSelect(Tool):
         assert isinstance(params, SelectInput)
         settings = _settings(ctx)
         session = await get_session(settings, task_id=ctx.task_id)
-        payload = await session.select(_target(**params.model_dump(exclude={"value"})), params.value)
+        payload = await session.select(
+            _target(**params.model_dump(exclude={"value"})), params.value
+        )
         return SelectOutput(**payload)
 
 

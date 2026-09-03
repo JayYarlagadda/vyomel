@@ -80,11 +80,11 @@ class LongrunHarness:
             if (
                 config.kill_interval_s is not None
                 and time.monotonic() - last_kill >= config.kill_interval_s
+                and await abandon_running_action(task_id) is not None
             ):
-                if await abandon_running_action(task_id) is not None:
-                    kills += 1
-                    last_kill = time.monotonic()
-                    await Reaper().reap()
+                kills += 1
+                last_kill = time.monotonic()
+                await Reaper().reap()
             worked = await self._worker.run_once(block_ms=50)
             task = await self._load_task(task_id)
             if task.status.is_terminal:
