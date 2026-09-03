@@ -1,0 +1,26 @@
+{
+  "milestone": "M6",
+  "date": "2026-09-02",
+  "suite": "evals/suites/longrun/run.py",
+  "configurations": {
+    "fast": {
+      "items": 10,
+      "kill_interval_s": 2,
+      "fetch_succeeded": 10,
+      "lost_fetches": 0,
+      "duplicate_fetches": 0,
+      "duplicate_idempotency_keys": 0,
+      "simulated_kills": 3,
+      "ok": true
+    },
+    "standard": {
+      "items": 100,
+      "kill_interval_s": 10,
+      "fetch_succeeded": 100,
+      "lost_fetches": 0,
+      "duplicate_fetches": 0,
+      "duplicate_idempotency_keys": 0,
+      "ok": true
+    }
+  }
+}

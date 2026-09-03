@@ -71,6 +71,7 @@ def default_registry() -> ToolRegistry:
     from astra.tools.memory import MemoryForget, MemoryGetEntity, MemoryQuery, MemoryRemember
     from astra.tools.report import TaskReport
     from astra.tools.shell import ShellRun
+    from astra.tools.web import WebFetchMock
 
     registry = ToolRegistry()
     registry.register(ReadFile())
@@ -89,6 +90,7 @@ def default_registry() -> ToolRegistry:
     registry.register(MemoryRemember())
     registry.register(MemoryForget())
     registry.register(TaskReport())
+    registry.register(WebFetchMock())
     return registry
 
 

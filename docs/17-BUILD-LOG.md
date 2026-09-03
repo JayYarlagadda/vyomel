@@ -419,3 +419,22 @@ astra memory query "your unique token"
 
 **Not yet:** `evals/suites/longrun/` chaos harness, mock web tool, 30-minute task fixture.
 
+---
+
+## 2026-09-02 — M6 completion (session 14)
+
+**Left off:** heartbeat (`5f1c8ac`) and blob spill (`dcbcde8`) shipped. Chaos harness open.
+
+**This session's goal:** finish M6 exit criteria — mock web tool, research DAG, longrun eval, durability tests.
+
+### Shipped
+
+- **`web.fetch_mock`** — deterministic no-network fetch for research tasks.
+- **`astra/planner/longrun.py`** — 100-action fan-out research plan + report.
+- **`astra/runtime/chaos.py`** + **`astra/runtime/longrun.py`** — simulated `kill -9`, audit, harness with `fast`/`standard`/`chaos` modes.
+- **`evals/suites/longrun/run.py`** + `evals/results/2026-09-02-m6/`.
+- **`ActionQueue.reset_stream()`** for Redis-flush recovery tests.
+- **Tests:** `tests/runtime/test_longrun.py`, `tests/planner/test_longrun_plan.py`, `tests/tools/test_web.py`.
+
+**Deferred:** real subprocess SIGKILL harness (portable DB injection covers the recovery path); nightly `--mode chaos` run.
+

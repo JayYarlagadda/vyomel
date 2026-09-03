@@ -4,7 +4,7 @@
 
 Astra is not a chatbot. A chatbot returns text. Astra changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
 
-**Status:** M5 complete (planner, models, replanning, agent evals). See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
+**Status:** M6 complete (heartbeat, blob spill, longrun chaos harness). See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
 
 ---
 

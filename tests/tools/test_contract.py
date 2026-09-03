@@ -53,6 +53,7 @@ def test_default_registry_meets_the_contract() -> None:
         "memory.remember",
         "shell.run",
         "task.report",
+        "web.fetch_mock",
     }
     by_name = {s.name: s for s in registry.catalog()}
     for spec in by_name.values():

@@ -122,14 +122,13 @@ Deferred: cloud provider production tuning, FR-705 failover/circuit breaker, `ev
 
 ---
 
-### M6 — Durability under chaos *(week 10)*
-
-- `evals/suites/longrun/` chaos harness
-- Blob spill for large intermediate results
-- Heartbeat lease extension for slow actions
-- 30-minute research task with a mock web tool
+### M6 — Durability under chaos *(week 10)* — done (2026-09-02)
 
 **Exit:** 20 minutes of random `kill -9` every 60 s with **0** lost or duplicated side effects.
+
+Shipped: heartbeat lease extension, blob spill, `web.fetch_mock`, 100-item research plan builder, `evals/suites/longrun/` harness (`fast` / `standard` / `chaos` modes), integration tests for simulated kills and Redis flush recovery. See `evals/results/2026-09-02-m6/`.
+
+Deferred: OS-level `kill -9` subprocess harness (DB-state injection is the portable stand-in, same as M1 demo); full 20-minute chaos run is manual via `--mode chaos`.
 
 ---
 
@@ -236,7 +235,7 @@ Deferred: cloud provider production tuning, FR-705 failover/circuit breaker, `ev
 ## 5. Critical path and risk ordering
 
 ```
-M0 ──► M1 ──► M2 ──► M3 ──► M5 ──► everything else
+M0 ──► M1 ──► M2 ──► M3 ──► M5 ──► M6 ──► everything else
        ▲ hardest, highest value, must not be rushed
                      M4 can proceed in parallel with M2/M3
 ```

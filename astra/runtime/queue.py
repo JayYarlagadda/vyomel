@@ -57,6 +57,11 @@ class ActionQueue:
     async def ack(self, message: StreamMessage) -> None:
         await self._redis.xack(self.stream, self.group, message.message_id)
 
+    async def reset_stream(self) -> None:
+        """Delete and recreate the stream — simulates a Redis flush for durability evals."""
+        await self._redis.delete(self.stream)
+        await self.ensure_group()
+
     async def autoclaim(
         self, consumer: str, *, min_idle_ms: int, count: int = 50
     ) -> list[StreamMessage]:
