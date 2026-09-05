@@ -339,7 +339,7 @@ def _element_exists(
             from vyomel.tools.desktop.types import Target as DesktopTarget
 
             desktop = get_desktop_session(ctx.settings, task_id=ctx.task_id)
-            element = desktop.find(
+            found = desktop.find(
                 DesktopTarget(
                     role=role if isinstance(role, str) else None,
                     name=name if isinstance(name, str) else None,
@@ -347,13 +347,13 @@ def _element_exists(
                     ref=ref if isinstance(ref, str) else None,
                 )
             )
-            observed = {"ref": element.ref, "role": element.role, "name": element.name}
+            observed = {"ref": found.ref, "role": found.role, "name": found.name}
         else:
             from vyomel.tools.browser.session import get_fixture_session as get_browser_session
             from vyomel.tools.browser.types import Target as BrowserTarget
 
             browser = get_browser_session(ctx.settings, task_id=ctx.task_id)
-            element = browser.query(
+            found_browser = browser.query(
                 BrowserTarget(
                     role=role if isinstance(role, str) else None,
                     name=name if isinstance(name, str) else None,
@@ -361,7 +361,11 @@ def _element_exists(
                     ref=ref if isinstance(ref, str) else None,
                 )
             )
-            observed = {"ref": element.ref, "role": element.role, "name": element.name}
+            observed = {
+                "ref": found_browser.ref,
+                "role": found_browser.role,
+                "name": found_browser.name,
+            }
     except ToolError as exc:
         return Verification(
             outcome=VerifyOutcome.FAIL,
