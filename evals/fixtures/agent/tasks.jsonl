@@ -98,3 +98,13 @@
 {"instruction": "summarize quarterly report number 48", "expected_tool": "task.report"}
 {"instruction": "list D:/workspace/project-49", "expected_tool": "fs.list_dir"}
 {"instruction": "summarize quarterly report number 49", "expected_tool": "task.report"}
+{"instruction": "list D:/workspace/project-ms-0 then report findings", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-1 and then summarize", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-2 then report a summary", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-3 and then report", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-4 then report findings", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-5 and then summarize results", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-6 then report", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-7 and then report findings", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-8 then summarize", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}
+{"instruction": "list D:/workspace/project-ms-9 and then report a summary", "expected_tool": "fs.list_dir", "expected_steps": 2, "expected_tools": ["fs.list_dir", "task.report"]}

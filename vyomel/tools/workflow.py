@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field
 
 from vyomel.core.errors import ErrorCode, ToolError
 from vyomel.core.types import Capability
+from vyomel.learning.pg_store import PostgresWorkflowStore
+from vyomel.learning.proposal import bind_parameters
 from vyomel.learning.store import (
     WorkflowError,
     WorkflowNotFoundError,
@@ -15,6 +17,7 @@ from vyomel.learning.store import (
     get_workflow_store,
     require_accepted,
 )
+from vyomel.store.db import session_scope
 from vyomel.tools.base import Tool, ToolContext
 
 
@@ -45,24 +48,43 @@ class WorkflowInvoke(Tool):
     concurrency_key: ClassVar[str] = "workflow"
 
     def classify(self, params: BaseModel) -> Capability:
-        assert isinstance(params, WorkflowInvokeInput)
-        store = get_workflow_store()
-        proposal = store.get(params.workflow_id)
-        if proposal is None:
-            return self.base_capability
-        # Inherit ceiling of the workflow's declared trust (capped at L2).
-        return max(self.base_capability, proposal.trust_level)
+        # FR-310: learned workflows never exceed L2. Execute loads the exact
+        # trust_level; classify uses the ceiling so we never under-escalate.
+        return Capability.L2
 
     async def execute(self, params: BaseModel, ctx: ToolContext) -> BaseModel:
         assert isinstance(params, WorkflowInvokeInput)
-        store = get_workflow_store()
+        settings = ctx.settings
+        use_pg = settings is not None and settings.workflow_store_backend == "postgres"
         try:
-            proposal = require_accepted(store, params.workflow_id)
-            steps = expand_workflow(store, params.workflow_id, params.parameters)
+            if use_pg:
+                async with session_scope() as session:
+                    store = PostgresWorkflowStore(session)
+                    proposal = await store.get(params.workflow_id)
+                    if proposal is None:
+                        raise WorkflowNotFoundError(
+                            f"unknown workflow: {params.workflow_id}"
+                        )
+                    if proposal.status != "accepted":
+                        raise WorkflowError(
+                            "workflow is not accepted and cannot be invoked",
+                            detail={
+                                "status": proposal.status,
+                                "workflow_id": params.workflow_id,
+                            },
+                            code=ErrorCode.PERMISSION_DENIED,
+                        )
+                    steps = bind_parameters(proposal, params.parameters)
+            else:
+                mem = get_workflow_store()
+                proposal = require_accepted(mem, params.workflow_id)
+                steps = expand_workflow(mem, params.workflow_id, params.parameters)
         except WorkflowNotFoundError as exc:
             raise ToolError(str(exc), code=ErrorCode.NOT_FOUND) from exc
         except WorkflowError as exc:
             raise ToolError(str(exc), code=exc.code) from exc
+        except ValueError as exc:
+            raise ToolError(str(exc), code=ErrorCode.INVALID_PARAMETERS) from exc
         return WorkflowInvokeOutput(
             workflow_id=proposal.id,
             name=proposal.name,

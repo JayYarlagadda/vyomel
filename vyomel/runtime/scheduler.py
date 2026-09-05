@@ -353,6 +353,17 @@ async def _complete_if_done(
     task.finished_at = now
     _record_task_finished(task, dest, now, len(steps))
     await record_episode(session, task=task, actions=actions, settings=settings)
+    try:
+        from vyomel.learning.service import auto_mine_after_task
+        from vyomel.orchestrator.runtime import get_registry
+
+        caps = {spec.name: spec.base_capability for spec in get_registry().catalog()}
+        await auto_mine_after_task(session, settings=settings, tool_capabilities=caps)
+    except Exception:
+        # Learning must never fail task completion.
+        from vyomel.core.logging import get_logger
+
+        get_logger(__name__).exception("vyomel.learning.auto_mine_failed", task_id=task.id)
 
 
 def _record_task_finished(task: Task, status: TaskStatus, now: datetime, step_count: int) -> None:

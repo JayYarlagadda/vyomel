@@ -31,7 +31,11 @@ if (-not (Test-WslKeepalive)) {
 }
 
 Write-Host 'Starting containers...' -ForegroundColor Cyan
-wsl -e bash -c 'cd /mnt/d/Vyomel/infra && docker compose up -d'
+# Resolve infra/ from this script so renames (Astra→Vyomel) do not break compose.
+$infraDir = Split-Path -Parent $PSScriptRoot
+$wslInfra = (wsl -e wslpath -a $infraDir).Trim()
+if (-not $wslInfra) { throw "Could not resolve WSL path for $infraDir" }
+wsl -e bash -c "cd '$wslInfra' && docker compose up -d postgres redis"
 if ($LASTEXITCODE -ne 0) { throw 'docker compose up failed' }
 
 Write-Host 'Waiting for health...' -ForegroundColor Cyan

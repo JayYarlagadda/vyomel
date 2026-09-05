@@ -646,3 +646,23 @@ vyomel memory query "your unique token"
 
 ---
 
+## 2026-09-05 — Resume-truth + workflow durability (session 26)
+
+**Left off:** M0–M17 complete. Open claims C2/C9/C15/C16; M15 Postgres store + auto-mine deferred.
+
+**This session's goal:** Close resume-truth gaps for NL multi-step / schema validity / bounded replan; wire durable workflow store + post-task mining; push tree; run e2e tests.
+
+### Shipped
+
+- **C2:** mock planner emits list→report multi-step DAGs; 10 multi-step agent fixtures; `multi_step_accuracy` metric.
+- **C9:** agent eval measures `schema_validity_rate` (plan + tool Input validation) with ≥0.98 gate.
+- **C15:** flipped ☑ (existing `test_replan_bounds` evidence).
+- **C16:** honest ◐ — committed 600s standard + restart tests; 20/30-min chaos still manual.
+- **`PostgresWorkflowStore`** + `WorkflowSuppression` ORM; API/tool honor `VYOMEL_WORKFLOW_STORE_BACKEND`.
+- **`auto_mine_after_task`** hooked after episode recording on task success.
+- **Tests:** `tests/learning/test_pg_store.py`; decompose multi-step.
+
+**Still open:** live A10G/vLLM numbers (C10), kind→cloud Helm (C18), bge embeddings (C7/C11), verifier gaps (C14), full chaos commit.
+
+---
+

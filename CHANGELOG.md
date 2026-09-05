@@ -23,7 +23,13 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 - `vyomel/learning/`: signature normalize, PrefixSpan-lite mining, parameterized proposals (FR-901–902)
 - Explicit accept/reject with suppression list; `workflow.invoke` refuses unaccepted proposals (FR-903)
 - Trust ceiling capped at L2 (FR-310); `workflows` + `workflow_suppressions` migration `0009`
+- **PostgresWorkflowStore** + post-task `auto_mine_after_task` (`VYOMEL_WORKFLOW_STORE_BACKEND`, `VYOMEL_WORKFLOW_AUTO_MINE`)
 - API `/v1/workflows` + CLI `vyomel workflows`; results in `evals/results/2026-09-04-m15/`
+
+### Resume-truth harden (post-M17)
+
+- NL multi-step mock plans + agent `multi_step_accuracy` / `schema_validity_rate` (C2, C9)
+- Bounded replan claim flipped ☑; long-run claim honest ◐ with committed 600s evidence (C15, C16)
 
 ### M14 — Media plugin
 

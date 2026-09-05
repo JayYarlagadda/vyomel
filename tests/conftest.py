@@ -34,7 +34,7 @@ from tests.fakes import registry_with_fakes
 @pytest.fixture(scope="session")
 def settings() -> Settings:
     os.environ.setdefault("VYOMEL_ENV", "test")
-    return Settings(env="test", log_format="json")
+    return Settings(env="test", log_format="json", workflow_store_backend="memory")
 
 
 @pytest.fixture
@@ -79,6 +79,8 @@ def runtime_settings(tmp_path: Path) -> Settings:
         max_retries=2,
         action_timeout_s=15,
         cancel_grace_s=0.5,
+        workflow_store_backend="memory",
+        workflow_auto_mine=False,
     )
 
 
@@ -107,8 +109,12 @@ async def runtime_db(runtime_settings: Settings) -> AsyncIterator[Settings]:
 
 async def _truncate_tasks() -> None:
     # Steps, actions, approvals, ledger rows, and dead letters cascade from tasks.
+    from vyomel.store.models import Workflow, WorkflowSuppression
+
     async with session_scope() as session:
         await session.execute(delete(ModelCall))
+        await session.execute(delete(WorkflowSuppression))
+        await session.execute(delete(Workflow))
         await session.execute(delete(Task))
 
 

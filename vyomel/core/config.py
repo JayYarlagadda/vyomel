@@ -128,6 +128,14 @@ class Settings(BaseSettings):
     voice_backend: Literal["auto", "fixture", "whisper"] = "auto"
     voice_wake_phrase: str = "hey vyomel"
 
+    # --- workflow learning (M15 harden) ---
+    # memory: process-local (tests/fixtures). postgres: durable via migration 0009.
+    workflow_store_backend: Literal["memory", "postgres"] = "postgres"
+    workflow_auto_mine: bool = True
+    workflow_mine_min_support: Annotated[int, Field(ge=1)] = 3
+    workflow_mine_min_length: Annotated[int, Field(ge=1)] = 3
+    workflow_mine_max_tasks: Annotated[int, Field(ge=1)] = 100
+
     # --- external APIs / OAuth ---
     oauth_backend: Literal["auto", "memory", "file", "keyring"] = "auto"
     api_allow_hosts: Annotated[list[str], NoDecode] = Field(

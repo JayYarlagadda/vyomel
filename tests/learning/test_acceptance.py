@@ -90,7 +90,12 @@ def test_reject_suppresses_reproposal() -> None:
 async def test_workflow_invoke_tool_requires_acceptance(tmp_path: Path) -> None:
     proposals = mine_and_propose(_actions())
     proposal = proposals[0]
-    settings = Settings(env="test", workspace_root=tmp_path / ".vyomel", allowed_roots=[tmp_path])
+    settings = Settings(
+        env="test",
+        workspace_root=tmp_path / ".vyomel",
+        allowed_roots=[tmp_path],
+        workflow_store_backend="memory",
+    )
     settings.ensure_directories()
     ctx = ToolContext(
         task_id="wf",

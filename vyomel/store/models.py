@@ -618,3 +618,14 @@ class Workflow(Base):
             name="workflows_trust_level_cap_l2",
         ),
     )
+
+
+class WorkflowSuppression(Base):
+    """Rejected pattern keys that must not be re-proposed (FR-903)."""
+
+    __tablename__ = "workflow_suppressions"
+
+    pattern_key: Mapped[str] = mapped_column(Text, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )

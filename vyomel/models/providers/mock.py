@@ -82,6 +82,43 @@ def _recovery_plan() -> HandwrittenPlan:
 
 def _plan_for_instruction(instruction: str) -> HandwrittenPlan:
     lowered = instruction.lower()
+    # Multi-step NL → DAG (list, then report) — resume claim C2 evidence path.
+    multi = any(
+        marker in lowered
+        for marker in (" then ", " and then ", " after listing ", "list and report")
+    )
+    if multi and "list" in lowered:
+        path = _extract_path(instruction) or "."
+        summary = instruction[:500]
+        return HandwrittenPlan(
+            steps=[
+                StepSpec(
+                    alias="survey",
+                    title="List directory",
+                    intent=f"List entries in {path}",
+                    actions=[
+                        ActionSpec(
+                            alias="ls",
+                            tool="fs.list_dir",
+                            parameters={"path": path},
+                        )
+                    ],
+                ),
+                StepSpec(
+                    alias="report",
+                    title="Summarize listing",
+                    intent=summary,
+                    depends_on=["survey"],
+                    actions=[
+                        ActionSpec(
+                            alias="done",
+                            tool="task.report",
+                            parameters={"summary": summary, "findings": []},
+                        )
+                    ],
+                ),
+            ]
+        )
     if "list" in lowered:
         path = _extract_path(instruction) or "."
         return HandwrittenPlan(
