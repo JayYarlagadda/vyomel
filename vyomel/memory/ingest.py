@@ -15,7 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from vyomel.core.errors import VyomelError, ErrorCode, NotFoundError
+from vyomel.core.errors import ErrorCode, NotFoundError, VyomelError
 from vyomel.core.ids import file_digest, new_id
 from vyomel.memory.chunking import chunk_text
 from vyomel.memory.extract import extract_text

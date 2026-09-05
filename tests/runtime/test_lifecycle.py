@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select
 
+from tests.runtime.helpers import install_plan
 from vyomel.core.config import Settings
 from vyomel.core.types import ActionStatus, TaskStatus
 from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
@@ -22,7 +23,6 @@ from vyomel.runtime.scheduler import Scheduler
 from vyomel.runtime.worker import Worker
 from vyomel.store.db import session_scope
 from vyomel.store.models import Action
-from tests.runtime.helpers import install_plan
 
 
 def _scratch_writes(scratch: Path) -> tuple[HandwrittenPlan, Path]:

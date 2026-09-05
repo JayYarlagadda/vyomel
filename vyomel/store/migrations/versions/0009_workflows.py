@@ -1,4 +1,4 @@
-"""Workflows table (docs/03 §4.5, FR-901–903 / FR-310).
+"""Workflows table (docs/03 section 4.5, FR-901-903 / FR-310).
 
 Revision ID: 0009
 Revises: 0008

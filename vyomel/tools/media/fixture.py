@@ -244,11 +244,7 @@ def export(path: Path, *, dest: Path) -> dict[str, Any]:
     manifest = load_manifest(path)
     dest.parent.mkdir(parents=True, exist_ok=True)
     # Materialize a deterministic binary stand-in so file_hash verification works.
-    body = (
-        b"VYOMEL_FIXTURE_EXPORT\n"
-        + manifest.model_dump_json().encode("utf-8")
-        + b"\n"
-    )
+    body = b"VYOMEL_FIXTURE_EXPORT\n" + manifest.model_dump_json().encode("utf-8") + b"\n"
     digest = digest_bytes(body)
     dest.write_bytes(body)
     return {
@@ -300,9 +296,7 @@ def detect_segments(
                 )
     if "silence" in wanted:
         for item in silence or []:
-            found.append(
-                DetectedSegment(kind="silence", start=item.start, end=item.end, score=1.0)
-            )
+            found.append(DetectedSegment(kind="silence", start=item.start, end=item.end, score=1.0))
     if "highlight" in wanted:
         for item in highlights or []:
             found.append(

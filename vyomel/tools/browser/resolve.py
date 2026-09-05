@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from html.parser import HTMLParser
-from typing import Any
 
 from vyomel.tools.browser.metrics import record_actuation_tier
 from vyomel.tools.browser.types import A11yNode, ActuationTier, ElementRef, Target
@@ -26,7 +25,7 @@ _ROLE_FOR_TAG: dict[str, str] = {
 
 
 class _DomNode:
-    __slots__ = ("tag", "attrs", "children", "text")
+    __slots__ = ("attrs", "children", "tag", "text")
 
     def __init__(self) -> None:
         self.tag = ""
@@ -119,10 +118,15 @@ def _match_target(node: _DomNode, target: Target) -> bool:
         return False
     if target.selector:
         selector_id = target.selector.lstrip("#")
-        if node.attrs.get("id") != selector_id and node.attrs.get("class") != selector_id:
-            if f"#{node.attrs.get('id', '')}" != target.selector:
-                if target.selector not in node.attrs.get("class", ""):
-                    return False
+        id_attr = node.attrs.get("id", "")
+        class_attr = node.attrs.get("class", "")
+        if (
+            id_attr != selector_id
+            and class_attr != selector_id
+            and f"#{id_attr}" != target.selector
+            and target.selector not in class_attr
+        ):
+            return False
     return True
 
 

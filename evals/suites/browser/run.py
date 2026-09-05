@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from evals.suites.browser.workflows import Workflow, build_workflows
+
 from vyomel.core.cancel import CancellationToken
 from vyomel.core.clock import SystemClock
 from vyomel.core.config import Settings
@@ -21,7 +23,6 @@ from vyomel.tools.base import ToolContext
 from vyomel.tools.browser.metrics import actuation_tier_distribution, reset_actuation_tiers
 from vyomel.tools.browser.session import reset_sessions
 from vyomel.tools.registry import default_registry
-from evals.suites.browser.workflows import Workflow, build_workflows
 
 
 async def run_workflow(workflow: Workflow, settings: Settings, registry, scratch: Path) -> bool:

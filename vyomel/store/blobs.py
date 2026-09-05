@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from vyomel.core.errors import VyomelError, ErrorCode
+from vyomel.core.errors import ErrorCode, VyomelError
 from vyomel.core.ids import canonical_json, digest_bytes, file_digest
 
 BLOB_REF_KEY = "$blob"

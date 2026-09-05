@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from vyomel.core.config import Settings
-from vyomel.core.errors import VyomelError, ErrorCode
+from vyomel.core.errors import ErrorCode, VyomelError
 from vyomel.core.plan_spec import HandwrittenPlan
 from vyomel.core.types import Capability, Sensitivity, Trust
 from vyomel.models.providers.protocol import ModelProvider

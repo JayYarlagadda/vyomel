@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from sqlalchemy import select
 
+from tests.runtime.helpers import drain, install_plan
 from vyomel.core.config import Settings
 from vyomel.core.types import ActionStatus
 from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
@@ -13,7 +14,6 @@ from vyomel.runtime.queue import ActionQueue
 from vyomel.store.blobs import is_blob_ref, resolve_result
 from vyomel.store.db import session_scope
 from vyomel.store.models import Action, Task
-from tests.runtime.helpers import drain, install_plan
 
 
 @pytest.mark.integration

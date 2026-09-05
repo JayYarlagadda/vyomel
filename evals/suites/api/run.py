@@ -134,10 +134,7 @@ async def run_s3(settings: Settings) -> dict[str, object]:
         created_ids.append(created.id)
 
     success = (
-        l3_actions >= 2
-        and l3_allow == 0
-        and l3_confirm == l3_actions
-        and len(created_ids) == 2
+        l3_actions >= 2 and l3_allow == 0 and l3_confirm == l3_actions and len(created_ids) == 2
     )
     return {
         "scenario": "S3",

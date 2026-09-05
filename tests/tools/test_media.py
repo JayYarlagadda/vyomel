@@ -167,9 +167,7 @@ async def test_scratch_only_intermediate_writes(tmp_path: Path) -> None:
     outside = tmp_path / "outside.vclip.json"
     with pytest.raises(ToolError) as exc:
         await registry.get("media.cut").execute(
-            registry.get("media.cut").Input(
-                path=str(clip), start=0.0, end=1.0, dest=str(outside)
-            ),
+            registry.get("media.cut").Input(path=str(clip), start=0.0, end=1.0, dest=str(outside)),
             ctx,
         )
     assert exc.value.code is ErrorCode.PERMISSION_DENIED

@@ -139,9 +139,5 @@ def observe_frame(data: bytes | None = None, *, scene_path: Path | None = None) 
 
 def equipment_labels(frame: FrameObservation) -> list[str]:
     return sorted(
-        {
-            d.label
-            for d in frame.detections
-            if d.category == "equipment" and d.confidence >= 0.5
-        }
+        {d.label for d in frame.detections if d.category == "equipment" and d.confidence >= 0.5}
     )

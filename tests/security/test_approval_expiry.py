@@ -11,6 +11,9 @@ from __future__ import annotations
 import pytest
 from sqlalchemy import select
 
+from tests.fakes import Notify
+from tests.runtime.helpers import install_plan
+from tests.security.test_approval_gate import notify_plan, only_action, only_approval
 from vyomel.core.clock import FrozenClock
 from vyomel.core.config import Settings
 from vyomel.core.errors import ConflictError, ErrorCode
@@ -23,9 +26,6 @@ from vyomel.security.audit import AuditEvent
 from vyomel.security.policy import store_for
 from vyomel.store.db import session_scope
 from vyomel.store.models import Action, Approval, AuditLog, Task
-from tests.fakes import Notify
-from tests.runtime.helpers import install_plan
-from tests.security.test_approval_gate import notify_plan, only_action, only_approval
 
 
 @pytest.mark.integration

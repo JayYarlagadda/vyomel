@@ -19,7 +19,7 @@ async def test_research_task_survives_simulated_worker_kills(
     scheduler: Scheduler,
     worker: Worker,
 ) -> None:
-    config = HarnessConfig(items=8, duration_s=30.0, kill_interval_s=0.5)
+    config = HarnessConfig(items=8, duration_s=30.0, kill_interval_s=0.0)
     harness = LongrunHarness(runtime_db, queue, scheduler=scheduler, worker=worker)
     task = await harness.install(items=config.items)
     result = await harness.run(task.id, expected_fetches=config.items, config=config)

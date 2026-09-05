@@ -62,9 +62,7 @@ class WorkflowInvoke(Tool):
                     store = PostgresWorkflowStore(session)
                     proposal = await store.get(params.workflow_id)
                     if proposal is None:
-                        raise WorkflowNotFoundError(
-                            f"unknown workflow: {params.workflow_id}"
-                        )
+                        raise WorkflowNotFoundError(f"unknown workflow: {params.workflow_id}")
                     if proposal.status != "accepted":
                         raise WorkflowError(
                             "workflow is not accepted and cannot be invoked",

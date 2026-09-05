@@ -8,6 +8,8 @@ from datetime import timedelta
 import pytest
 from sqlalchemy import select
 
+from tests.fakes import release_hold, reset_hold, signal_hold_started
+from tests.runtime.helpers import install_plan
 from vyomel.core.clock import FrozenClock
 from vyomel.core.config import Settings
 from vyomel.core.types import ActionStatus
@@ -19,8 +21,6 @@ from vyomel.runtime.worker import Worker
 from vyomel.store.db import session_scope
 from vyomel.store.models import Action
 from vyomel.store.repos import ActionRepo
-from tests.fakes import release_hold, reset_hold, signal_hold_started
-from tests.runtime.helpers import install_plan
 
 
 def _hold_plan(*, timeout_s: int = 5) -> HandwrittenPlan:

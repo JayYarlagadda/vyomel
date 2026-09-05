@@ -248,9 +248,7 @@ async def export(path: Path, *, dest: Path) -> dict[str, Any]:
         return fx.export(path, dest=dest)
     _ensure_dir(dest)
     if not _same_path(path, dest):
-        code, _, stderr = await _run(
-            ["ffmpeg", "-y", "-i", str(path), "-c", "copy", str(dest)]
-        )
+        code, _, stderr = await _run(["ffmpeg", "-y", "-i", str(path), "-c", "copy", str(dest)])
         if code != 0:
             raise ToolError(
                 "ffmpeg export failed",

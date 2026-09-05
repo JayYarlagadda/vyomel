@@ -135,9 +135,7 @@ def proposal_from_row(row: Workflow) -> WorkflowProposal:
     return _row_to_proposal(row)
 
 
-async def accept_workflow_pg(
-    store: PostgresWorkflowStore, workflow_id: str
-) -> WorkflowProposal:
+async def accept_workflow_pg(store: PostgresWorkflowStore, workflow_id: str) -> WorkflowProposal:
     proposal = await store.get(workflow_id)
     if proposal is None:
         raise WorkflowNotFoundError(f"unknown workflow: {workflow_id}")
@@ -149,9 +147,7 @@ async def accept_workflow_pg(
     return await store.update(updated)
 
 
-async def reject_workflow_pg(
-    store: PostgresWorkflowStore, workflow_id: str
-) -> WorkflowProposal:
+async def reject_workflow_pg(store: PostgresWorkflowStore, workflow_id: str) -> WorkflowProposal:
     proposal = await store.get(workflow_id)
     if proposal is None:
         raise WorkflowNotFoundError(f"unknown workflow: {workflow_id}")

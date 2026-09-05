@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pydantic import ValidationError
 
 from vyomel.core.config import Settings
-from vyomel.core.errors import VyomelError, ErrorCode
+from vyomel.core.errors import ErrorCode, VyomelError
 from vyomel.core.plan_spec import HandwrittenPlan
 from vyomel.core.types import Capability, Trust
 from vyomel.models.providers.protocol import ModelProvider

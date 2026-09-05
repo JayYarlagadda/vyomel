@@ -64,7 +64,11 @@ def _lifecycle() -> dict[str, object]:
         "has_resume_link": any(span.links for span in recorder().spans(trace_id=task.trace_id)),
         "metrics_present": all(
             name in body
-            for name in ("vyomel_tasks_total", "vyomel_actions_total", "vyomel_policy_decisions_total")
+            for name in (
+                "vyomel_tasks_total",
+                "vyomel_actions_total",
+                "vyomel_policy_decisions_total",
+            )
         ),
         "dashboards": dashboards,
         "timeline_preview": render_timeline(tree).splitlines()[0],
@@ -79,7 +83,9 @@ def main() -> None:
         "suite": "obs",
         "backend": "in-process",
         "recorded_at": datetime.now(UTC).isoformat(),
-        "success_rate": 1.0 if result["metrics_present"] and len(result["dashboards"]) == 6 else 0.0,
+        "success_rate": 1.0
+        if result["metrics_present"] and len(result["dashboards"]) == 6
+        else 0.0,
         **result,
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

@@ -37,9 +37,5 @@ def test_accept_rejects_trust_above_l2() -> None:
 
 @pytest.mark.req("FR-310")
 def test_orm_check_constraint_caps_trust_at_l2() -> None:
-    checks = [
-        c
-        for c in Workflow.__table__.constraints
-        if isinstance(c, CheckConstraint)
-    ]
+    checks = [c for c in Workflow.__table__.constraints if isinstance(c, CheckConstraint)]
     assert any("L2" in str(c.sqltext) for c in checks)

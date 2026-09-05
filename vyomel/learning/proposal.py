@@ -138,9 +138,7 @@ def propose_workflows(
             WorkflowProposal(
                 id=new_id(),
                 name=_name_for(pattern),
-                description=(
-                    f"Learned from {pattern.support} tasks: {pattern.pattern_key()}"
-                ),
+                description=(f"Learned from {pattern.support} tasks: {pattern.pattern_key()}"),
                 definition=definition,
                 parameters=parameters,
                 occurrence_count=pattern.support,
@@ -153,9 +151,7 @@ def propose_workflows(
     return proposals
 
 
-def bind_parameters(
-    proposal: WorkflowProposal, values: dict[str, Any]
-) -> list[dict[str, Any]]:
+def bind_parameters(proposal: WorkflowProposal, values: dict[str, Any]) -> list[dict[str, Any]]:
     """Expand a proposal into concrete tool calls."""
     missing = [p.name for p in proposal.parameters if p.name not in values]
     if missing:

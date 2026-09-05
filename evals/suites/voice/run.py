@@ -22,9 +22,7 @@ async def run(work: Path) -> dict[str, object]:
 
     assert await session.listen_wake(fixture_utterance("background chatter")) is False
     assert await session.listen_wake(fixture_utterance("hey vyomel file the Orbit notes")) is True
-    utterance = await session.listen_utterance(
-        fixture_utterance("hey vyomel file the Orbit notes")
-    )
+    utterance = await session.listen_utterance(fixture_utterance("hey vyomel file the Orbit notes"))
     assert "orbit" in utterance.text.lower()
     assert detect_wake(utterance).detected is False  # wake stripped
 

@@ -82,9 +82,7 @@ def _propose(
             by_task[tid] = []
         by_task[tid].append(action)
     corpus = [(tid, by_task[tid]) for tid in order]
-    patterns = mine_frequent_sequences(
-        grouped, min_support=min_support, min_length=min_length
-    )
+    patterns = mine_frequent_sequences(grouped, min_support=min_support, min_length=min_length)
     return propose_workflows(
         patterns,
         corpus,
@@ -118,25 +116,33 @@ async def load_succeeded_actions(
 ) -> list[ObservedAction]:
     """Load recent succeeded-task actions for post-completion mining."""
     task_ids = (
-        await session.execute(
-            select(Task.id)
-            .where(Task.status == TaskStatus.SUCCEEDED)
-            .order_by(Task.finished_at.desc().nulls_last(), Task.created_at.desc())
-            .limit(max_tasks)
+        (
+            await session.execute(
+                select(Task.id)
+                .where(Task.status == TaskStatus.SUCCEEDED)
+                .order_by(Task.finished_at.desc().nulls_last(), Task.created_at.desc())
+                .limit(max_tasks)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     if not task_ids:
         return []
     rows = (
-        await session.execute(
-            select(Action)
-            .where(
-                Action.task_id.in_(list(task_ids)),
-                Action.status == ActionStatus.SUCCEEDED,
+        (
+            await session.execute(
+                select(Action)
+                .where(
+                    Action.task_id.in_(list(task_ids)),
+                    Action.status == ActionStatus.SUCCEEDED,
+                )
+                .order_by(Action.created_at.asc())
             )
-            .order_by(Action.created_at.asc())
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [
         ObservedAction(
             tool=row.tool,

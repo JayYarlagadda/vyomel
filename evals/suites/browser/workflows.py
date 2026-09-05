@@ -97,7 +97,9 @@ def build_workflows() -> list[Workflow]:
                     f"w{base + 6:02d}_{page}_type",
                     (
                         _open(page),
-                        WorkflowStep("browser.type", {"role": "textbox", "name": "Email", "text": "a@b.com"}),
+                        WorkflowStep(
+                            "browser.type", {"role": "textbox", "name": "Email", "text": "a@b.com"}
+                        ),
                     ),
                     "typed",
                     "a@b.com",
@@ -159,7 +161,9 @@ def build_workflows() -> list[Workflow]:
                         f"w{base + 8:02d}_{page}_submit",
                         (
                             _open(page),
-                            WorkflowStep("browser.submit", {"role": "button", "name": "Submit application"}),
+                            WorkflowStep(
+                                "browser.submit", {"role": "button", "name": "Submit application"}
+                            ),
                         ),
                         "submitted",
                         True,

@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select
 
+from tests.runtime.helpers import drain, install_plan
 from vyomel.core.config import Settings
 from vyomel.core.types import ActionStatus, TaskStatus
 from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
@@ -14,7 +15,6 @@ from vyomel.runtime.scheduler import Scheduler
 from vyomel.runtime.worker import Worker
 from vyomel.store.db import session_scope
 from vyomel.store.models import Action, Task
-from tests.runtime.helpers import drain, install_plan
 
 
 def _five_action_plan(root: Path) -> HandwrittenPlan:

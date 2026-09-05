@@ -13,6 +13,13 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from evals.suites.desktop.workflows import (
+    VerificationFault,
+    Workflow,
+    build_workflows,
+    verification_fault_workflows,
+)
+
 from vyomel.core.cancel import CancellationToken
 from vyomel.core.clock import SystemClock
 from vyomel.core.config import Settings
@@ -25,12 +32,6 @@ from vyomel.tools.desktop.metrics import (
 )
 from vyomel.tools.desktop.session import reset_sessions
 from vyomel.tools.registry import default_registry
-from evals.suites.desktop.workflows import (
-    VerificationFault,
-    Workflow,
-    build_workflows,
-    verification_fault_workflows,
-)
 
 
 async def run_workflow(workflow: Workflow, settings: Settings, registry, scratch: Path) -> bool:

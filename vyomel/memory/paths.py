@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from pathlib import Path
 
-from vyomel.core.errors import VyomelError, ErrorCode, PermissionDeniedError
+from vyomel.core.errors import ErrorCode, PermissionDeniedError, VyomelError
 
 INGESTIBLE_SUFFIXES = frozenset({".md", ".markdown", ".txt", ".html", ".pdf", ".docx"})
 

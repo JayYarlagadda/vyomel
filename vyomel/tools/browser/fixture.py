@@ -69,13 +69,16 @@ class FixtureSession:
         assert self.dom is not None
         element, tier = resolve_element(self.dom, target)
         node = _resolve_ref(self.dom, element.ref)[1]
-        if node.tag == "input" and node.attrs.get("type", "").lower() == "password":
-            if not allow_password:
-                raise ToolError(
-                    "refusing to type into a password field without explicit approval",
-                    code=ErrorCode.PERMISSION_DENIED,
-                    retryable=False,
-                )
+        if (
+            node.tag == "input"
+            and node.attrs.get("type", "").lower() == "password"
+            and not allow_password
+        ):
+            raise ToolError(
+                "refusing to type into a password field without explicit approval",
+                code=ErrorCode.PERMISSION_DENIED,
+                retryable=False,
+            )
         key = element.ref
         self.state.setdefault("typed", {})[key] = text
         node.attrs["value"] = text

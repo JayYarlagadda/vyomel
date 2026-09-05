@@ -11,6 +11,7 @@ from __future__ import annotations
 import pytest
 from sqlalchemy import select, update
 
+from tests.runtime.helpers import install_plan
 from vyomel.core.config import Settings
 from vyomel.core.errors import ErrorCode
 from vyomel.core.types import ActionStatus
@@ -19,7 +20,6 @@ from vyomel.runtime.scheduler import Scheduler
 from vyomel.runtime.worker import Worker
 from vyomel.store.db import session_scope
 from vyomel.store.models import Action, DeadLetter
-from tests.runtime.helpers import install_plan
 
 _PLAN = HandwrittenPlan(
     steps=[

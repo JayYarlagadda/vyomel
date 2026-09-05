@@ -153,9 +153,7 @@ class FixtureApi:
         q = query.lower()
         with self._lock:
             return [
-                m
-                for m in self._world.messages
-                if q in m.subject.lower() or q in m.body.lower()
+                m for m in self._world.messages if q in m.subject.lower() or q in m.body.lower()
             ]
 
     def read_mail(self, message_id: str) -> MailMessage:

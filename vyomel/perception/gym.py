@@ -95,17 +95,13 @@ def build_gym_session(
             if avoid_axial and label == "squat_rack" and "squat" in name.lower():
                 # Swap to a lighter hinge variation already covered by barbell.
                 continue
-            if focus == "pull_and_legs" and any(
-                tok in name.lower() for tok in ("bench", "press")
-            ):
+            if focus == "pull_and_legs" and any(tok in name.lower() for tok in ("bench", "press")):
                 continue
             if focus == "push" and any(
                 tok in name.lower() for tok in ("row", "pull", "squat", "lunge", "deadlift")
             ):
                 continue
-            blocks.append(
-                ExerciseBlock(name=name, equipment=label, sets=3, reps=reps, notes=notes)
-            )
+            blocks.append(ExerciseBlock(name=name, equipment=label, sets=3, reps=reps, notes=notes))
             if label not in used:
                 used.append(label)
             if len(blocks) >= max_blocks:
@@ -120,9 +116,7 @@ def build_gym_session(
             if not moves:
                 continue
             name, reps, notes = moves[0]
-            blocks.append(
-                ExerciseBlock(name=name, equipment=label, sets=3, reps=reps, notes=notes)
-            )
+            blocks.append(ExerciseBlock(name=name, equipment=label, sets=3, reps=reps, notes=notes))
             used.append(label)
             if len(blocks) >= max_blocks:
                 break

@@ -20,6 +20,7 @@ from httpx import ASGITransport, AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy import delete
 
+from tests.fakes import registry_with_fakes
 from vyomel.core.config import Settings
 from vyomel.core.ids import new_id
 from vyomel.orchestrator.runtime import make_scheduler, make_worker, reset_registry
@@ -28,7 +29,6 @@ from vyomel.runtime.scheduler import Scheduler
 from vyomel.runtime.worker import Worker
 from vyomel.store.db import dispose_engine, init_engine, session_scope
 from vyomel.store.models import Document, Entity, Episode, ModelCall, Task
-from tests.fakes import registry_with_fakes
 
 
 @pytest.fixture(scope="session")

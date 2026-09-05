@@ -125,7 +125,9 @@ ignore = [
 "tests/**" = ["S", "T20", "ASYNC240"]
 "scripts/**" = ["T20"]
 "evals/**" = ["T20", "E402", "ASYNC240"]
-"infra/**" = ["T20"]
+"infra/**" = ["T20", "E501"]
+"vyomel/tools/browser/playwright_backend.py" = ["ASYNC240"]
+"vyomel/store/migrations/**" = ["RUF002"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["vyomel"]

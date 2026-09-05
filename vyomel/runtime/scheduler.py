@@ -355,9 +355,9 @@ async def _complete_if_done(
     await record_episode(session, task=task, actions=actions, settings=settings)
     try:
         from vyomel.learning.service import auto_mine_after_task
-        from vyomel.orchestrator.runtime import get_registry
+        from vyomel.tools.registry import default_registry
 
-        caps = {spec.name: spec.base_capability for spec in get_registry().catalog()}
+        caps = {spec.name: spec.base_capability for spec in default_registry().catalog()}
         await auto_mine_after_task(session, settings=settings, tool_capabilities=caps)
     except Exception:
         # Learning must never fail task completion.

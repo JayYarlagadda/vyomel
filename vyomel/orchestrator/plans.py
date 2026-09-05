@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from vyomel.core.clock import Clock, SystemClock
 from vyomel.core.config import Settings
-from vyomel.core.errors import VyomelError, ErrorCode
+from vyomel.core.errors import ErrorCode, VyomelError
 from vyomel.core.ids import content_hash, idempotency_key, new_id
 from vyomel.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
 from vyomel.core.types import ActionStatus, StepStatus, TaskStatus, Trust

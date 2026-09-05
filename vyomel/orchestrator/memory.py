@@ -13,7 +13,7 @@ from typing import Literal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from vyomel.core.config import Settings
-from vyomel.core.errors import VyomelError, ErrorCode
+from vyomel.core.errors import ErrorCode, VyomelError
 from vyomel.core.types import EntityType
 from vyomel.memory.episodes import list_episodes
 from vyomel.memory.graph import (

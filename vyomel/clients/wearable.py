@@ -35,9 +35,7 @@ def task_create_payload(
 class WearableClient:
     """Minimal client a wearable would ship: health check, detect, gym plan, task create."""
 
-    def __init__(
-        self, base_url: str, *, token: str | None = None, timeout_s: float = 30.0
-    ) -> None:
+    def __init__(self, base_url: str, *, token: str | None = None, timeout_s: float = 30.0) -> None:
         headers: dict[str, str] = {"User-Agent": "vyomel-wearable/0.1"}
         if token:
             headers["Authorization"] = f"Bearer {token}"

@@ -12,6 +12,8 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select
 
+from tests.fakes import Notify
+from tests.runtime.helpers import install_plan
 from vyomel.core.config import Settings
 from vyomel.core.errors import ErrorCode
 from vyomel.core.types import ActionStatus, ApprovalStatus, Capability, TaskStatus
@@ -23,8 +25,6 @@ from vyomel.runtime.worker import Worker
 from vyomel.security.audit import AuditEvent
 from vyomel.store.db import session_scope
 from vyomel.store.models import Action, Approval, AuditLog, Task
-from tests.fakes import Notify
-from tests.runtime.helpers import install_plan
 
 
 def notify_plan(recipient: str = "someone@example.com") -> HandwrittenPlan:

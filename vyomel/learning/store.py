@@ -49,10 +49,7 @@ class MemoryWorkflowStore:
                 )
             # Dedupe by pattern: refresh occurrence count on an existing proposal.
             for existing in self._items.values():
-                if (
-                    existing.pattern_key == proposal.pattern_key
-                    and existing.status != "rejected"
-                ):
+                if existing.pattern_key == proposal.pattern_key and existing.status != "rejected":
                     updated = existing.model_copy(
                         update={
                             "occurrence_count": max(

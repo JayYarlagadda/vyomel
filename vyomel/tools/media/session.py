@@ -57,9 +57,7 @@ class FixtureBackend:
     async def concat(self, paths: list[Path], *, dest: Path) -> MediaProbe:
         return fixture.concat(paths, dest=dest)
 
-    async def mute_segment(
-        self, path: Path, *, start: float, end: float, dest: Path
-    ) -> MediaProbe:
+    async def mute_segment(self, path: Path, *, start: float, end: float, dest: Path) -> MediaProbe:
         return fixture.mute_segment(path, start=start, end=end, dest=dest)
 
     async def caption(
@@ -101,9 +99,7 @@ class FfmpegBackend(FixtureBackend):
     async def concat(self, paths: list[Path], *, dest: Path) -> MediaProbe:
         return await ffmpeg_backend.concat(paths, dest=dest)
 
-    async def mute_segment(
-        self, path: Path, *, start: float, end: float, dest: Path
-    ) -> MediaProbe:
+    async def mute_segment(self, path: Path, *, start: float, end: float, dest: Path) -> MediaProbe:
         return await ffmpeg_backend.mute_segment(path, start=start, end=end, dest=dest)
 
     async def caption(

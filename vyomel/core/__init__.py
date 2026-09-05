@@ -4,7 +4,6 @@ from vyomel.core.cancel import CancellationToken
 from vyomel.core.clock import Clock, FrozenClock, SystemClock, utcnow
 from vyomel.core.config import Settings, get_settings
 from vyomel.core.errors import (
-    VyomelError,
     ConflictError,
     ErrorCode,
     IllegalTransitionError,
@@ -13,6 +12,7 @@ from vyomel.core.errors import (
     PolicyInvariantViolation,
     PrivacyRoutingViolation,
     ToolError,
+    VyomelError,
 )
 from vyomel.core.ids import (
     canonical_json,
@@ -40,7 +40,6 @@ __all__ = [
     "ActionStatus",
     "ActuationTier",
     "ApprovalStatus",
-    "VyomelError",
     "CancellationToken",
     "Capability",
     "Clock",
@@ -62,6 +61,7 @@ __all__ = [
     "ToolError",
     "Trust",
     "VerifyOutcome",
+    "VyomelError",
     "canonical_json",
     "content_hash",
     "digest_bytes",
