@@ -241,7 +241,22 @@ class BrowserClick(Tool):
     concurrency_key: ClassVar[str | None] = "browser"
 
     def verification_plan(self, params: BaseModel, result: BaseModel) -> list[dict[str, Any]]:
-        return [{"type": "value_equals", "field": "clicked", "expected": True}]
+        assert isinstance(params, ClickInput)
+        plan: list[dict[str, Any]] = [
+            {"type": "value_equals", "field": "clicked", "expected": True}
+        ]
+        if params.role or params.name or params.selector or params.ref:
+            plan.append(
+                {
+                    "type": "element_exists",
+                    "surface": "browser",
+                    "role": params.role,
+                    "name": params.name,
+                    "selector": params.selector,
+                    "ref": params.ref,
+                }
+            )
+        return plan
 
     async def execute(self, params: BaseModel, ctx: ToolContext) -> BaseModel:
         assert isinstance(params, ClickInput)

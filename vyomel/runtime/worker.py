@@ -45,7 +45,7 @@ from vyomel.store.models import Action
 from vyomel.store.repos import ActionRepo, TaskRepo, VerificationRepo
 from vyomel.tools.base import ToolContext
 from vyomel.tools.registry import RegistryError, ToolRegistry
-from vyomel.verify.engine import VerificationReport, verify_result
+from vyomel.verify.engine import ObserveContext, VerificationReport, verify_result
 
 log = get_logger(__name__)
 
@@ -205,7 +205,7 @@ class Worker:
 
         Written here rather than at each of ``_run_claimed``'s exits: a dozen
         call sites is a dozen chances to add a thirteenth that forgets. The
-        result itself is summarized, not copied — audit payloads are permanent,
+        result itself is summarized, not copied â€” audit payloads are permanent,
         and a tool result can be a megabyte of file content.
         """
         await self._audit.append(
@@ -402,6 +402,7 @@ async def _run_claimed(
         postconditions=postconditions,
         result=result,
         allowed_roots=list(settings.allowed_roots),
+        observe=ObserveContext(task_id=action.task_id, settings=settings),
     )
     with start_span("verify") as verify_span:
         verify_span.set(
@@ -660,5 +661,5 @@ def _failing_observation(report: VerificationReport) -> str:
 
 def _trim(value: Any, *, limit: int = 512) -> Any:
     if isinstance(value, str) and len(value) > limit:
-        return value[:limit] + "…"
+        return value[:limit] + "â€¦"
     return value

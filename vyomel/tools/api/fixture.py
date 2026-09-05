@@ -277,6 +277,20 @@ class FixtureApi:
             self._world.events = [e for e in self._world.events if e.id != event_id]
             return len(self._world.events) < before
 
+    def get_event(self, event_id: str) -> CalendarEvent:
+        with self._lock:
+            for event in self._world.events:
+                if event.id == event_id:
+                    return deepcopy(event)
+        raise ToolError("event not found", code=ErrorCode.NOT_FOUND, retryable=False)
+
+    def get_sent(self, message_id: str) -> MailMessage:
+        with self._lock:
+            for message in self._world.sent:
+                if message.id == message_id:
+                    return deepcopy(message)
+        raise ToolError("message not found", code=ErrorCode.NOT_FOUND, retryable=False)
+
     def search_github(self, query: str) -> list[GithubIssue]:
         q = query.lower()
         with self._lock:

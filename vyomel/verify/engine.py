@@ -8,21 +8,22 @@ can and asserts the declared postconditions. Three outcomes, never a fourth:
 - ``NO_METHOD`` — a check has no observation path (or none was declared at
   ≥ L2). The action becomes ``UNVERIFIED``, never ``SUCCEEDED`` (FR-402).
 
-``value_equals``, ``file_exists``, and ``file_hash`` re-observe. The other
-registered types (``element_exists``, ``api_readback``, ``llm_judge``) are
-dispatched so FR-403 is not a catalog of names: an unknown type is ``NO_METHOD``
-rather than a silent pass, and a type whose observation path does not exist yet
-is the same. Optimism is the bug this module exists to prevent.
+``value_equals``, ``file_exists``, ``file_hash``, ``element_exists``, and
+``api_readback`` re-observe. ``llm_judge`` stays ``NO_METHOD`` until a dedicated
+judge model path exists. An unknown type is also ``NO_METHOD``. Optimism is the
+bug this module exists to prevent.
 """
 
 from __future__ import annotations
 
 import time
 from collections.abc import Callable, Mapping, Sequence
+from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from vyomel.core.config import Settings
 from vyomel.core.errors import ToolError
 from vyomel.core.ids import file_digest
 from vyomel.core.types import Capability, VerifyOutcome
@@ -40,6 +41,17 @@ SUPPORTED_VERIFIERS: frozenset[str] = frozenset(
         "llm_judge",
     }
 )
+
+
+@dataclass(frozen=True, slots=True)
+class ObserveContext:
+    """Optional runtime handles for re-observation (browser/API sessions)."""
+
+    task_id: str | None = None
+    settings: Settings | None = None
+
+
+_OBSERVE: ContextVar[ObserveContext | None] = ContextVar("vyomel_verify_observe", default=None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +91,7 @@ def verify_result(
     postconditions: list[dict[str, Any]] | None,
     result: dict[str, Any],
     allowed_roots: Sequence[Path] | None = None,
+    observe: ObserveContext | None = None,
 ) -> VerificationReport:
     """Run every declared postcondition and aggregate.
 
@@ -104,7 +117,11 @@ def verify_result(
         )
 
     roots = list(allowed_roots or [])
-    ran = tuple(_run_one(spec, result=result, allowed_roots=roots) for spec in checks)
+    token = _OBSERVE.set(observe)
+    try:
+        ran = tuple(_run_one(spec, result=result, allowed_roots=roots) for spec in checks)
+    finally:
+        _OBSERVE.reset(token)
     return VerificationReport(outcome=_aggregate(ran), checks=ran)
 
 
@@ -292,6 +309,174 @@ def _file_hash(
     )
 
 
+def _element_exists(
+    spec: Mapping[str, Any], result: dict[str, Any], allowed_roots: Sequence[Path]
+) -> Verification:
+    """Re-query browser/desktop UI for an element (FR-403)."""
+    del result, allowed_roots
+    ctx = _OBSERVE.get()
+    if ctx is None or not ctx.task_id or ctx.settings is None:
+        return Verification(
+            outcome=VerifyOutcome.NO_METHOD,
+            verifier="element_exists",
+            expected=spec.get("expected"),
+            observed="element_exists requires task observe context",
+        )
+    role = spec.get("role")
+    name = spec.get("name")
+    selector = spec.get("selector")
+    ref = spec.get("ref")
+    surface = str(spec.get("surface") or "browser")
+    if not any(isinstance(v, str) and v for v in (role, name, selector, ref)):
+        return Verification(
+            outcome=VerifyOutcome.NO_METHOD,
+            verifier="element_exists",
+            observed="postcondition needs role/name/selector/ref",
+        )
+    try:
+        if surface == "desktop":
+            from vyomel.tools.desktop.session import get_fixture_session
+            from vyomel.tools.desktop.types import Target as DesktopTarget
+
+            session = get_fixture_session(ctx.settings, task_id=ctx.task_id)
+            element = session.find(
+                DesktopTarget(
+                    role=role if isinstance(role, str) else None,
+                    name=name if isinstance(name, str) else None,
+                    automation_id=selector if isinstance(selector, str) else None,
+                    ref=ref if isinstance(ref, str) else None,
+                )
+            )
+            observed = {"ref": element.ref, "role": element.role, "name": element.name}
+        else:
+            from vyomel.tools.browser.session import get_fixture_session
+            from vyomel.tools.browser.types import Target as BrowserTarget
+
+            session = get_fixture_session(ctx.settings, task_id=ctx.task_id)
+            element = session.query(
+                BrowserTarget(
+                    role=role if isinstance(role, str) else None,
+                    name=name if isinstance(name, str) else None,
+                    selector=selector if isinstance(selector, str) else None,
+                    ref=ref if isinstance(ref, str) else None,
+                )
+            )
+            observed = {"ref": element.ref, "role": element.role, "name": element.name}
+    except ToolError as exc:
+        return Verification(
+            outcome=VerifyOutcome.FAIL,
+            verifier="element_exists",
+            expected={"role": role, "name": name, "selector": selector, "ref": ref},
+            observed=exc.user_message,
+            observation_tier=2,
+        )
+    except Exception as exc:
+        return Verification(
+            outcome=VerifyOutcome.FAIL,
+            verifier="element_exists",
+            expected={"role": role, "name": name},
+            observed=str(exc),
+            observation_tier=2,
+        )
+    expected_name = spec.get("expected")
+    observed_name = str(observed.get("name", ""))
+    if isinstance(expected_name, str) and expected_name and expected_name not in observed_name:
+        return Verification(
+            outcome=VerifyOutcome.FAIL,
+            verifier="element_exists",
+            expected=expected_name,
+            observed=observed,
+            observation_tier=2,
+            evidence_ref=str(observed.get("ref")),
+        )
+    return Verification(
+        outcome=VerifyOutcome.PASS,
+        verifier="element_exists",
+        expected={"role": role, "name": name, "selector": selector, "ref": ref},
+        observed=observed,
+        observation_tier=2,
+        evidence_ref=str(observed.get("ref")),
+    )
+
+
+def _api_readback(
+    spec: Mapping[str, Any], result: dict[str, Any], allowed_roots: Sequence[Path]
+) -> Verification:
+    """Re-fetch an API resource and compare a field (FR-403)."""
+    del allowed_roots
+    ctx = _OBSERVE.get()
+    if ctx is None or not ctx.task_id or ctx.settings is None:
+        return Verification(
+            outcome=VerifyOutcome.NO_METHOD,
+            verifier="api_readback",
+            expected=spec.get("expected"),
+            observed="api_readback requires task observe context",
+        )
+    resource = str(spec.get("resource") or "")
+    field = spec.get("field")
+    expected = spec.get("expected", result.get(str(field)) if isinstance(field, str) else None)
+    if not resource or not isinstance(field, str) or not field:
+        return Verification(
+            outcome=VerifyOutcome.NO_METHOD,
+            verifier="api_readback",
+            expected=expected,
+            observed="postcondition needs resource and field",
+        )
+    from vyomel.tools.api.session import get_api
+
+    api = get_api(ctx.settings, task_id=ctx.task_id)
+    try:
+        if resource in {"calendar.event", "calendar"}:
+            event_id = str(spec.get("id") or result.get("event_id") or "")
+            if not event_id:
+                return Verification(
+                    outcome=VerifyOutcome.NO_METHOD,
+                    verifier="api_readback",
+                    expected=expected,
+                    observed="missing calendar event id",
+                )
+            entity: Any = api.get_event(event_id)
+            observed = getattr(entity, field, None)
+            if observed is None and hasattr(entity, "__dict__"):
+                observed = entity.__dict__.get(field)
+        elif resource in {"github.issue", "github"}:
+            repo = str(spec.get("repo") or result.get("repo") or "")
+            number = int(spec.get("number") or result.get("number") or 0)
+            entity = api.read_github(repo, number)
+            observed = getattr(entity, field, None)
+        elif resource in {"email.message", "email"}:
+            message_id = str(spec.get("id") or result.get("message_id") or result.get("id") or "")
+            entity = api.get_sent(message_id)
+            observed = getattr(entity, field, None)
+            if field == "to" and observed is None:
+                observed = getattr(entity, "to", None)
+        else:
+            return Verification(
+                outcome=VerifyOutcome.NO_METHOD,
+                verifier="api_readback",
+                expected=expected,
+                observed=f"unknown resource {resource}",
+            )
+    except ToolError as exc:
+        return Verification(
+            outcome=VerifyOutcome.FAIL,
+            verifier="api_readback",
+            expected=expected,
+            observed=exc.user_message,
+            observation_tier=1,
+            evidence_ref=resource,
+        )
+    passed = observed == expected
+    return Verification(
+        outcome=VerifyOutcome.PASS if passed else VerifyOutcome.FAIL,
+        verifier="api_readback",
+        expected=expected,
+        observed=observed,
+        observation_tier=1,
+        evidence_ref=f"{resource}.{field}",
+    )
+
+
 def _lookup(result: Mapping[str, Any], field: str) -> Any:
     current: Any = result
     for part in field.split("."):
@@ -310,7 +495,7 @@ _DISPATCH: dict[str, _Verifier] = {
     "value_equals": _value_equals,
     "file_exists": _file_exists,
     "file_hash": _file_hash,
-    "element_exists": _unavailable,
-    "api_readback": _unavailable,
+    "element_exists": _element_exists,
+    "api_readback": _api_readback,
     "llm_judge": _unavailable,
 }

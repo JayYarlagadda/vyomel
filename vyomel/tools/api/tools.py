@@ -373,7 +373,15 @@ class CalendarCreateEvent(Tool):
 
     def verification_plan(self, params: BaseModel, result: BaseModel) -> list[dict[str, Any]]:
         assert isinstance(params, CalendarCreateInput)
-        return [{"type": "value_equals", "field": "title", "expected": params.title}]
+        return [
+            {"type": "value_equals", "field": "title", "expected": params.title},
+            {
+                "type": "api_readback",
+                "resource": "calendar.event",
+                "field": "title",
+                "expected": params.title,
+            },
+        ]
 
     async def execute(self, params: BaseModel, ctx: ToolContext) -> BaseModel:
         assert isinstance(params, CalendarCreateInput)

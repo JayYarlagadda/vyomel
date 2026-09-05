@@ -6,9 +6,12 @@ from pathlib import Path
 
 import pytest
 
+from vyomel.core.config import Settings
 from vyomel.core.ids import digest_bytes
 from vyomel.core.types import Capability, VerifyOutcome
-from vyomel.verify.engine import SUPPORTED_VERIFIERS, verify_result
+from vyomel.tools.api.session import get_api, reset_api_sessions
+from vyomel.tools.browser.session import get_fixture_session, reset_sessions
+from vyomel.verify.engine import SUPPORTED_VERIFIERS, ObserveContext, verify_result
 
 
 @pytest.mark.req("FR-403")
@@ -84,15 +87,120 @@ def test_file_hash_catches_a_wrong_value_write(tmp_path: Path) -> None:
 
 
 @pytest.mark.req("FR-403")
-@pytest.mark.parametrize("name", ["element_exists", "api_readback", "llm_judge"])
-def test_unavailable_observation_paths_are_no_method(name: str) -> None:
+def test_llm_judge_still_no_method() -> None:
     report = verify_result(
         capability=Capability.L2,
-        postconditions=[{"type": name, "expected": "anything"}],
+        postconditions=[{"type": "llm_judge", "expected": "anything"}],
         result={"ok": True},
     )
     assert report.outcome is VerifyOutcome.NO_METHOD
-    assert report.checks[0].verifier == name
+    assert report.checks[0].verifier == "llm_judge"
+
+
+@pytest.mark.req("FR-403")
+def test_element_exists_requeries_browser_fixture(tmp_path: Path) -> None:
+    reset_sessions()
+    settings = Settings(
+        env="test",
+        workspace_root=tmp_path / ".vyomel",
+        browser_backend="fixture",
+        browser_fixtures_dir=Path("vyomel/tools/browser/fixtures"),
+    )
+    task_id = "verify-el-1"
+    session = get_fixture_session(settings, task_id=task_id)
+    session.open("fixture://form_app")
+    report = verify_result(
+        capability=Capability.L2,
+        postconditions=[
+            {
+                "type": "element_exists",
+                "surface": "browser",
+                "role": "button",
+                "name": "Submit application",
+            }
+        ],
+        result={"clicked": True},
+        observe=ObserveContext(task_id=task_id, settings=settings),
+    )
+    assert report.outcome is VerifyOutcome.PASS
+    assert report.checks[0].verifier == "element_exists"
+    assert report.checks[0].observed is not None
+
+
+@pytest.mark.req("FR-403")
+def test_element_exists_fails_when_missing(tmp_path: Path) -> None:
+    reset_sessions()
+    settings = Settings(
+        env="test",
+        workspace_root=tmp_path / ".vyomel",
+        browser_backend="fixture",
+        browser_fixtures_dir=Path("vyomel/tools/browser/fixtures"),
+    )
+    task_id = "verify-el-2"
+    get_fixture_session(settings, task_id=task_id).open("fixture://form_app")
+    report = verify_result(
+        capability=Capability.L2,
+        postconditions=[
+            {
+                "type": "element_exists",
+                "surface": "browser",
+                "role": "button",
+                "name": "DoesNotExist",
+            }
+        ],
+        result={},
+        observe=ObserveContext(task_id=task_id, settings=settings),
+    )
+    assert report.outcome is VerifyOutcome.FAIL
+
+
+@pytest.mark.req("FR-403")
+def test_api_readback_rereads_calendar_event(tmp_path: Path) -> None:
+    reset_api_sessions()
+    settings = Settings(env="test", workspace_root=tmp_path / ".vyomel")
+    task_id = "verify-api-1"
+    api = get_api(settings, task_id=task_id)
+    from datetime import UTC, datetime, timedelta
+
+    start = datetime(2026, 9, 5, 15, 0, tzinfo=UTC)
+    event = api.create_event(
+        title="Interview",
+        start=start,
+        end=start + timedelta(hours=1),
+        attendees=["a@b.com"],
+    )
+    report = verify_result(
+        capability=Capability.L3,
+        postconditions=[
+            {
+                "type": "api_readback",
+                "resource": "calendar.event",
+                "id": event.id,
+                "field": "title",
+                "expected": "Interview",
+            }
+        ],
+        result={"event_id": event.id, "title": "Interview"},
+        observe=ObserveContext(task_id=task_id, settings=settings),
+    )
+    assert report.outcome is VerifyOutcome.PASS
+    assert report.checks[0].observed == "Interview"
+
+    lying = verify_result(
+        capability=Capability.L3,
+        postconditions=[
+            {
+                "type": "api_readback",
+                "resource": "calendar.event",
+                "id": event.id,
+                "field": "title",
+                "expected": "Wrong Title",
+            }
+        ],
+        result={"event_id": event.id, "title": "Wrong Title"},
+        observe=ObserveContext(task_id=task_id, settings=settings),
+    )
+    assert lying.outcome is VerifyOutcome.FAIL
 
 
 @pytest.mark.req("FR-403")
