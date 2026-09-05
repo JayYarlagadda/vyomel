@@ -13,6 +13,7 @@ data:
   VYOMEL_PLANNER_BACKEND: {{ .Values.config.plannerBackend | quote }}
   VYOMEL_OFFLINE: {{ .Values.config.offline | quote }}
   VYOMEL_WORKSPACE_ROOT: "/var/vyomel"
+  VYOMEL_API_PORT: {{ .Values.api.port | quote }}
   VYOMEL_REDIS_URL: {{ printf "redis://%s:6379/0" (include "vyomel.redisHost" .) | quote }}
   VYOMEL_SCHEDULER_LOCK_KEY: {{ .Values.scheduler.leader.lockKey | quote }}
   VYOMEL_SCHEDULER_LOCK_TTL_S: {{ .Values.scheduler.leader.ttlSeconds | quote }}

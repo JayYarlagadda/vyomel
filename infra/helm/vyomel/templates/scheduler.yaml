@@ -18,6 +18,7 @@ spec:
         app.kubernetes.io/component: scheduler
     spec:
       serviceAccountName: {{ include "vyomel.serviceAccountName" . }}
+      enableServiceLinks: false
       containers:
         - name: scheduler
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

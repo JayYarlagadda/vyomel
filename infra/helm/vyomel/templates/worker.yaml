@@ -18,6 +18,7 @@ spec:
         app.kubernetes.io/component: worker
     spec:
       serviceAccountName: {{ include "vyomel.serviceAccountName" . }}
+      enableServiceLinks: false
       containers:
         - name: worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
