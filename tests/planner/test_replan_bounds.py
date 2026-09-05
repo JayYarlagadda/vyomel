@@ -5,11 +5,11 @@ from __future__ import annotations
 import pytest
 from tests.runtime.helpers import drain, install_plan
 
-from astra.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
-from astra.core.types import TaskStatus
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.store.models import Task
+from vyomel.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.core.types import TaskStatus
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.store.models import Task
 
 
 def _fail_plan() -> HandwrittenPlan:
@@ -41,7 +41,7 @@ async def test_replan_recovers_from_failure(
     for _ in range(100):
         await scheduler.tick()
         await worker.run_once(block_ms=50)
-    from astra.store.db import session_scope
+    from vyomel.store.db import session_scope
 
     async with session_scope() as session:
         refreshed = await session.get(Task, task.id)
@@ -58,7 +58,7 @@ async def test_replan_exhaustion_enters_needs_human(
     runtime_db.max_replans = 0
     task = await install_plan(runtime_db, _fail_plan())
     await drain(scheduler, worker, rounds=80)
-    from astra.store.db import session_scope
+    from vyomel.store.db import session_scope
 
     async with session_scope() as session:
         refreshed = await session.get(Task, task.id)

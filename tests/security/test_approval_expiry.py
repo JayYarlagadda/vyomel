@@ -11,18 +11,18 @@ from __future__ import annotations
 import pytest
 from sqlalchemy import select
 
-from astra.core.clock import FrozenClock
-from astra.core.config import Settings
-from astra.core.errors import ConflictError, ErrorCode
-from astra.core.types import ActionStatus, ApprovalStatus, Capability, TaskStatus
-from astra.orchestrator.approvals import ApprovalWorkflow
-from astra.orchestrator.runtime import get_registry, make_scheduler
-from astra.runtime.gate import PolicyGate
-from astra.runtime.queue import ActionQueue
-from astra.security.audit import AuditEvent
-from astra.security.policy import store_for
-from astra.store.db import session_scope
-from astra.store.models import Action, Approval, AuditLog, Task
+from vyomel.core.clock import FrozenClock
+from vyomel.core.config import Settings
+from vyomel.core.errors import ConflictError, ErrorCode
+from vyomel.core.types import ActionStatus, ApprovalStatus, Capability, TaskStatus
+from vyomel.orchestrator.approvals import ApprovalWorkflow
+from vyomel.orchestrator.runtime import get_registry, make_scheduler
+from vyomel.runtime.gate import PolicyGate
+from vyomel.runtime.queue import ActionQueue
+from vyomel.security.audit import AuditEvent
+from vyomel.security.policy import store_for
+from vyomel.store.db import session_scope
+from vyomel.store.models import Action, Approval, AuditLog, Task
 from tests.fakes import Notify
 from tests.runtime.helpers import install_plan
 from tests.security.test_approval_gate import notify_plan, only_action, only_approval

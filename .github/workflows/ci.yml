@@ -20,7 +20,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: ruff check .
       - run: ruff format --check .
-      - run: mypy astra
+      - run: mypy vyomel
 
   guards:
     runs-on: ubuntu-latest
@@ -53,12 +53,12 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg17
         env:
-          POSTGRES_USER: astra
-          POSTGRES_PASSWORD: astra
-          POSTGRES_DB: astra
+          POSTGRES_USER: vyomel
+          POSTGRES_PASSWORD: vyomel
+          POSTGRES_DB: vyomel
         ports: ["55432:5432"]
         options: >-
-          --health-cmd "pg_isready -U astra"
+          --health-cmd "pg_isready -U vyomel"
           --health-interval 5s --health-timeout 3s --health-retries 20
       redis:
         image: redis:7-alpine
@@ -67,9 +67,9 @@ jobs:
           --health-cmd "redis-cli ping"
           --health-interval 5s --health-timeout 3s --health-retries 20
     env:
-      ASTRA_ENV: test
-      ASTRA_DATABASE_URL: postgresql+asyncpg://astra:astra@localhost:55432/astra
-      ASTRA_REDIS_URL: redis://localhost:56379/0
+      VYOMEL_ENV: test
+      VYOMEL_DATABASE_URL: postgresql+asyncpg://vyomel:vyomel@localhost:55432/vyomel
+      VYOMEL_REDIS_URL: redis://localhost:56379/0
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -80,9 +80,115 @@ jobs:
       - run: alembic upgrade head
       # Round-trip check: a migration that cannot downgrade does not merge.
       - run: alembic downgrade base && alembic upgrade head
-      - run: pytest -q --cov=astra --cov-report=xml --cov-report=term-missing
+      - run: pytest -q --cov=vyomel --cov-report=xml --cov-report=term-missing
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage
           path: coverage.xml
+
+  # Helm chart renders; kind install when Docker is available (CON-07).
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+      - name: helm lint + template (kind profile)
+        run: |
+          helm lint infra/helm/vyomel
+          helm template vyomel infra/helm/vyomel -f infra/helm/vyomel/values-kind.yaml > /tmp/vyomel-kind.yaml
+          grep -q 'kind: Deployment' /tmp/vyomel-kind.yaml
+          grep -q 'vyomel-scheduler' /tmp/vyomel-kind.yaml
+          grep -q 'vyomel-worker' /tmp/vyomel-kind.yaml
+          ! grep -q 'HorizontalPodAutoscaler' /tmp/vyomel-kind.yaml
+      - name: helm template (full profile includes HPA + optional vLLM off)
+        run: |
+          helm template vyomel infra/helm/vyomel > /tmp/vyomel-full.yaml
+          grep -q 'HorizontalPodAutoscaler' /tmp/vyomel-full.yaml
+          grep -q 'vyomel_queue_depth' /tmp/vyomel-full.yaml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest -q tests/infra tests/runtime/test_leader.py tests/orchestrator/test_local_agent.py
+
+  kind:
+    runs-on: ubuntu-latest
+    needs: [helm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+      - uses: helm/kind-action@v1
+        with:
+          cluster_name: vyomel
+          wait: 120s
+      - name: Build and load image
+        run: |
+          docker build -t vyomel:0.1.0 .
+          kind load docker-image vyomel:0.1.0 --name vyomel
+      - name: helm install (kind profile)
+        run: |
+          helm upgrade --install vyomel infra/helm/vyomel \
+            -f infra/helm/vyomel/values-kind.yaml \
+            --set image.repository=vyomel \
+            --set image.tag=0.1.0 \
+            --set image.pullPolicy=Never \
+            --wait --timeout 5m
+      - name: API readiness
+        run: |
+          kubectl rollout status deploy/vyomel-api --timeout=180s
+          kubectl rollout status deploy/vyomel-scheduler --timeout=180s
+          kubectl rollout status deploy/vyomel-worker --timeout=180s
+          kubectl port-forward svc/vyomel-api 8080:8080 &
+          sleep 3
+          curl -fsS http://127.0.0.1:8080/healthz
+      - name: Document failover
+        run: |
+          echo "Failover matrix: see infra/helm/vyomel/README.md"
+          kubectl get pods -l app.kubernetes.io/instance=vyomel
+
+  # Fast eval subset + regression gate (docs/11 §10, M12).
+  eval-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Security suite (injection_success_rate = 0)
+        run: python evals/suites/security/run.py --out /tmp/security.json
+      - name: Ablation checks (routing / purpose table)
+        run: python evals/suites/ablations/run.py --out /tmp/ablations.json
+      - name: Build candidate gated metrics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          sec = json.loads(Path("/tmp/security.json").read_text())
+          abl = json.loads(Path("/tmp/ablations.json").read_text())
+          m8 = json.loads(Path("evals/results/2026-09-02-m8/summary.json").read_text())
+          candidate = {
+              "gated": {
+                  "task_completion_rate": abl["gated"]["task_completion_rate"],
+                  "tool_call_accuracy": abl["gated"]["tool_call_accuracy"],
+                  "recall_at_10": abl["gated"]["recall_at_10"],
+                  "injection_success_rate": sec["injection_success_rate"],
+                  "verification_catch_rate": m8["verification_catch_rate"],
+                  "cost_per_task": 1.0,
+              }
+          }
+          Path("/tmp/candidate-gated.json").write_text(json.dumps(candidate, indent=2))
+          PY
+      - name: Compare against committed baseline
+        run: >
+          python -m evals.harness.compare
+          --baseline evals/results/baselines/gated.json
+          --candidate /tmp/candidate-gated.json

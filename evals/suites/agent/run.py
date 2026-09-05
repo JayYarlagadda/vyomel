@@ -8,13 +8,13 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from astra.core.config import Settings
-from astra.core.types import Capability
-from astra.models.router import get_planner_provider
-from astra.orchestrator.tools import ToolCatalog
-from astra.planner.decompose import decompose
-from astra.store.db import dispose_engine, init_engine
-from astra.tools.registry import default_registry
+from vyomel.core.config import Settings
+from vyomel.core.types import Capability
+from vyomel.models.router import get_planner_provider
+from vyomel.orchestrator.tools import ToolCatalog
+from vyomel.planner.decompose import decompose
+from vyomel.store.db import dispose_engine, init_engine
+from vyomel.tools.registry import default_registry
 
 TASKS = Path(__file__).resolve().parents[2] / "fixtures" / "agent" / "tasks.jsonl"
 

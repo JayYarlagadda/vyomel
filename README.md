@@ -1,10 +1,10 @@
-# Astra — Personal AI Execution Platform
+# Vyomel — Personal AI Execution Platform
 
 > A personal AI execution layer that turns natural-language intent into **verified, permission-aware actions** across a user's digital environment.
 
-Astra is not a chatbot. A chatbot returns text. Astra changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
+Vyomel is not a chatbot. A chatbot returns text. Vyomel changes state in the world — files, calendars, browsers, desktop applications, third-party APIs — and then **proves the change actually happened** before reporting success.
 
-**Status:** M7 complete (browser tools, fixture evals, accessibility-first actuation). See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
+**Status:** M17 complete — roadmap M0–M17 finished. See [`docs/12-ROADMAP.md`](docs/12-ROADMAP.md) and [`docs/17-BUILD-LOG.md`](docs/17-BUILD-LOG.md).
 
 ---
 
@@ -12,7 +12,7 @@ Astra is not a chatbot. A chatbot returns text. Astra changes state in the world
 
 Building an agent that clicks a button is easy and already commoditized. The unsolved problems are:
 
-| Problem | Astra's answer |
+| Problem | Vyomel's answer |
 |---|---|
 | Agents lose work when a process dies | Postgres as source of truth, Redis Streams as transport, leases + reapers + idempotency keys. Chaos-tested. |
 | Agents claim success they can't prove | Mandatory post-action re-observation. `UNVERIFIED` is a first-class state, so the system never has to lie. |
@@ -21,7 +21,7 @@ Building an agent that clicks a button is easy and already commoditized. The uns
 | Agents leak private data to the cloud | Sensitivity classification with hard local-only routing that fails closed rather than escalating. |
 | Agents can't be improved because nothing is measured | A reproducible evaluation harness with ablations and CI regression gates. |
 
-Agents are a distributed systems problem wearing an AI costume. Astra is built on that premise.
+Agents are a distributed systems problem wearing an AI costume. Vyomel is built on that premise.
 
 ---
 
@@ -89,7 +89,7 @@ Prerequisites: Windows 11, Python 3.13, WSL2 with Docker. Full runbook in [`docs
 
 ```powershell
 # 1. infrastructure (Postgres + pgvector, Redis) inside WSL
-wsl -e bash -lc "cd /mnt/d/Astra/infra && docker compose up -d"
+wsl -e bash -lc "cd /mnt/d/Vyomel/infra && docker compose up -d"
 
 # 2. environment
 py -3.13 -m venv .venv
@@ -97,67 +97,72 @@ py -3.13 -m venv .venv
 Copy-Item .env.example .env      # then fill in API keys
 
 # 3. verify + migrate
-.\.venv\Scripts\python.exe -m astra.cli doctor
-.\.venv\Scripts\python.exe -m astra.cli db upgrade
+.\.venv\Scripts\python.exe -m vyomel.cli doctor
+.\.venv\Scripts\python.exe -m vyomel.cli db upgrade
 
 # 4. run
-.\.venv\Scripts\python.exe -m astra.cli serve      # API + scheduler
-.\.venv\Scripts\python.exe -m astra.cli worker     # in another shell
+.\.venv\Scripts\python.exe -m vyomel.cli serve      # API + scheduler
+.\.venv\Scripts\python.exe -m vyomel.cli worker     # in another shell
 ```
 
-What works today (M3). Natural-language planning (`astra do` without `--plan`) is M5; until then tasks carry handwritten plans:
+What works today (M3). Natural-language planning (`vyomel do` without `--plan`) is M5; until then tasks carry handwritten plans:
 
 ```powershell
 # see the 5-action DAG execute, then survive a worker being killed mid-flight
 .\.venv\Scripts\python.exe demos\m1\run_demo.py
 
 # create a task; --plan installs a handwritten DAG; --dry-run classifies without dispatch
-astra do "list the docs" --plan .\plan.json
-astra show <task_id>
-astra tasks --status running
-astra cancel <task_id>
+vyomel do "list the docs" --plan .\plan.json
+vyomel show <task_id>
+vyomel tasks --status running
+vyomel cancel <task_id>
 
 # inspect and (policy-gated) invoke a single tool
-astra tools list
-astra tools show fs.write_file
-astra tools invoke task.report --json '{\"summary\": \"ok\"}'
+vyomel tools list
+vyomel tools show fs.write_file
+vyomel tools invoke task.report --json '{\"summary\": \"ok\"}'
 
 # the human-in-the-loop surface
-astra approvals                                     # what is waiting on you
-astra approve <approval_id>
-astra modify <approval_id> --set value=85           # re-validated and re-classified
-astra reject <approval_id> --reason "wrong student"
+vyomel approvals                                     # what is waiting on you
+vyomel approve <approval_id>
+vyomel modify <approval_id> --set value=85           # re-validated and re-classified
+vyomel reject <approval_id> --reason "wrong student"
 
 # ask the policy what it would do, without running anything
-astra policy test fs.read_file '{\"path\": \"D:/Astra/.env\"}'
-astra policy show
+vyomel policy test fs.read_file '{\"path\": \"D:/Vyomel/.env\"}'
+vyomel policy show
 
 # the audit trail, and proof it has not been altered
-astra audit tail --task <task_id>
-astra audit verify
+vyomel audit tail --task <task_id>
+vyomel audit verify
 
 # semantic memory (ingest, query, entities, episodes)
-astra memory ingest .\notes.md
-astra memory query "ZX9QUNIQUE failover"
-astra memory remember "prefers dark mode" --type preference
-astra memory episodes --limit 10
+vyomel memory ingest .\notes.md
+vyomel memory query "ZX9QUNIQUE failover"
+vyomel memory remember "prefers dark mode" --type preference
+vyomel memory episodes --limit 10
 ```
 
 ---
 
 ## Measured results
 
-No number appears here unless a script in `evals/` reproduces it. Results land as milestones complete.
+No number appears here unless a script in `evals/` reproduces it. Results land as milestones complete. CI job `eval-gate` blocks PRs that regress gated metrics (`evals/harness/compare.py` vs `evals/results/baselines/gated.json`).
 
 | Metric | Target | Current | Source |
 |---|---|---|---|
-| Task completion rate (100 multi-step tasks) | ≥ 80 % | **1.000** (mock, 100 tasks) | `evals/results/2026-09-02-m5/` |
-| Tool-call schema validity | ≥ 98 % | **1.000** (mock planner) | `evals/results/2026-09-02-m5/` |
-| Retrieval recall@10 (200-doc corpus) | ≥ 0.85 | **0.928** (hybrid, hashing) | `evals/results/2026-09-02-m4/` |
-| Verification catch rate on injected faults | 100 % | — | `evals/suites/desktop/` |
-| Lost/duplicated actions under chaos | 0 | — | `evals/suites/longrun/` |
-| Prompt-injection success rate | 0 | — | `evals/suites/security/` |
-| vLLM throughput vs unbatched baseline | — | — | `evals/suites/serving/` |
+| Task completion rate (100 multi-step tasks) | ≥ 80 % | **1.000** (mock-v1 / mock-v2) | `evals/results/2026-09-02-m5/` |
+| Tool-call accuracy | ≥ 80 % | **1.000** (mock planner) | `evals/results/2026-09-02-m5/` |
+| Retrieval recall@10 (hybrid) | ≥ 0.85 | **0.928** (hashing-384) | `evals/results/2026-09-02-m4/` |
+| RAG ablation (hybrid / lexical / vector) | — | **0.928 / 0.920 / 0.152** | `evals/results/2026-09-04-m12/` |
+| Verification catch rate on injected faults | 100 % | **1.000** | `evals/results/2026-09-02-m8/` |
+| Lost/duplicated actions under chaos (fast) | 0 | **0** | `evals/results/2026-09-02-m6/` |
+| Prompt-injection success rate | 0 | **0.000** (105 cases) | `evals/results/2026-09-04-m12/` |
+| vLLM throughput vs sequential (fixture, c32) | — | **~2×** tok/s | `evals/results/serving/` |
+| Media S7 (12 clips → 60s draft + mute + caption) | success | **true** (fixture) | `evals/results/2026-09-04-m14/` |
+| Workflow learning (mine ≥3 → accept → invoke) | success | **true** | `evals/results/2026-09-04-m15/` |
+| Voice wake → speak → barge-in | success | **true** (fixture) | `evals/results/2026-09-04-m16/` |
+| Gym S8 (equipment → session plan) | success | **true** (fixture) | `evals/results/2026-09-04-m17/` |
 
 ---
 

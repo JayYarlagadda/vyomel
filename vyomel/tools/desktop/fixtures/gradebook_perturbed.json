@@ -1,0 +1,61 @@
+{
+  "title": "Gradebook",
+  "root": {
+    "role": "Window",
+    "name": "Gradebook",
+    "automation_id": "wnd_gb_v2",
+    "children": [
+      {
+        "role": "Pane",
+        "name": "Toolbar",
+        "automation_id": "toolbar_noise",
+        "children": [
+          {
+            "role": "Edit",
+            "name": "Search students",
+            "automation_id": "txt_q_perturbed",
+            "value": "",
+            "bounds": [24, 48, 240, 24]
+          },
+          {
+            "role": "Button",
+            "name": "Apply filter",
+            "automation_id": "act_filter_x9",
+            "bounds": [280, 48, 96, 24]
+          }
+        ]
+      },
+      {
+        "role": "Table",
+        "name": "Student grades",
+        "automation_id": "grid_main",
+        "children": [
+          {
+            "role": "Cell",
+            "name": "Alice Chen",
+            "automation_id": "c1",
+            "value": "92"
+          },
+          {
+            "role": "Cell",
+            "name": "Bob Smith",
+            "automation_id": "c2",
+            "value": "88"
+          }
+        ]
+      },
+      {
+        "role": "Button",
+        "name": "Export CSV",
+        "automation_id": "export_btn_moved",
+        "bounds": [24, 320, 120, 28]
+      },
+      {
+        "role": "Button",
+        "name": "Save",
+        "automation_id": "save_btn_moved",
+        "bounds": [160, 320, 80, 28]
+      }
+    ]
+  }
+}

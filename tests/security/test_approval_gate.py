@@ -12,17 +12,17 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select
 
-from astra.core.config import Settings
-from astra.core.errors import ErrorCode
-from astra.core.types import ActionStatus, ApprovalStatus, Capability, TaskStatus
-from astra.orchestrator.approvals import ApprovalWorkflow
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, PlanError, StepSpec
-from astra.orchestrator.runtime import get_registry
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.security.audit import AuditEvent
-from astra.store.db import session_scope
-from astra.store.models import Action, Approval, AuditLog, Task
+from vyomel.core.config import Settings
+from vyomel.core.errors import ErrorCode
+from vyomel.core.types import ActionStatus, ApprovalStatus, Capability, TaskStatus
+from vyomel.orchestrator.approvals import ApprovalWorkflow
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, PlanError, StepSpec
+from vyomel.orchestrator.runtime import get_registry
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.security.audit import AuditEvent
+from vyomel.store.db import session_scope
+from vyomel.store.models import Action, Approval, AuditLog, Task
 from tests.fakes import Notify
 from tests.runtime.helpers import install_plan
 
@@ -277,7 +277,7 @@ async def test_a_denied_path_fails_the_action_without_asking_anyone(
     """A credential path is classified L4 *and* denied by rule. Deny wins, and no
     approval is created — there is nothing for a human to usefully consent to."""
     secret = tmp_path / ".env"
-    secret.write_text("ASTRA_API_TOKEN=nope", encoding="utf-8")
+    secret.write_text("VYOMEL_API_TOKEN=nope", encoding="utf-8")
     task = await install_plan(
         runtime_db, read_plan(secret), instruction="read the env file", ceiling=Capability.L4
     )

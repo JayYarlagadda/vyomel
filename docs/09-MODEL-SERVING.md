@@ -1,12 +1,12 @@
 # 09 — Model Serving and Routing
 
-Status: **Approved baseline (v1.0)**
+Status: **M11 implemented (vLLM adapter + fixture serving bench; live GPU optional)**
 
 ---
 
 ## 1. Position
 
-Astra must not be permanently welded to one hosted API. Two reasons: privacy (some payloads must never leave the machine — FR-703) and credibility (the self-hosted inference layer is a large part of this project's technical value).
+Vyomel must not be permanently welded to one hosted API. Two reasons: privacy (some payloads must never leave the machine — FR-703) and credibility (the self-hosted inference layer is a large part of this project's technical value).
 
 ```
                           ┌──────────────────┐
@@ -123,10 +123,10 @@ The development GPU (MX330, 2 GB, compute 6.1) cannot run vLLM — see `13-ENVIR
 
 ### 5.2 Approach
 
-1. **Adapter is real and local.** `astra/models/providers/vllm.py` is production code, tested against a mock OpenAI-compatible server plus a live server in the benchmark session.
+1. **Adapter is real and local.** `vyomel/models/providers/vllm.py` is production code, tested against a mock OpenAI-compatible server plus a live server in the benchmark session.
 2. **Deployment artifacts are real.** `infra/vllm/docker-compose.yml`, `infra/k8s/vllm-statefulset.yaml` (GPU node selector, tolerations, PVC for weights, readiness on `/health`), and a startup script with tuned `--max-model-len`, `--gpu-memory-utilization`, `--max-num-seqs`.
 3. **Benchmarks are real.** A rented A10G/L4 (~$0.30–0.80/hr, 2–4 hours total) runs `evals/suites/serving/`, and results are committed to `evals/results/serving/`.
-4. **Reachable from dev.** SSH tunnel: `ssh -L 8000:localhost:8000 <gpu-host>`, then `ASTRA_VLLM_BASE_URL=http://localhost:8000/v1`.
+4. **Reachable from dev.** SSH tunnel: `ssh -L 8000:localhost:8000 <gpu-host>`, then `VYOMEL_VLLM_BASE_URL=http://localhost:8000/v1`.
 
 ### 5.3 Serving benchmark plan
 
@@ -158,10 +158,10 @@ Deliverable: a table plus plots in `evals/results/serving/README.md`, with the e
 
 ## 7. Prompt management
 
-Prompts are versioned files in `astra/prompts/`, not inline strings:
+Prompts are versioned files in `vyomel/prompts/`, not inline strings:
 
 ```
-astra/prompts/
+vyomel/prompts/
   planner/decompose.v3.jinja
   planner/replan.v2.jinja
   verify/llm_judge.v1.jinja

@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from astra.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
 
 
 @pytest.mark.req("FR-103")

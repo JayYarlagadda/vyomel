@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from astra.core.types import Trust
-from astra.prompts.boundaries import wrap_untrusted
+from vyomel.core.types import Trust
+from vyomel.prompts.boundaries import wrap_untrusted
 
 
 def test_user_content_is_not_wrapped() -> None:

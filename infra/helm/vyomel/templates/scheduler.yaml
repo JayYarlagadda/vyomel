@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vyomel.fullname" . }}-scheduler
+  labels:
+    {{- include "vyomel.labels" . | nindent 4 }}
+    app.kubernetes.io/component: scheduler
+spec:
+  replicas: {{ .Values.scheduler.replicas }}
+  selector:
+    matchLabels:
+      {{- include "vyomel.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: scheduler
+  template:
+    metadata:
+      labels:
+        {{- include "vyomel.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: scheduler
+    spec:
+      serviceAccountName: {{ include "vyomel.serviceAccountName" . }}
+      containers:
+        - name: scheduler
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["scheduler"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "vyomel.fullname" . }}-config
+          env:
+            - name: VYOMEL_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vyomel.fullname" . }}-secrets
+                  key: database-url
+            - name: VYOMEL_EMBED_SCHEDULER
+              value: "false"
+          resources:
+            {{- toYaml .Values.scheduler.resources | nindent 12 }}
+          volumeMounts:
+            - name: workspace
+              mountPath: /var/vyomel
+      volumes:
+        - name: workspace
+          emptyDir: {}

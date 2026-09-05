@@ -1,0 +1,73 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "the",
+      "start": 0.15,
+      "end": 0.5,
+      "tags": []
+    },
+    {
+      "text": "dashboard",
+      "start": 0.58,
+      "end": 0.98,
+      "tags": []
+    },
+    {
+      "text": "launch",
+      "start": 1.06,
+      "end": 1.46,
+      "tags": []
+    },
+    {
+      "text": "went",
+      "start": 1.54,
+      "end": 1.89,
+      "tags": []
+    },
+    {
+      "text": "well",
+      "start": 1.97,
+      "end": 2.32,
+      "tags": []
+    },
+    {
+      "text": "and",
+      "start": 2.4,
+      "end": 2.75,
+      "tags": []
+    },
+    {
+      "text": "metrics",
+      "start": 2.83,
+      "end": 3.23,
+      "tags": []
+    },
+    {
+      "text": "look",
+      "start": 3.31,
+      "end": 3.66,
+      "tags": []
+    },
+    {
+      "text": "strong",
+      "start": 3.74,
+      "end": 4.14,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

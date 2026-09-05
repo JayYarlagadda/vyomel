@@ -9,7 +9,7 @@ which is a claim the security document makes:
     python demos/m2/run_demo.py --denied-path  # a credential path never asks anyone
 
 Requires Postgres and Redis up (``docker compose -f infra/compose.yaml up -d``)
-and the schema migrated (``astra db upgrade``).
+and the schema migrated (``vyomel db upgrade``).
 
 The demo registers ``demo.notify``, an L3 non-idempotent tool with a visible
 external effect. Nothing in the production catalog is above L1 yet -- M3 brings
@@ -29,24 +29,24 @@ from rich.console import Console
 from rich.table import Table
 from sqlalchemy import select
 
-from astra.core.config import Settings, get_settings
-from astra.core.logging import configure_logging
-from astra.core.types import ActionStatus, Capability, TaskStatus
-from astra.orchestrator.approvals import ApprovalWorkflow
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, PlanError, PlanService, StepSpec
-from astra.orchestrator.runtime import (
+from vyomel.core.config import Settings, get_settings
+from vyomel.core.logging import configure_logging
+from vyomel.core.types import ActionStatus, Capability, TaskStatus
+from vyomel.orchestrator.approvals import ApprovalWorkflow
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, PlanError, PlanService, StepSpec
+from vyomel.orchestrator.runtime import (
     get_registry,
     make_queue,
     make_scheduler,
     make_worker,
     reset_registry,
 )
-from astra.orchestrator.tasks import TaskService
-from astra.security.audit import AuditTrail
-from astra.store.db import dispose_engine, init_engine, session_scope
-from astra.store.models import Action, Approval, AuditLog, Task
-from astra.tools.base import Tool, ToolContext
-from astra.tools.registry import ToolRegistry, default_registry
+from vyomel.orchestrator.tasks import TaskService
+from vyomel.security.audit import AuditTrail
+from vyomel.store.db import dispose_engine, init_engine, session_scope
+from vyomel.store.models import Action, Approval, AuditLog, Task
+from vyomel.tools.base import Tool, ToolContext
+from vyomel.tools.registry import ToolRegistry, default_registry
 
 console = Console()
 
@@ -334,7 +334,7 @@ def check(mode: str, task: Task, action: Action, approvals: list[Approval]) -> i
             and len(approvals) == 2
             and approvals[0].consumed_at is None
         )
-        note = "the edited invocation did not inherit the approval; Astra asked again"
+        note = "the edited invocation did not inherit the approval; Vyomel asked again"
 
     if ok:
         console.print(f"[green]OK[/green] — {note}")

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.types import EntityType
-from astra.memory.graph import get_entity, remember_entity
-from astra.store.db import session_scope
+from vyomel.core.types import EntityType
+from vyomel.memory.graph import get_entity, remember_entity
+from vyomel.store.db import session_scope
 
 
 @pytest.mark.integration

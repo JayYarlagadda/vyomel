@@ -12,8 +12,8 @@ Versioning: path-based (`/v1/...`). Breaking changes require `/v2`.
 |---|---|
 | IDs | ULID strings |
 | Timestamps | RFC 3339 UTC (`2026-08-28T07:12:03.441Z`) |
-| Errors | RFC 9457 Problem Details + an Astra `code` |
-| Auth | Local bearer token from `.env` (`ASTRA_API_TOKEN`); loopback-only bind by default |
+| Errors | RFC 9457 Problem Details + an Vyomel `code` |
+| Auth | Local bearer token from `.env` (`VYOMEL_API_TOKEN`); loopback-only bind by default |
 | Idempotency | `Idempotency-Key` header on all `POST` |
 | Pagination | Cursor-based: `?cursor=&limit=` → `{items, next_cursor}` |
 | Streaming | WebSocket for task events; SSE for token streaming |
@@ -23,7 +23,7 @@ Versioning: path-based (`/v1/...`). Breaking changes require `/v2`.
 
 ```json
 {
-  "type": "https://astra.dev/errors/permission-denied",
+  "type": "https://vyomel.dev/errors/permission-denied",
   "title": "Permission denied",
   "status": 403,
   "code": "PERMISSION_DENIED",
@@ -59,7 +59,7 @@ Create and (optionally) start a task.
 
 `201` → the task object. `capability_ceiling` is the user's up-front consent boundary; nothing discovered during execution can raise it (`06-SECURITY-PERMISSIONS.md` §5.2).
 
-`dry_run: true` plans without executing — useful for inspecting what Astra *would* do.
+`dry_run: true` plans without executing — useful for inspecting what Vyomel *would* do.
 
 ### `GET /v1/tasks/{id}`
 
@@ -191,6 +191,13 @@ Query response always includes citations:
 | `GET` | `/v1/workflows` | Saved + learned workflows |
 | `POST` | `/v1/workflows/{id}/accept` | Accept a learned workflow proposal |
 | `POST` | `/v1/workflows/{id}/invoke` | Run with parameters |
+| `POST` | `/v1/voice/transcribe` | STT (fixture or Whisper-compatible) |
+| `POST` | `/v1/voice/speak` | TTS artifact |
+| `POST` | `/v1/voice/session/listen` | Wake-gated utterance |
+| `POST` | `/v1/voice/session/speak` | Session TTS (barge-in capable) |
+| `POST` | `/v1/voice/session/barge_in` | Cancel in-progress speech |
+| `GET` | `/v1/perception/detect` | Camera fixture detections |
+| `POST` | `/v1/perception/gym/session` | S8 gym plan from equipment + history |
 | `GET` | `/v1/policy` | Active policy + version hash |
 | `POST` | `/v1/policy/reload` | Hot reload from disk |
 | `POST` | `/v1/policy/test` | `{tool, parameters}` → classification, escalation reasons, decision, deciding rule. Does not execute anything |
@@ -215,29 +222,31 @@ Health and metrics:
 The CLI is a first-class client of the same API — it never reaches into the database directly. This guarantees the API is complete enough to build any other client (desktop app, voice, wearable) on.
 
 ```
-astra serve                          # API + scheduler
-astra worker --count 2               # worker processes
-astra doctor                         # environment verification
-astra db upgrade | check | reset
+vyomel serve                          # API + scheduler
+vyomel worker --count 2               # worker processes
+vyomel doctor                         # environment verification
+vyomel db upgrade | check | reset
 
-astra do "<instruction>" [--ceiling L2] [--dry-run] [--watch]
-astra tasks [--status running]
-astra show <task_id>
-astra trace <task_id>
-astra cancel <task_id> [--compensate]
-astra reply <task_id> "<answer>"
+vyomel do "<instruction>" [--ceiling L2] [--dry-run] [--watch]
+vyomel tasks [--status running]
+vyomel show <task_id>
+vyomel trace <task_id>
+vyomel cancel <task_id> [--compensate]
+vyomel reply <task_id> "<answer>"
 
-astra approvals                      # interactive approval queue
-astra approve <id> | reject <id> | modify <id> --set value=85
+vyomel approvals                      # interactive approval queue
+vyomel approve <id> | reject <id> | modify <id> --set value=85
 
-astra memory ingest <path> [--watch]
-astra memory query "<q>" [--k 10] [--strategy hybrid]
-astra memory entities [--type project]
-astra memory forget <entity_id>
+vyomel memory ingest <path> [--watch]
+vyomel memory query "<q>" [--k 10] [--strategy hybrid]
+vyomel memory entities [--type project]
+vyomel memory forget <entity_id>
 
-astra tools list | show <name> | invoke <name> --json '{...}'
-astra policy show | reload | test '<tool>' '<json params>'
-astra audit tail | verify
-astra models list | bench
-astra eval run <suite> | compare <run_a> <run_b>
+vyomel tools list | show <name> | invoke <name> --json '{...}'
+vyomel policy show | reload | test '<tool>' '<json params>'
+vyomel audit tail | verify
+vyomel workflows list | accept <id> | reject <id> | invoke <id> --json '{...}'
+vyomel voice transcribe "<text>" | speak "<text>"
+vyomel models list | bench
+vyomel eval run <suite> | compare <run_a> <run_b>
 ```

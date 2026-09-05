@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from astra.memory.rrf import rrf
+from vyomel.memory.rrf import rrf
 
 
 def test_rrf_prefers_items_that_rank_in_both_lists() -> None:

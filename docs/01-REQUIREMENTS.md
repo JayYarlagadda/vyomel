@@ -123,6 +123,23 @@ Priority levels:
 | FR-902 | Propose a parameterized reusable workflow when a sequence recurs ≥ N times (default 3). | P2 | `tests/learning/test_proposal.py` |
 | FR-903 | Learned workflows require explicit user acceptance before becoming invocable. | P2 | `tests/learning/test_acceptance.py` |
 
+### 1.10 Voice interface (FR-10xx)
+
+| ID | Requirement | Priority | Verified by |
+|---|---|---|---|
+| FR-1001 | Local speech-to-text (Whisper-compatible) returns text with optional word timings; fixture backend for CI. | P2 | `tests/voice/test_stt.py` |
+| FR-1002 | Wake-word gating: listening for intent only begins after the configured wake phrase is detected. | P2 | `tests/voice/test_wake.py` |
+| FR-1003 | Text-to-speech synthesizes an audible artifact (or fixture stand-in) for operator replies. | P2 | `tests/voice/test_tts.py` |
+| FR-1004 | Barge-in: a new user utterance cancels in-progress TTS immediately. | P2 | `tests/voice/test_barge_in.py` |
+
+### 1.11 Multimodal verticals (FR-11xx)
+
+| ID | Requirement | Priority | Verified by |
+|---|---|---|---|
+| FR-1101 | Camera perception returns structured detections (equipment/objects) from a fixture or live frame; vision is never the only control path. | P2 | `tests/perception/test_camera.py` |
+| FR-1102 | Gym scenario S8: given visible equipment + personal training history, produce today's session plan without a separate product runtime. | P2 | `tests/perception/test_gym.py` |
+| FR-1103 | Wearable (or any thin client) creates tasks through the same HTTP API; no parallel domain entrypoint. | P2 | `tests/clients/test_wearable.py` |
+
 ---
 
 ## 2. Non-functional requirements
@@ -135,11 +152,11 @@ Priority levels:
 | NFR-04 | Retrieval recall@10 on the personal-docs benchmark | ≥ 0.85 | `evals/suites/rag/` |
 | NFR-05 | Tool-call schema validity rate | ≥ 0.98 | `evals/suites/agent/` |
 | NFR-06 | Verification coverage on ≥ L2 actions | 100 % | `tests/verify/test_coverage.py` |
-| NFR-07 | Unit + integration test line coverage on `astra/core`, `astra/runtime`, `astra/security` | ≥ 85 % | `pytest --cov` gate in CI |
+| NFR-07 | Unit + integration test line coverage on `vyomel/core`, `vyomel/runtime`, `vyomel/security` | ≥ 85 % | `pytest --cov` gate in CI |
 | NFR-08 | Cold start of API process | < 5 s | `evals/suites/api_latency/` |
 | NFR-09 | Secret leakage into logs/traces/prompts | **0 occurrences** | `tests/security/test_redaction.py` + CI secret scan |
 | NFR-10 | Every P0 requirement has at least one automated test | 100 % | `scripts/check_traceability.py` in CI |
-| NFR-11 | Reproducible evaluation: same seed + same fixtures ⇒ identical scores | bit-identical | `evals/harness/test_reproducibility.py` |
+| NFR-11 | Reproducible evaluation: same seed + same fixtures ⇒ identical scores | bit-identical | `tests/evals/test_compare.py` |
 | NFR-12 | Local-model path works fully offline (no network) | pass | `tests/models/test_offline.py` |
 
 ---

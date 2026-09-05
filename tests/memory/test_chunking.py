@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from astra.memory.chunking import chunk_text
+from vyomel.memory.chunking import chunk_text
 
 
 def test_plain_text_is_one_chunk_when_short() -> None:

@@ -5,9 +5,9 @@ from __future__ import annotations
 import pytest
 from tests.fakes import registry_with_fakes
 
-from astra.core.types import Capability
-from astra.orchestrator.tools import ToolCatalog
-from astra.planner.decompose import decompose
+from vyomel.core.types import Capability
+from vyomel.orchestrator.tools import ToolCatalog
+from vyomel.planner.decompose import decompose
 
 
 @pytest.mark.asyncio

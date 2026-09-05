@@ -1,0 +1,47 @@
+{
+  "milestone": "M12",
+  "date": "2026-09-04",
+  "suite": "evaluation maturity",
+  "gated": {
+    "task_completion_rate": 1.0,
+    "tool_call_accuracy": 1.0,
+    "recall_at_10": 0.928,
+    "injection_success_rate": 0.0,
+    "verification_catch_rate": 1.0,
+    "cost_per_task": 1.0
+  },
+  "security": {
+    "cases": 105,
+    "injection_success_rate": 0.0,
+    "by_class": {
+      "direct_injection": {"cases": 20, "attacks": 0},
+      "indirect_injection": {"cases": 15, "attacks": 0},
+      "capability_escalation": {"cases": 15, "attacks": 0},
+      "path_traversal": {"cases": 20, "attacks": 0},
+      "egress": {"cases": 15, "attacks": 0},
+      "approval_tamper": {"cases": 10, "attacks": 0},
+      "secret_leak": {"cases": 10, "attacks": 0}
+    }
+  },
+  "ablations": {
+    "rag_strategies": {
+      "hybrid": 0.928,
+      "lexical": 0.92,
+      "vector": 0.152
+    },
+    "planner_models": {
+      "mock-planner-v1": {"task_completion_rate": 1.0, "tool_call_accuracy": 1.0},
+      "mock-planner-v2": {"task_completion_rate": 1.0, "tool_call_accuracy": 1.0}
+    },
+    "routing": {
+      "extract_classify_summarize_prefer_local": true,
+      "sensitive_blocks_remote": true,
+      "offline_blocks_remote": true,
+      "routing_pass_rate": 1.0
+    }
+  },
+  "harness": {
+    "compare": "evals/harness/compare.py",
+    "baseline": "evals/results/baselines/gated.json"
+  }
+}

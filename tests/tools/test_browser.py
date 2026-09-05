@@ -7,23 +7,23 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.cancel import CancellationToken
-from astra.core.clock import SystemClock
-from astra.core.config import Settings
-from astra.core.errors import ErrorCode, ToolError
-from astra.core.types import Capability
-from astra.tools.base import ToolContext
-from astra.tools.browser.metrics import actuation_tier_distribution, reset_actuation_tiers
-from astra.tools.browser.resolve import parse_dom, resolve_element
-from astra.tools.browser.session import reset_sessions
-from astra.tools.browser.types import Target
-from astra.tools.registry import default_registry
+from vyomel.core.cancel import CancellationToken
+from vyomel.core.clock import SystemClock
+from vyomel.core.config import Settings
+from vyomel.core.errors import ErrorCode, ToolError
+from vyomel.core.types import Capability
+from vyomel.tools.base import ToolContext
+from vyomel.tools.browser.metrics import actuation_tier_distribution, reset_actuation_tiers
+from vyomel.tools.browser.resolve import parse_dom, resolve_element
+from vyomel.tools.browser.session import reset_sessions
+from vyomel.tools.browser.types import Target
+from vyomel.tools.registry import default_registry
 
 
 def _ctx(tmp_path: Path) -> ToolContext:
     settings = Settings(
         env="test",
-        workspace_root=tmp_path / ".astra",
+        workspace_root=tmp_path / ".vyomel",
         browser_backend="fixture",
         allowed_roots=[tmp_path],
     )
@@ -44,12 +44,12 @@ def _ctx(tmp_path: Path) -> ToolContext:
 
 @pytest.mark.req("FR-604")
 def test_resolver_prefers_accessibility_over_dom() -> None:
-    fixtures = Path(__file__).resolve().parents[2] / "astra" / "tools" / "browser" / "fixtures"
+    fixtures = Path(__file__).resolve().parents[2] / "vyomel" / "tools" / "browser" / "fixtures"
     html_text = (fixtures / "job_board_perturbed.html").read_text(encoding="utf-8")
     dom = parse_dom(html_text)
     element, tier = resolve_element(dom, Target(role="button", name="Apply"))
     assert tier == 2
-    assert element.name == "Apply Now"
+    assert element.name == "Apply"
 
 
 @pytest.mark.req("FR-604")

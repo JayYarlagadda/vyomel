@@ -9,11 +9,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from astra.core.config import Settings
-from astra.memory.ingest import ingest_paths
-from astra.memory.retrieve import Strategy, retrieve
-from astra.models.embeddings import get_embedder
-from astra.store.db import dispose_engine, init_engine, session_scope
+from vyomel.core.config import Settings
+from vyomel.memory.ingest import ingest_paths
+from vyomel.memory.retrieve import Strategy, retrieve
+from vyomel.models.embeddings import get_embedder
+from vyomel.store.db import dispose_engine, init_engine, session_scope
 
 CORPUS = Path(__file__).resolve().parents[2] / "fixtures" / "corpus"
 QUESTIONS = Path(__file__).resolve().parents[2] / "fixtures" / "rag" / "questions.jsonl"
@@ -95,7 +95,7 @@ def main() -> int:
         env="dev",
         embedding_backend=args.backend,
         allowed_roots=[corpus_parent],
-        workspace_root=corpus_parent / ".astra-eval",
+        workspace_root=corpus_parent / ".vyomel-eval",
     )
     settings.ensure_directories()
 

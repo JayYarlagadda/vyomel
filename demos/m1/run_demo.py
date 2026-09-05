@@ -8,8 +8,8 @@ mid-flight is recovered and completes exactly once.
     python demos/m1/run_demo.py --crash    # abandon a claimed action, recover
 
 Requires Postgres and Redis up (``docker compose -f infra/compose.yaml up -d``)
-and the schema migrated (``astra db upgrade``). Everything runs in-process: the
-scheduler and worker are the same classes ``astra serve``/``astra worker`` host,
+and the schema migrated (``vyomel db upgrade``). Everything runs in-process: the
+scheduler and worker are the same classes ``vyomel serve``/``vyomel worker`` host,
 so the demo exercises production wiring rather than a parallel code path.
 """
 
@@ -24,15 +24,15 @@ from rich.console import Console
 from rich.table import Table
 from sqlalchemy import select
 
-from astra.core.config import Settings, get_settings
-from astra.core.logging import configure_logging
-from astra.core.types import ActionStatus, TaskStatus
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, PlanService, StepSpec
-from astra.orchestrator.runtime import get_registry, make_queue, make_scheduler, make_worker
-from astra.orchestrator.tasks import TaskService
-from astra.runtime.reaper import Reaper
-from astra.store.db import dispose_engine, init_engine, session_scope
-from astra.store.models import Action, Task
+from vyomel.core.config import Settings, get_settings
+from vyomel.core.logging import configure_logging
+from vyomel.core.types import ActionStatus, TaskStatus
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, PlanService, StepSpec
+from vyomel.orchestrator.runtime import get_registry, make_queue, make_scheduler, make_worker
+from vyomel.orchestrator.tasks import TaskService
+from vyomel.runtime.reaper import Reaper
+from vyomel.store.db import dispose_engine, init_engine, session_scope
+from vyomel.store.models import Action, Task
 
 console = Console()
 
@@ -169,7 +169,7 @@ async def run(*, crash: bool) -> int:
     workspace = prepare_workspace(settings)
     if not any(workspace.is_relative_to(root) for root in settings.allowed_roots):
         console.print(
-            f"[red]{workspace} is outside ASTRA_ALLOWED_ROOTS[/red] — "
+            f"[red]{workspace} is outside VYOMEL_ALLOWED_ROOTS[/red] — "
             "the sandbox will reject every read. Add the workspace root to .env."
         )
         return 1
@@ -190,7 +190,7 @@ async def run(*, crash: bool) -> int:
             )
         console.print(f"installed a 5-action plan for task [bold]{task.id}[/bold]")
 
-        # Same entry point ``astra serve`` uses: creates the consumer group and
+        # Same entry point ``vyomel serve`` uses: creates the consumer group and
         # re-drives anything a previous run committed but never published.
         await scheduler.recover()
 

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vyomel.fullname" . }}-worker
+  labels:
+    {{- include "vyomel.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      {{- include "vyomel.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "vyomel.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+    spec:
+      serviceAccountName: {{ include "vyomel.serviceAccountName" . }}
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["worker"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "vyomel.fullname" . }}-config
+          env:
+            - name: VYOMEL_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vyomel.fullname" . }}-secrets
+                  key: database-url
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          volumeMounts:
+            - name: workspace
+              mountPath: /var/vyomel
+      volumes:
+        - name: workspace
+          emptyDir: {}
+{{- if .Values.worker.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "vyomel.fullname" . }}-worker
+  labels:
+    {{- include "vyomel.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "vyomel.fullname" . }}-worker
+  minReplicas: {{ .Values.worker.hpa.minReplicas }}
+  maxReplicas: {{ .Values.worker.hpa.maxReplicas }}
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: vyomel_queue_depth
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.worker.hpa.targetQueueDepth | quote }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.worker.hpa.targetCPUUtilization }}
+{{- end }}

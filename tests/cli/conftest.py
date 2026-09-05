@@ -12,7 +12,7 @@ from typing import Any
 
 import pytest
 
-import astra.cli.client as client_module
+import vyomel.cli.client as client_module
 
 
 class Recorder:

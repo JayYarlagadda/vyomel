@@ -16,9 +16,9 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from astra.core.errors import IllegalTransitionError
-from astra.core.types import ActionStatus, TaskStatus
-from astra.runtime.state import (
+from vyomel.core.errors import IllegalTransitionError
+from vyomel.core.types import ActionStatus, TaskStatus
+from vyomel.runtime.state import (
     ACTION_TRANSITIONS,
     ActionTrigger,
     TaskTrigger,

@@ -7,12 +7,12 @@ from pathlib import Path
 import pytest
 from sqlalchemy import func, select
 
-from astra.core.errors import NotFoundError
-from astra.memory.graph import forget_entity, get_entity
-from astra.memory.ingest import ingest_paths
-from astra.models.embeddings import HashingEmbedder
-from astra.store.db import session_scope
-from astra.store.models import Document, DocumentChunk, Entity
+from vyomel.core.errors import NotFoundError
+from vyomel.memory.graph import forget_entity, get_entity
+from vyomel.memory.ingest import ingest_paths
+from vyomel.models.embeddings import HashingEmbedder
+from vyomel.store.db import session_scope
+from vyomel.store.models import Document, DocumentChunk, Entity
 
 
 @pytest.mark.integration

@@ -1,0 +1,78 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "next",
+      "start": 0.15,
+      "end": 0.5,
+      "tags": []
+    },
+    {
+      "text": "week",
+      "start": 0.58,
+      "end": 0.93,
+      "tags": []
+    },
+    {
+      "text": "we",
+      "start": 1.01,
+      "end": 1.36,
+      "tags": []
+    },
+    {
+      "text": "cut",
+      "start": 1.44,
+      "end": 1.79,
+      "tags": []
+    },
+    {
+      "text": "a",
+      "start": 1.87,
+      "end": 2.22,
+      "tags": []
+    },
+    {
+      "text": "sixty",
+      "start": 2.3,
+      "end": 2.65,
+      "tags": []
+    },
+    {
+      "text": "second",
+      "start": 2.73,
+      "end": 3.13,
+      "tags": []
+    },
+    {
+      "text": "highlight",
+      "start": 3.21,
+      "end": 3.61,
+      "tags": []
+    },
+    {
+      "text": "reel",
+      "start": 3.69,
+      "end": 4.04,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [
+    {
+      "start": 1.0,
+      "end": 3.5
+    }
+  ],
+  "payload": {}
+}

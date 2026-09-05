@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.types import ActionStatus
-from astra.runtime.dag import ActionNode, CyclicPlanError, ready_ids, reverse_topo, validate_acyclic
+from vyomel.core.types import ActionStatus
+from vyomel.runtime.dag import ActionNode, CyclicPlanError, ready_ids, reverse_topo, validate_acyclic
 
 
 def _node(

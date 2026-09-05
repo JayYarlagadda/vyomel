@@ -11,7 +11,7 @@ instructions, 50 summarize/report instructions.
 | mock-planner-v2 | **1.000** | **1.000** |
 
 Both configurations use the deterministic mock planner (no network). Cloud
-providers are wired behind `ASTRA_PLANNER_BACKEND=openai|local` for production.
+providers are wired behind `VYOMEL_PLANNER_BACKEND=openai|local` for production.
 
 ## Reproduce
 

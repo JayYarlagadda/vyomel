@@ -10,9 +10,9 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.errors import ConfigError
-from astra.core.types import Capability, Decision
-from astra.security.policy import (
+from vyomel.core.errors import ConfigError
+from vyomel.core.types import Capability, Decision
+from vyomel.security.policy import (
     DENY_ALL,
     PolicyRequest,
     PolicyStore,
@@ -22,7 +22,7 @@ from astra.security.policy import (
     variables_for,
 )
 
-VARIABLES = variables_for(Path("D:/Astra/.astra/scratch"), Path("D:/Astra/.astra"))
+VARIABLES = variables_for(Path("D:/Vyomel/.vyomel/scratch"), Path("D:/Vyomel/.vyomel"))
 
 
 def shipped() -> object:
@@ -159,7 +159,7 @@ def test_a_rule_whose_args_are_absent_does_not_match() -> None:
         variables=VARIABLES,
     )
     assert policy.evaluate(request("fs.write_file", Capability.L2)).decision is Decision.CONFIRM
-    inside = request("fs.write_file", Capability.L2, path="D:/Astra/.astra/scratch/out.txt")
+    inside = request("fs.write_file", Capability.L2, path="D:/Vyomel/.vyomel/scratch/out.txt")
     assert policy.evaluate(inside).decision is Decision.ALLOW
 
 
@@ -232,7 +232,7 @@ def test_the_store_reloads_when_the_file_changes(tmp_path: Path) -> None:
 @pytest.mark.req("FR-302")
 def test_a_decision_is_attributable_to_a_policy_version_and_hash() -> None:
     policy = shipped()
-    verdict = policy.evaluate(request("fs.read_file", Capability.L0, path="D:/Astra/README.md"))  # type: ignore[attr-defined]
+    verdict = policy.evaluate(request("fs.read_file", Capability.L0, path="D:/Vyomel/README.md"))  # type: ignore[attr-defined]
     payload = verdict.to_payload()
     assert payload["policy_hash"] == policy.hash  # type: ignore[attr-defined]
     assert payload["rule_id"]

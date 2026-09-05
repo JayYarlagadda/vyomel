@@ -2,7 +2,7 @@
 
 Status: **Approved baseline (v1.0)**
 
-This is the systems core of Astra. It is what makes the project a distributed-systems project rather than a prompt-engineering project.
+This is the systems core of Vyomel. It is what makes the project a distributed-systems project rather than a prompt-engineering project.
 
 ---
 
@@ -53,7 +53,7 @@ Terminal states: `SUCCEEDED`, `FAILED`, `CANCELLED`. `NEEDS_HUMAN` is *quasi-ter
 
 ## 3. Action state machine (normative)
 
-This table is the specification. `astra/runtime/state.py` encodes it directly, and `tests/runtime/test_state_machine.py` asserts that every illegal transition raises.
+This table is the specification. `vyomel/runtime/state.py` encodes it directly, and `tests/runtime/test_state_machine.py` asserts that every illegal transition raises.
 
 | From | To | Trigger | Guard |
 |---|---|---|---|
@@ -87,7 +87,7 @@ BEGIN;
   UPDATE actions SET status='DISPATCHED', dispatched_at=now() WHERE id=$1 AND status='READY';
   -- (row-level guard: 0 rows updated => someone else took it, abort)
 COMMIT;
-XADD astra:actions * action_id $1        -- only after commit
+XADD vyomel:actions * action_id $1        -- only after commit
 ```
 
 Postgres commits **before** Redis. If the process dies between the two, the action sits in `DISPATCHED` with an expired lease and the reaper returns it to `READY`. The inverse ordering (Redis first) would allow a dispatched action with no durable record — unrecoverable. This ordering choice is the crux of NFR-03.
@@ -95,7 +95,7 @@ Postgres commits **before** Redis. If the process dies between the two, the acti
 ### 4.2 Worker claim
 
 ```
-XREADGROUP GROUP workers worker-$id COUNT 1 BLOCK 5000 STREAMS astra:actions >
+XREADGROUP GROUP workers worker-$id COUNT 1 BLOCK 5000 STREAMS vyomel:actions >
 
 BEGIN;
   UPDATE actions
@@ -244,7 +244,7 @@ Honest reporting of what could not be undone is a requirement, not a nicety.
 
 - No client connection is required at any point. Clients poll `GET /v1/tasks/{id}` or subscribe to `WS /v1/tasks/{id}/events`.
 - Progress is checkpointed at every action boundary.
-- Large intermediate results spill to a content-addressed blob store (`.astra/blobs/<sha256>`) with only the reference stored in `actions.result`, keeping row sizes bounded.
+- Large intermediate results spill to a content-addressed blob store (`.vyomel/blobs/<sha256>`) with only the reference stored in `actions.result`, keeping row sizes bounded.
 - The scheduler is a separate process from the API, so API restarts and deploys never interrupt execution.
 - The M6 acceptance test is literally: start a 100-item research task, `kill -9` the worker at a random point, restart it, and assert that the task completes with exactly 100 results and no duplicates.
 

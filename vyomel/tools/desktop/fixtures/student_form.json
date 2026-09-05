@@ -1,0 +1,45 @@
+{
+  "title": "Student Registration",
+  "root": {
+    "role": "Window",
+    "name": "Student Registration",
+    "automation_id": "student_form_window",
+    "children": [
+      {
+        "role": "Edit",
+        "name": "Full name",
+        "automation_id": "field_name",
+        "value": "",
+        "bounds": [32, 64, 280, 24]
+      },
+      {
+        "role": "Edit",
+        "name": "Student ID",
+        "automation_id": "field_id",
+        "value": "",
+        "bounds": [32, 104, 200, 24]
+      },
+      {
+        "role": "ComboBox",
+        "name": "Major",
+        "automation_id": "field_major",
+        "value": "Computer Science",
+        "bounds": [32, 144, 240, 24]
+      },
+      {
+        "role": "Edit",
+        "name": "Password",
+        "automation_id": "field_password",
+        "password": true,
+        "value": "",
+        "bounds": [32, 184, 200, 24]
+      },
+      {
+        "role": "Button",
+        "name": "Submit registration",
+        "automation_id": "btn_submit",
+        "bounds": [32, 240, 160, 28]
+      }
+    ]
+  }
+}

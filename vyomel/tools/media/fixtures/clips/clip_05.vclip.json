@@ -1,0 +1,67 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "we",
+      "start": 0.15,
+      "end": 0.5,
+      "tags": []
+    },
+    {
+      "text": "delayed",
+      "start": 0.58,
+      "end": 0.98,
+      "tags": []
+    },
+    {
+      "text": "the",
+      "start": 1.06,
+      "end": 1.41,
+      "tags": []
+    },
+    {
+      "text": "mobile",
+      "start": 1.49,
+      "end": 1.89,
+      "tags": []
+    },
+    {
+      "text": "release",
+      "start": 1.97,
+      "end": 2.37,
+      "tags": []
+    },
+    {
+      "text": "by",
+      "start": 2.45,
+      "end": 2.8,
+      "tags": []
+    },
+    {
+      "text": "one",
+      "start": 2.88,
+      "end": 3.23,
+      "tags": []
+    },
+    {
+      "text": "sprint",
+      "start": 3.31,
+      "end": 3.71,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

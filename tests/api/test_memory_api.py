@@ -8,12 +8,12 @@ from pathlib import Path
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from astra.core.config import Settings
+from vyomel.core.config import Settings
 
 
 @pytest.fixture
 async def memory_client(memory_db: Settings) -> AsyncIterator[AsyncClient]:
-    from astra.api.app import create_app
+    from vyomel.api.app import create_app
 
     app = create_app(memory_db)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -57,8 +57,8 @@ async def test_get_and_forget_entity_over_http(memory_client, tmp_path: Path) ->
     )
     document_id = ingested.json()["documents"][0]["document_id"]
 
-    from astra.store.db import session_scope
-    from astra.store.models import Document
+    from vyomel.store.db import session_scope
+    from vyomel.store.models import Document
 
     async with session_scope() as session:
         document = await session.get(Document, document_id)

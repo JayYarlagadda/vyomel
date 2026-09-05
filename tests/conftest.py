@@ -20,33 +20,33 @@ from httpx import ASGITransport, AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy import delete
 
-from astra.core.config import Settings
-from astra.core.ids import new_id
-from astra.orchestrator.runtime import make_scheduler, make_worker, reset_registry
-from astra.runtime.queue import ActionQueue
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.store.db import dispose_engine, init_engine, session_scope
-from astra.store.models import Document, Entity, Episode, ModelCall, Task
+from vyomel.core.config import Settings
+from vyomel.core.ids import new_id
+from vyomel.orchestrator.runtime import make_scheduler, make_worker, reset_registry
+from vyomel.runtime.queue import ActionQueue
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.store.db import dispose_engine, init_engine, session_scope
+from vyomel.store.models import Document, Entity, Episode, ModelCall, Task
 from tests.fakes import registry_with_fakes
 
 
 @pytest.fixture(scope="session")
 def settings() -> Settings:
-    os.environ.setdefault("ASTRA_ENV", "test")
+    os.environ.setdefault("VYOMEL_ENV", "test")
     return Settings(env="test", log_format="json")
 
 
 @pytest.fixture
 async def client(settings: Settings) -> AsyncIterator[AsyncClient]:
-    from astra.api.app import create_app
+    from vyomel.api.app import create_app
 
     app = create_app(settings)
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as async_client:
         # ASGITransport does not trigger lifespan, so the engine is initialized here.
-        from astra.store.db import dispose_engine, init_engine
+        from vyomel.store.db import dispose_engine, init_engine
 
         init_engine(settings)
         try:
@@ -74,7 +74,7 @@ def runtime_settings(tmp_path: Path) -> Settings:
         env="test",
         log_format="json",
         allowed_roots=[tmp_path],
-        workspace_root=tmp_path / ".astra",
+        workspace_root=tmp_path / ".vyomel",
         max_parallel_actions=4,
         max_retries=2,
         action_timeout_s=15,
@@ -132,7 +132,7 @@ async def _truncate_documents() -> None:
 @pytest.fixture
 async def queue(runtime_settings: Settings) -> AsyncIterator[ActionQueue]:
     client = Redis.from_url(runtime_settings.redis_url, decode_responses=True)
-    q = ActionQueue(client, stream=f"astra:test:{new_id()}", group="workers")
+    q = ActionQueue(client, stream=f"vyomel:test:{new_id()}", group="workers")
     await q.ensure_group()
     try:
         yield q

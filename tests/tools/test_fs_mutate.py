@@ -7,13 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.cancel import CancellationToken
-from astra.core.clock import SystemClock
-from astra.core.errors import ErrorCode, ToolError
-from astra.core.ids import digest_bytes, file_digest
-from astra.core.types import Capability, VerifyOutcome
-from astra.tools.base import ToolContext
-from astra.tools.fs import (
+from vyomel.core.cancel import CancellationToken
+from vyomel.core.clock import SystemClock
+from vyomel.core.errors import ErrorCode, ToolError
+from vyomel.core.ids import digest_bytes, file_digest
+from vyomel.core.types import Capability, VerifyOutcome
+from vyomel.tools.base import ToolContext
+from vyomel.tools.fs import (
     Copy,
     CopyInput,
     Delete,
@@ -21,7 +21,7 @@ from astra.tools.fs import (
     Move,
     MoveInput,
 )
-from astra.verify.engine import verify_result
+from vyomel.verify.engine import verify_result
 
 
 def _ctx(root: Path, *, action_id: str = "a" * 26) -> ToolContext:

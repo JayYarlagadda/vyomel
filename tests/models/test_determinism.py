@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from astra.models.cache import CachedProvider
-from astra.models.providers.mock import MockPlannerProvider
-from astra.models.types import ChatMessage, ModelRequest
+from vyomel.models.cache import CachedProvider
+from vyomel.models.providers.mock import MockPlannerProvider
+from vyomel.models.types import ChatMessage, ModelRequest
 
 
 @pytest.mark.asyncio

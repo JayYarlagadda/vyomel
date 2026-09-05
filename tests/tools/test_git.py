@@ -9,11 +9,11 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.cancel import CancellationToken
-from astra.core.clock import SystemClock
-from astra.core.types import Capability
-from astra.tools.base import ToolContext
-from astra.tools.git import (
+from vyomel.core.cancel import CancellationToken
+from vyomel.core.clock import SystemClock
+from vyomel.core.types import Capability
+from vyomel.tools.base import ToolContext
+from vyomel.tools.git import (
     GitCommit,
     GitCommitInput,
     GitDiff,
@@ -69,8 +69,8 @@ def _init_repo(root: Path) -> Path:
     repo = root / "repo"
     repo.mkdir()
     _run(repo, "init")
-    _run(repo, "config", "user.email", "astra@test")
-    _run(repo, "config", "user.name", "Astra")
+    _run(repo, "config", "user.email", "vyomel@test")
+    _run(repo, "config", "user.name", "Vyomel")
     _run(repo, "config", "commit.gpgsign", "false")
     return repo
 

@@ -1,0 +1,19 @@
+{
+  "milestone": "M12-baseline",
+  "date": "2026-09-04",
+  "description": "Gated metrics for CI regression comparison (docs/11 §10).",
+  "sources": {
+    "rag": "evals/results/2026-09-02-m4/results.json",
+    "agent": "evals/results/2026-09-02-m5/results.json",
+    "desktop": "evals/results/2026-09-02-m8/summary.json",
+    "security": "evals/results/2026-09-04-m12/security.json"
+  },
+  "gated": {
+    "task_completion_rate": 1.0,
+    "tool_call_accuracy": 1.0,
+    "recall_at_10": 0.928,
+    "injection_success_rate": 0.0,
+    "verification_catch_rate": 1.0,
+    "cost_per_task": 1.0
+  }
+}

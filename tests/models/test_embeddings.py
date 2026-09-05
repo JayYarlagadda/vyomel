@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import math
 
-from astra.core.config import Settings
-from astra.models.embeddings import EMBEDDING_DIM, HashingEmbedder, get_embedder
+from vyomel.core.config import Settings
+from vyomel.models.embeddings import EMBEDDING_DIM, HashingEmbedder, get_embedder
 
 
 def test_hashing_embedder_is_384d_unit_and_deterministic() -> None:

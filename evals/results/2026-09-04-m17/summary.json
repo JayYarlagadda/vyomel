@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "equipment": [
+    "barbell",
+    "bench",
+    "cable_machine",
+    "dumbbells",
+    "squat_rack"
+  ],
+  "focus": "pull_and_legs",
+  "blocks": 5,
+  "duration_min": 45,
+  "wearable_origin": "api",
+  "wearable_client": "wearable"
+}

@@ -5,10 +5,10 @@ from __future__ import annotations
 import pytest
 from tests.fakes import registry_with_fakes
 
-from astra.core.types import Capability
-from astra.orchestrator.tools import ToolCatalog
-from astra.planner.catalog import filter_catalog
-from astra.planner.decompose import decompose
+from vyomel.core.types import Capability
+from vyomel.orchestrator.tools import ToolCatalog
+from vyomel.planner.catalog import filter_catalog
+from vyomel.planner.decompose import decompose
 
 
 @pytest.mark.req("FR-104")
@@ -31,7 +31,7 @@ async def test_decompose_rejects_tools_above_ceiling(settings) -> None:
         @property
         def info(self):
 
-            from astra.models.types import ProviderInfo
+            from vyomel.models.types import ProviderInfo
 
             return ProviderInfo(
                 name="evil",
@@ -41,7 +41,7 @@ async def test_decompose_rejects_tools_above_ceiling(settings) -> None:
             )
 
         async def complete(self, req):
-            from astra.models.types import ModelResponse
+            from vyomel.models.types import ModelResponse
 
             return ModelResponse(
                 content="{}",
@@ -68,7 +68,7 @@ async def test_decompose_rejects_tools_above_ceiling(settings) -> None:
                 },
             )
 
-    from astra.planner.decompose import PlannerError
+    from vyomel.planner.decompose import PlannerError
 
     with pytest.raises(PlannerError, match="not in the capability-filtered catalog"):
         await decompose(

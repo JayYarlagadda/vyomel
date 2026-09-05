@@ -1,0 +1,103 @@
+# vLLM StatefulSet for a GPU node (FR-707). Pair with a PVC that holds weights
+# or let the container pull from Hugging Face on first boot.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vyomel-vllm-weights
+  labels:
+    app: vyomel-vllm
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 40Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vyomel-vllm
+  labels:
+    app: vyomel-vllm
+spec:
+  serviceName: vyomel-vllm
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vyomel-vllm
+  template:
+    metadata:
+      labels:
+        app: vyomel-vllm
+    spec:
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.6.3
+          args:
+            - "--model"
+            - "meta-llama/Meta-Llama-3.1-8B-Instruct"
+            - "--host"
+            - "0.0.0.0"
+            - "--port"
+            - "8000"
+            - "--max-model-len"
+            - "8192"
+            - "--gpu-memory-utilization"
+            - "0.90"
+            - "--max-num-seqs"
+            - "32"
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vyomel-hf
+                  key: token
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              cpu: "4"
+              memory: 16Gi
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: weights
+              mountPath: /root/.cache/huggingface
+      volumes:
+        - name: weights
+          persistentVolumeClaim:
+            claimName: vyomel-vllm-weights
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vyomel-vllm
+  labels:
+    app: vyomel-vllm
+spec:
+  selector:
+    app: vyomel-vllm
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

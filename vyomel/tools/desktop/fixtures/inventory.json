@@ -1,0 +1,54 @@
+{
+  "title": "Inventory",
+  "root": {
+    "role": "Window",
+    "name": "Inventory",
+    "automation_id": "inventory_window",
+    "children": [
+      {
+        "role": "Edit",
+        "name": "SKU lookup",
+        "automation_id": "sku_search",
+        "value": "",
+        "bounds": [20, 40, 180, 24]
+      },
+      {
+        "role": "Button",
+        "name": "Search",
+        "automation_id": "btn_search",
+        "bounds": [220, 40, 72, 24]
+      },
+      {
+        "role": "List",
+        "name": "Items",
+        "automation_id": "item_list",
+        "children": [
+          {
+            "role": "ListItem",
+            "name": "Widget A",
+            "automation_id": "item_a",
+            "value": "42"
+          },
+          {
+            "role": "ListItem",
+            "name": "Widget B",
+            "automation_id": "item_b",
+            "value": "17"
+          }
+        ]
+      },
+      {
+        "role": "Button",
+        "name": "Adjust stock",
+        "automation_id": "btn_adjust",
+        "bounds": [20, 280, 120, 28]
+      },
+      {
+        "role": "Button",
+        "name": "Export report",
+        "automation_id": "btn_export",
+        "bounds": [160, 280, 120, 28]
+      }
+    ]
+  }
+}

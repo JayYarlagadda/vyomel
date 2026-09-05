@@ -1,6 +1,6 @@
 # 11 — Evaluation
 
-Status: **Approved baseline (v1.0)**
+Status: **M12 implemented (compare gate + security suite + ablation tables)**
 
 **Rule: no number reaches the README, a resume, or an interview unless a script in `evals/` produces it reproducibly.**
 
@@ -23,6 +23,8 @@ evals/
 │   ├── agent/            # multi-step task completion
 │   ├── desktop/          # GUI workflow automation
 │   ├── browser/          # web workflow automation
+│   ├── api/              # Gmail/Calendar/GitHub scenario S3
+│   ├── media/            # FFmpeg media scenario S7
 │   ├── security/         # injection + permission escape attempts
 │   ├── serving/          # vLLM throughput/latency
 │   ├── longrun/          # durability under crash
@@ -119,7 +121,15 @@ Includes DOM-perturbation robustness: changed class names, reordered elements, i
 
 ---
 
-## 6. Suite: Security (`evals/suites/security/`)
+## 6. Suite: External APIs (`evals/suites/api/`)
+
+Scenario S3 against a fixture Gmail/Calendar world: find yesterday's interview email, list the interview day, find two free prep slots, create those events with the interviewer as an attendee.
+
+**Metrics**: end-to-end success; every L3 action must evaluate to `CONFIRM` (never `ALLOW`) under the shipped policy.
+
+---
+
+## 7. Suite: Security (`evals/suites/security/`)
 
 The suite that most projects skip.
 
@@ -137,13 +147,18 @@ The suite that most projects skip.
 
 ---
 
-## 7. Suite: Serving (`evals/suites/serving/`)
+## 8. Suite: Serving (`evals/suites/serving/`)
 
 vLLM vs HuggingFace `transformers` baseline on identical rented hardware. Metrics per `09-MODEL-SERVING.md` §5.3. Deliverable: table + plots + exact reproduction commands.
 
+**Fixture mode (CI):** `evals/suites/serving/run.py --backend fixture` compares a naive serial OpenAI-compatible server against a continuous-batching-shaped server. Results in `evals/results/serving/`.
+
+**Live mode:** after `infra/vllm/up.ps1` on a rented A10G/L4, `--backend live --base-url http://localhost:8000/v1`.
+
+
 ---
 
-## 8. Suite: Long-run durability (`evals/suites/longrun/`)
+## 9. Suite: Long-run durability (`evals/suites/longrun/`)
 
 The durability claim, tested adversarially:
 
@@ -161,7 +176,7 @@ Chaos mode is the direct analogue of the network-fault simulator built for Orbit
 
 ---
 
-## 9. Regression gating
+## 10. Regression gating
 
 `evals/harness/compare.py` diffs two result sets and fails CI when:
 
@@ -176,6 +191,6 @@ Full suites are expensive, so scheduling is tiered: a fast subset (~5 min, mock 
 
 ---
 
-## 10. Reporting
+## 11. Reporting
 
 Each run emits `evals/results/<date>-<sha>/`: `report.md` (human), `results.json` (machine), `plots/`, and `env.json` (full reproducibility manifest). These are committed. Being able to open a two-year history of measured agent performance is, for interview purposes, worth more than the agent itself.

@@ -11,14 +11,14 @@ from __future__ import annotations
 import pytest
 from sqlalchemy import select, update
 
-from astra.core.config import Settings
-from astra.core.errors import ErrorCode
-from astra.core.types import ActionStatus
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.store.db import session_scope
-from astra.store.models import Action, DeadLetter
+from vyomel.core.config import Settings
+from vyomel.core.errors import ErrorCode
+from vyomel.core.types import ActionStatus
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.store.db import session_scope
+from vyomel.store.models import Action, DeadLetter
 from tests.runtime.helpers import install_plan
 
 _PLAN = HandwrittenPlan(

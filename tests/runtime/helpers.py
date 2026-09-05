@@ -4,15 +4,15 @@ from __future__ import annotations
 
 from typing import Any
 
-from astra.core.config import Settings
-from astra.core.types import Capability
-from astra.orchestrator.plans import HandwrittenPlan, PlanService
-from astra.orchestrator.runtime import get_registry
-from astra.orchestrator.tasks import TaskService
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.store.db import session_scope
-from astra.store.models import Task
+from vyomel.core.config import Settings
+from vyomel.core.types import Capability
+from vyomel.orchestrator.plans import HandwrittenPlan, PlanService
+from vyomel.orchestrator.runtime import get_registry
+from vyomel.orchestrator.tasks import TaskService
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.store.db import session_scope
+from vyomel.store.models import Task
 
 
 async def drain(scheduler: Scheduler, worker: Worker, *, rounds: int = 40) -> None:

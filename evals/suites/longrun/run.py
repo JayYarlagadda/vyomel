@@ -9,10 +9,10 @@ import platform
 import sys
 from datetime import UTC, datetime
 
-from astra.core.config import Settings
-from astra.orchestrator.runtime import make_queue
-from astra.runtime.longrun import MODES, LongrunHarness
-from astra.store.db import dispose_engine, init_engine
+from vyomel.core.config import Settings
+from vyomel.orchestrator.runtime import make_queue
+from vyomel.orchestrator.longrun import MODES, LongrunHarness
+from vyomel.store.db import dispose_engine, init_engine
 
 
 async def run_mode(settings: Settings, mode: str) -> dict[str, object]:

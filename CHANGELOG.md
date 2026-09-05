@@ -5,6 +5,65 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 
 ## [Unreleased]
 
+### M17 — Multimodal / gym (S8)
+
+- `vyomel/perception/`: fixture camera detections + gym session planner from equipment + history (FR-1101–1102)
+- Tools `camera.capture`, `camera.detect`, `gym.plan_session`; API `/v1/perception/*`
+- `WearableClient` hits the same HTTP API (FR-1103); demo `demos/m17/`
+- Results: `evals/results/2026-09-04-m17/`
+
+### M16 — Voice
+
+- `vyomel/voice/`: fixture STT, wake-word gate (`hey vyomel`), TTS artifacts, barge-in session (FR-1001–1004)
+- API `/v1/voice/transcribe|speak|session/*`; CLI `vyomel voice transcribe|speak`
+- Results: `evals/results/2026-09-04-m16/`
+
+### M15 — Workflow learning
+
+- `vyomel/learning/`: signature normalize, PrefixSpan-lite mining, parameterized proposals (FR-901–902)
+- Explicit accept/reject with suppression list; `workflow.invoke` refuses unaccepted proposals (FR-903)
+- Trust ceiling capped at L2 (FR-310); `workflows` + `workflow_suppressions` migration `0009`
+- API `/v1/workflows` + CLI `vyomel workflows`; results in `evals/results/2026-09-04-m15/`
+
+### M14 — Media plugin
+
+- `vyomel/tools/media/` FFmpeg-backed plugin: probe, transcribe, detect_segments, cut, concat, mute_segment, caption, export (FR-607)
+- Fixture backend + 12-clip S7 corpus; optional live `ffmpeg`/`ffprobe` path via `VYOMEL_MEDIA_BACKEND`
+- Policy: scratch intermediates allow; `media.export` confirms (L2)
+- Results: `evals/results/2026-09-04-m14/` (60s draft, 2 profanity mutes, captions, export CONFIRM)
+
+### M13 — Kubernetes
+
+- Helm chart `infra/helm/vyomel/` (api, worker, scheduler, postgres, redis, optional vLLM)
+- Worker HPA on `vyomel_queue_depth`; scheduler Redis leader election (`vyomel scheduler`)
+- Local agent WebSocket + `vyomel agent` for host-bound desktop tools (ADR-0009)
+- Dockerfile; CI `helm` + `kind` jobs; failover notes in chart README
+- Moved longrun harness to `vyomel/orchestrator/longrun.py` (layering)
+
+### M12 — Evaluation maturity
+
+- `evals/harness/compare.py` + scoring; CI `eval-gate` job vs `evals/results/baselines/gated.json`
+- Security suite: 105 injection/egress/sandbox/approval/redaction cases; `injection_success_rate` = 0
+- Ablation tables for RAG strategies, planner models, and routing (`evals/suites/ablations/`)
+- README Measured results dashboard filled from committed `evals/results/`
+- Results: `evals/results/2026-09-04-m12/`
+
+### M11 — Model serving
+
+- `VllmProvider` OpenAI-compatible adapter (FR-707); `infra/vllm/` compose + `infra/k8s/vllm-statefulset.yaml`
+- Serving harness: continuous-batching fixture vs naive sequential; live mode for rented GPU
+- Circuit breaker + failover (FR-705); offline/local path (NFR-12)
+- Purpose routing table in `config/models.yaml` tuned toward local for extract/classify/summarize
+- Results: `evals/results/serving/` and `evals/results/2026-09-04-m11/` (fixture; ~2× tok/s at c32)
+
+### M10 — Observability
+
+- In-process tracing with W3C `traceparent` on Redis stream payloads and crash-resume span links
+- Prometheus series from `docs/10-OBSERVABILITY.md` §3 at `GET /metrics`
+- `GET /v1/tasks/{id}/trace` and `vyomel trace <task_id>` timeline renderer
+- Six Grafana dashboards in `infra/grafana/dashboards/`; Jaeger + OTel Collector + Prometheus + Grafana in compose
+- Results: `evals/results/2026-09-03-m10/` (in-process recorder; live Jaeger is optional)
+
 ### M5 — Planner
 
 - Model provider abstraction: `ModelProvider` protocol, mock + OpenAI-compatible adapters
@@ -21,10 +80,10 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 
 ### M4 — Memory and RAG
 
-- Ingestion: md/txt/html/pdf/docx extractors (`astra/memory/extract.py`); structure-aware
+- Ingestion: md/txt/html/pdf/docx extractors (`vyomel/memory/extract.py`); structure-aware
   chunking; SHA-256 skip/replace (FR-506). Alembic `0005`–`0007`.
 - Embeddings: `BgeEmbedder` via `sentence-transformers` (`[memory]` extra);
-  `get_embedder()` selects hashing in test or `ASTRA_EMBEDDING_BACKEND=hashing|bge|auto`.
+  `get_embedder()` selects hashing in test or `VYOMEL_EMBEDDING_BACKEND=hashing|bge|auto`.
 - Hybrid retrieval: HNSW cosine + `tsvector` GIN, fused with RRF k=60 (FR-503).
   Citations include path, heading_path, and char offsets (FR-505).
 - Context graph: entities, relations, document→entity link (FR-502). `remember` /
@@ -34,13 +93,13 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 - Eval: 100-doc synthetic corpus, 125 questions; recall@10 = 0.928 (hybrid, hashing).
   Ablation table in `evals/results/2026-09-02-m4/`. NFR-04 met.
 - API: `POST /v1/memory/ingest|query|remember`, `GET /v1/memory/entities|episodes`,
-  `GET|DELETE /v1/memory/entities/{id}`. CLI: `astra memory ingest|query|show|forget|remember|episodes`.
+  `GET|DELETE /v1/memory/entities/{id}`. CLI: `vyomel memory ingest|query|show|forget|remember|episodes`.
 - Deferred to later milestones: file watch/async jobs, code/csv extractors, salience decay,
   graph expansion in retrieval, reference resolution (FR-508).
 
 ### M3 — Verification and first real tools (in progress)
 
-- Verification engine dispatches on postcondition type (`astra/verify/engine.py`):
+- Verification engine dispatches on postcondition type (`vyomel/verify/engine.py`):
   `value_equals`, `file_exists`, and `file_hash` re-observe; `element_exists`,
   `api_readback`, and `llm_judge` are registered and return `NO_METHOD` until
   their observation paths exist. An unknown type is `NO_METHOD`, never a pass.
@@ -64,13 +123,13 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
   `hostname`). `argv[0]` is looked up on PATH; a caller-supplied path is ignored.
 - `git.status` / `git.diff` (L0), `git.commit` (L2, reverse via `reset --soft`
   of the commit this tool created), `git.push` (L3, irreversible).
-- Cancel: `POST /v1/tasks/{id}/cancel` and `astra cancel` compensate reversible
+- Cancel: `POST /v1/tasks/{id}/cancel` and `vyomel cancel` compensate reversible
   `SUCCEEDED` actions in `reverse_topo` order (FR-209). Irreversible completed
   effects are listed, not pretended undone.
 - Operator surfaces: `GET /v1/tools`, `GET /v1/tools/{name}`,
   `POST /v1/tools/{name}/invoke` (policy-gated; `CONFIRM`/`DENY` fail closed),
-  `astra tools list|show|invoke`, `astra do` (handwritten `--plan`, `--dry-run`
-  leaves the task in `PLANNING`), `astra show`, `astra tasks`. Natural-language
+  `vyomel tools list|show|invoke`, `vyomel do` (handwritten `--plan`, `--dry-run`
+  leaves the task in `PLANNING`), `vyomel show`, `vyomel tasks`. Natural-language
   planning is still M5.
 - Cooperative cancel of `RUNNING` actions: the worker holds a per-action
   `CancellationToken`, observes the cancelled task row, and after
@@ -79,10 +138,10 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 
 ### M2 — Security and permissions
 
-- Capability classification with saturating escalation (`astra/security/capability.py`):
+- Capability classification with saturating escalation (`vyomel/security/capability.py`):
   actuation tier, untrusted-content taint, bulk operations, and sensitive
   resources raise a level; nothing lowers one.
-- Declarative policy engine (`astra/security/policy.py`): deny-first evaluation,
+- Declarative policy engine (`vyomel/security/policy.py`): deny-first evaluation,
   per-level defaults, default-deny fallback, expiring rules, glob and domain
   matching, `${scratch_dir}`-style variables, and a hot-reloading `PolicyStore`.
 - The L4 invariant is enforced in code, not configuration: any policy that would
@@ -91,7 +150,7 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 - Approval flow (`approvals` table, Alembic `0003`): request, present, decide,
   modify, expire. Approvals are bound to `(action_id, parameter_hash,
   capability_level)`, are single-use, and fail closed on expiry.
-- `PolicyGate` between `READY` and `DISPATCHED` (`astra/runtime/gate.py`), wired
+- `PolicyGate` between `READY` and `DISPATCHED` (`vyomel/runtime/gate.py`), wired
   into the dispatcher and scheduler. `WAITING_FOR_USER` blocks the action and the
   task; a rejection fails both without a retry.
 - A modification is re-validated against the tool schema and re-classified. An
@@ -100,15 +159,15 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 - Append-only hash-chained audit log (`audit_log`, Alembic `0003`): serialized
   appends via advisory lock, redaction before write, a `BEFORE UPDATE OR DELETE`
   trigger, and range-scoped chain verification.
-- `Secret` wrapper (`astra/core/secrets.py`): no rendering path exposes the
+- `Secret` wrapper (`vyomel/core/secrets.py`): no rendering path exposes the
   value, serialization raises, and construction registers the value with the
   redaction filter.
 - API: `GET /v1/approvals`, `GET /v1/approvals/{id}`,
   `POST /v1/approvals/{id}/decide`, `GET /v1/audit`, `POST /v1/audit/verify`,
   `GET /v1/tasks/{id}/audit`, `GET /v1/policy`, `POST /v1/policy/reload`,
   `POST /v1/policy/test`.
-- CLI: `astra approvals`, `astra approve|reject|modify`, `astra audit tail|verify`,
-  `astra policy show|reload|test`. The CLI speaks HTTP only.
+- CLI: `vyomel approvals`, `vyomel approve|reject|modify`, `vyomel audit tail|verify`,
+  `vyomel policy show|reload|test`. The CLI speaks HTTP only.
 - Audit coverage now spans the whole lifecycle: `task.created`, `plan.installed`
   (with plan hash), every policy decision, every approval transition,
   `action.dispatched`, and `action.finished`.
@@ -129,7 +188,7 @@ Versioning follows milestones (`m0`, `m1`, …) rather than semver until v1.
 - Tool contract + registry; `fs.read_file`, `fs.list_dir`, `task.report`;
   filesystem sandbox (fail closed).
 - Handwritten plans via `POST /v1/tasks` `{plan: ...}` and `GET /v1/tasks/{id}/plan`.
-- CLI: `astra worker`.
+- CLI: `vyomel worker`.
 
 ### M0 — Foundation
 - Complete design documentation set in `docs/` (overview, requirements, architecture,

@@ -1,0 +1,66 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "please",
+      "start": 0.15,
+      "end": 0.55,
+      "tags": []
+    },
+    {
+      "text": "mute",
+      "start": 0.63,
+      "end": 0.98,
+      "tags": []
+    },
+    {
+      "text": "filler",
+      "start": 1.06,
+      "end": 1.46,
+      "tags": []
+    },
+    {
+      "text": "words",
+      "start": 1.54,
+      "end": 1.89,
+      "tags": []
+    },
+    {
+      "text": "and",
+      "start": 1.97,
+      "end": 2.32,
+      "tags": []
+    },
+    {
+      "text": "add",
+      "start": 2.4,
+      "end": 2.75,
+      "tags": []
+    },
+    {
+      "text": "captions",
+      "start": 2.83,
+      "end": 3.23,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [
+    {
+      "start": 1.0,
+      "end": 3.5
+    }
+  ],
+  "payload": {}
+}

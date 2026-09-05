@@ -4,7 +4,7 @@ Synthetic corpus: 100 markdown notes across 5 topic folders (`evals/fixtures/cor
 125 labeled questions (`evals/fixtures/rag/questions.jsonl`).
 
 **Embedder:** hashing 384-d (test/dev default). bge-small-en-v1.5 is wired via
-`ASTRA_EMBEDDING_BACKEND=bge` and the `[memory]` extra; quality numbers below
+`VYOMEL_EMBEDDING_BACKEND=bge` and the `[memory]` extra; quality numbers below
 use hashing because the corpus is token-heavy by design.
 
 ## recall@10 (NFR-04 target ≥ 0.85)

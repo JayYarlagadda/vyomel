@@ -1,0 +1,34 @@
+# Lightweight profile for kind CI (no GPU, no external-metrics HPA).
+vllm:
+  enabled: false
+
+worker:
+  replicas: 1
+  hpa:
+    enabled: false
+
+scheduler:
+  replicas: 2
+
+api:
+  replicas: 1
+
+postgres:
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+redis:
+  persistence:
+    size: 1Gi
+
+config:
+  plannerBackend: mock
+  offline: "true"
+  embedScheduler: "false"
+  disableHostTools: "true"

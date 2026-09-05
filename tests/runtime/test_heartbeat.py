@@ -8,17 +8,17 @@ from datetime import timedelta
 import pytest
 from sqlalchemy import select
 
-from astra.core.clock import FrozenClock
-from astra.core.config import Settings
-from astra.core.types import ActionStatus
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
-from astra.orchestrator.runtime import make_scheduler, make_worker
-from astra.runtime.queue import ActionQueue
-from astra.runtime.reaper import Reaper
-from astra.runtime.worker import Worker
-from astra.store.db import session_scope
-from astra.store.models import Action
-from astra.store.repos import ActionRepo
+from vyomel.core.clock import FrozenClock
+from vyomel.core.config import Settings
+from vyomel.core.types import ActionStatus
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.orchestrator.runtime import make_scheduler, make_worker
+from vyomel.runtime.queue import ActionQueue
+from vyomel.runtime.reaper import Reaper
+from vyomel.runtime.worker import Worker
+from vyomel.store.db import session_scope
+from vyomel.store.models import Action
+from vyomel.store.repos import ActionRepo
 from tests.fakes import release_hold, reset_hold, signal_hold_started
 from tests.runtime.helpers import install_plan
 

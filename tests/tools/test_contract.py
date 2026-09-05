@@ -7,13 +7,13 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
-from astra.core.cancel import CancellationToken
-from astra.core.clock import SystemClock
-from astra.core.errors import ErrorCode, ToolError
-from astra.core.types import Capability
-from astra.tools.base import Tool, ToolContext
-from astra.tools.registry import RegistryError, ToolRegistry, default_registry
-from astra.tools.sandbox import resolve_in_sandbox
+from vyomel.core.cancel import CancellationToken
+from vyomel.core.clock import SystemClock
+from vyomel.core.errors import ErrorCode, ToolError
+from vyomel.core.types import Capability
+from vyomel.tools.base import Tool, ToolContext
+from vyomel.tools.registry import RegistryError, ToolRegistry, default_registry
+from vyomel.tools.sandbox import resolve_in_sandbox
 
 
 def _ctx(root: Path) -> ToolContext:
@@ -64,6 +64,43 @@ def test_default_registry_meets_the_contract() -> None:
         "browser.submit",
         "browser.screenshot",
         "browser.download",
+        "app.open",
+        "app.focus",
+        "desktop.list_windows",
+        "desktop.read_tree",
+        "desktop.find_element",
+        "desktop.click_element",
+        "desktop.set_field",
+        "desktop.type_text",
+        "desktop.key",
+        "desktop.click_xy",
+        "desktop.scroll",
+        "email.search",
+        "email.read",
+        "email.draft",
+        "email.send",
+        "calendar.list",
+        "calendar.find_free",
+        "calendar.create_event",
+        "calendar.delete_event",
+        "github.search",
+        "github.read",
+        "github.create_issue",
+        "github.comment",
+        "http.get",
+        "http.post",
+        "media.probe",
+        "media.transcribe",
+        "media.detect_segments",
+        "media.cut",
+        "media.concat",
+        "media.mute_segment",
+        "media.caption",
+        "media.export",
+        "workflow.invoke",
+        "camera.capture",
+        "camera.detect",
+        "gym.plan_session",
     }
     by_name = {s.name: s for s in registry.catalog()}
     for spec in by_name.values():

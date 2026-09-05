@@ -1,20 +1,20 @@
-name: astra
+name: vyomel
 
 services:
   postgres:
     image: pgvector/pgvector:pg17
-    container_name: astra-postgres
+    container_name: vyomel-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: astra
-      POSTGRES_PASSWORD: astra
-      POSTGRES_DB: astra
+      POSTGRES_USER: vyomel
+      POSTGRES_PASSWORD: vyomel
+      POSTGRES_DB: vyomel
       # Deterministic collation so ORDER BY is stable across machines.
       POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
     ports:
       - "55432:5432"
     volumes:
-      - astra-pgdata:/var/lib/postgresql/data
+      - vyomel-pgdata:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
     command:
       - "postgres"
@@ -29,19 +29,19 @@ services:
       - "-c"
       - "log_min_duration_statement=500"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U astra -d astra"]
+      test: ["CMD-SHELL", "pg_isready -U vyomel -d vyomel"]
       interval: 5s
       timeout: 3s
       retries: 20
 
   redis:
     image: redis:7-alpine
-    container_name: astra-redis
+    container_name: vyomel-redis
     restart: unless-stopped
     ports:
       - "56379:6379"
     volumes:
-      - astra-redisdata:/data
+      - vyomel-redisdata:/data
     # appendonly: the queue is transport, but AOF avoids needless replays after restart.
     command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
     healthcheck:
@@ -50,6 +50,62 @@ services:
       timeout: 3s
       retries: 20
 
+  jaeger:
+    image: jaegertracing/all-in-one:1.62
+    container_name: vyomel-jaeger
+    restart: unless-stopped
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+    expose:
+      - "4317"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.109.0
+    container_name: vyomel-otel
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel/config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - jaeger
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: vyomel-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: vyomel-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: vyomel
+      GF_SECURITY_ADMIN_PASSWORD: vyomel
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_USERS_DEFAULT_THEME: dark
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards/vyomel:ro
+    depends_on:
+      - prometheus
+
 volumes:
-  astra-pgdata:
-  astra-redisdata:
+  vyomel-pgdata:
+  vyomel-redisdata:

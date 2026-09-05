@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.config import Settings
-from astra.models.router import get_planner_provider
+from vyomel.core.config import Settings
+from vyomel.models.router import get_planner_provider
 
 
 @pytest.mark.req("FR-702")

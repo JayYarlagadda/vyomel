@@ -12,9 +12,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PACKAGE = ROOT / "astra"
+PACKAGE = ROOT / "vyomel"
 
-# Each layer may import only from the layers listed here (plus astra.core,
+# Each layer may import only from the layers listed here (plus vyomel.core,
 # which is universally available, and itself).
 ALLOWED: dict[str, set[str]] = {
     "core": set(),
@@ -24,13 +24,26 @@ ALLOWED: dict[str, set[str]] = {
     "perception": {"obs"},
     "security": {"store", "obs"},
     "memory": {"models", "store", "obs"},
-    "tools": {"perception", "models", "obs", "memory", "store"},
+    "learning": {"core"},
+    "voice": {"core"},
+    "clients": {"core"},
+    "tools": {"perception", "models", "obs", "memory", "store", "learning", "voice"},
     "verify": {"perception", "tools", "models", "obs"},
     "runtime": {"tools", "verify", "security", "memory", "store", "models", "obs"},
     "planner": {"models", "memory", "tools", "obs", "prompts"},
-    "orchestrator": {"planner", "security", "memory", "runtime", "store", "models", "obs", "tools"},
-    "api": {"orchestrator", "store", "obs", "security"},
-    "cli": {"api", "orchestrator", "store", "obs"},
+    "orchestrator": {
+        "planner",
+        "security",
+        "memory",
+        "runtime",
+        "store",
+        "models",
+        "obs",
+        "tools",
+        "learning",
+    },
+    "api": {"orchestrator", "store", "obs", "security", "perception", "voice", "learning", "tools"},
+    "cli": {"api", "orchestrator", "store", "obs", "clients", "voice", "learning"},
     "prompts": set(),
 }
 
@@ -50,10 +63,10 @@ def imported_layers(tree: ast.AST) -> set[str]:
             module = node.module
         elif isinstance(node, ast.Import):
             for alias in node.names:
-                if alias.name.startswith("astra."):
+                if alias.name.startswith("vyomel."):
                     layers.add(alias.name.split(".")[1])
             continue
-        if module and module.startswith("astra."):
+        if module and module.startswith("vyomel."):
             parts = module.split(".")
             if len(parts) > 1:
                 layers.add(parts[1])

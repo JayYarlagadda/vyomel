@@ -1,8 +1,48 @@
-# Model routing defaults (docs/09-MODEL-SERVING.md)
+# Model routing defaults (docs/09-MODEL-SERVING.md).
+# Tuned from evals/results/serving/ — prefer local for high-volume cheap work;
+# keep planning on the strongest available eligible provider.
+
 planner:
   default: mock
   variants:
-  - name: mock-planner-v1
+    - name: mock-planner-v1
+      backend: mock
+    - name: mock-planner-v2
+      backend: mock-alt
+
+providers:
+  mock:
     backend: mock
-  - name: mock-planner-v2
+    is_remote: false
+  mock-alt:
     backend: mock-alt
+    is_remote: false
+  local:
+    backend: local
+    is_remote: false
+    notes: "llama.cpp / Ollama OpenAI-compatible on VYOMEL_LOCAL_MODEL_BASE_URL"
+  openai:
+    backend: openai
+    is_remote: true
+  vllm:
+    backend: vllm
+    is_remote: true
+    notes: "Self-hosted via infra/vllm/; VYOMEL_VLLM_BASE_URL"
+
+purposes:
+  planner.decompose:
+    prefer: [cloud, vllm, local, mock]
+  planner.replan:
+    prefer: [cloud, vllm, local, mock]
+  verify.judge:
+    prefer: [local, vllm, mock]
+  chat:
+    prefer: [local, vllm, cloud, mock]
+  extract:
+    prefer: [local, mock]
+  classify:
+    prefer: [local, mock]
+  summarize:
+    prefer: [local, mock]
+  embed:
+    prefer: [local]

@@ -1,0 +1,141 @@
+{
+  "success": true,
+  "clip_count": 12,
+  "source_duration_s": 66.0,
+  "draft_duration_s": 60.0,
+  "profanity_segments": 2,
+  "muted_segments": 2,
+  "caption_cues": 15,
+  "export_bytes": 5256,
+  "export_sha256": "f246fa761c6dfe39b7a9648724398d53fdeedf80302deebc6a7a5188dce61345",
+  "steps": 21,
+  "gates": [
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.probe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.concat",
+      "level": "L1",
+      "decision": "ALLOW",
+      "rule_id": "media-scratch-concat"
+    },
+    {
+      "tool": "media.cut",
+      "level": "L1",
+      "decision": "ALLOW",
+      "rule_id": "media-scratch-cut"
+    },
+    {
+      "tool": "media.transcribe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.detect_segments",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.mute_segment",
+      "level": "L1",
+      "decision": "ALLOW",
+      "rule_id": "media-scratch-mute"
+    },
+    {
+      "tool": "media.mute_segment",
+      "level": "L1",
+      "decision": "ALLOW",
+      "rule_id": "media-scratch-mute"
+    },
+    {
+      "tool": "media.transcribe",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "media.caption",
+      "level": "L1",
+      "decision": "ALLOW",
+      "rule_id": "media-scratch-caption"
+    },
+    {
+      "tool": "media.export",
+      "level": "L2",
+      "decision": "CONFIRM",
+      "rule_id": "media-export"
+    }
+  ],
+  "backend": "fixture"
+}

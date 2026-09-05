@@ -10,10 +10,10 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.config import Settings
-from astra.memory.ingest import ingest_paths
-from astra.memory.retrieve import retrieve
-from astra.store.db import session_scope
+from vyomel.core.config import Settings
+from vyomel.memory.ingest import ingest_paths
+from vyomel.memory.retrieve import retrieve
+from vyomel.store.db import session_scope
 
 
 @pytest.mark.integration

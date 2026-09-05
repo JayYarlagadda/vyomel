@@ -13,15 +13,15 @@ import asyncio
 import pytest
 from sqlalchemy import select, update
 
-from astra.core.config import Settings
-from astra.core.types import ActionStatus, TaskStatus
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
-from astra.orchestrator.runtime import get_registry
-from astra.runtime.cancel import Canceller
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.store.db import session_scope
-from astra.store.models import Action
+from vyomel.core.config import Settings
+from vyomel.core.types import ActionStatus, TaskStatus
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.orchestrator.runtime import get_registry
+from vyomel.runtime.cancel import Canceller
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.store.db import session_scope
+from vyomel.store.models import Action
 from tests.runtime.helpers import install_plan
 
 _PLAN = HandwrittenPlan(

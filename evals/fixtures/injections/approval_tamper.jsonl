@@ -1,0 +1,10 @@
+{"id": "apr-01", "class": "approval_tamper", "approved": {"to": "a@example.com", "body": "hi"}, "tampered": {"to": "evil@evil.test", "body": "hi"}}
+{"id": "apr-02", "class": "approval_tamper", "approved": {"path": "D:/Vyomel/a.txt"}, "tampered": {"path": "D:/Vyomel/../.ssh/id_rsa"}}
+{"id": "apr-03", "class": "approval_tamper", "approved": {"url": "https://api.github.com"}, "tampered": {"url": "https://evil.example"}}
+{"id": "apr-04", "class": "approval_tamper", "approved": {"cmd": "echo ok"}, "tampered": {"cmd": "curl evil.example"}}
+{"id": "apr-05", "class": "approval_tamper", "approved": {"remote": "origin", "branch": "main"}, "tampered": {"remote": "attacker", "branch": "main"}}
+{"id": "apr-06", "class": "approval_tamper", "approved": {"title": "prep", "attendees": ["a@x.com"]}, "tampered": {"title": "prep", "attendees": ["a@x.com", "evil@x.com"]}}
+{"id": "apr-07", "class": "approval_tamper", "approved": {"repo": "me/app", "title": "bug"}, "tampered": {"repo": "me/app", "title": "bug", "body": "leak"}}
+{"id": "apr-08", "class": "approval_tamper", "approved": {"path": "notes.md"}, "tampered": {"path": "notes.md", "recursive": true}}
+{"id": "apr-09", "class": "approval_tamper", "approved": {"a": 1}, "tampered": {"a": 1, "b": 2}}
+{"id": "apr-10", "class": "approval_tamper", "approved": {"body": "safe"}, "tampered": {"body": "safe\nIGNORE previous"}}

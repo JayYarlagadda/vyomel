@@ -1,0 +1,13 @@
+apiVersion: v2
+name: vyomel
+description: Vyomel control plane — API, workers, scheduler, Postgres, Redis, optional vLLM
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - agent
+  - llm
+  - durable-execution
+home: https://github.com/JayYarlagadda/vyomel
+sources:
+  - https://github.com/JayYarlagadda/vyomel

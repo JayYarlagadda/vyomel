@@ -1,0 +1,55 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "export",
+      "start": 0.15,
+      "end": 0.55,
+      "tags": []
+    },
+    {
+      "text": "the",
+      "start": 0.63,
+      "end": 0.98,
+      "tags": []
+    },
+    {
+      "text": "draft",
+      "start": 1.06,
+      "end": 1.41,
+      "tags": []
+    },
+    {
+      "text": "once",
+      "start": 1.49,
+      "end": 1.84,
+      "tags": []
+    },
+    {
+      "text": "verification",
+      "start": 1.92,
+      "end": 2.32,
+      "tags": []
+    },
+    {
+      "text": "passes",
+      "start": 2.4,
+      "end": 2.8,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

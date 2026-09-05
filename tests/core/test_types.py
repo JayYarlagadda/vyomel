@@ -6,7 +6,7 @@ from itertools import pairwise
 
 import pytest
 
-from astra.core.types import ActionStatus, Capability, TaskStatus
+from vyomel.core.types import ActionStatus, Capability, TaskStatus
 
 
 @pytest.mark.req("FR-301")

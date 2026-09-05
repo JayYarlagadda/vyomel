@@ -21,24 +21,24 @@ The architecture is shaped by five forces, in tension:
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                              CLIENTS                                     │
-│   astra CLI    │   HTTP/WS API consumers   │  (later) desktop UI, voice  │
+│   vyomel CLI    │   HTTP/WS API consumers   │  (later) desktop UI, voice  │
 └──────────────────────────────┬───────────────────────────────────────────┘
                                │  REST + WebSocket
 ┌──────────────────────────────▼───────────────────────────────────────────┐
-│                          astra.api  (FastAPI)                            │
+│                          vyomel.api  (FastAPI)                            │
 │   routers: tasks, approvals, memory, tools, traces, admin, health        │
 │   responsibilities: validation, auth, streaming, NO business logic       │
 └──────────────────────────────┬───────────────────────────────────────────┘
                                │
 ┌──────────────────────────────▼───────────────────────────────────────────┐
-│                       astra.orchestrator                                 │
+│                       vyomel.orchestrator                                 │
 │   TaskService · PlanService · ApprovalService                            │
 │   Owns transactional writes. The only layer allowed to mutate task state │
 │   through the repositories.                                              │
 └───────┬───────────────────┬───────────────────────┬──────────────────────┘
         │                   │                       │
 ┌───────▼────────┐ ┌────────▼─────────┐ ┌───────────▼──────────┐
-│ astra.planner  │ │ astra.security   │ │  astra.memory        │
+│ vyomel.planner  │ │ vyomel.security   │ │  vyomel.memory        │
 │ decomposition  │ │ capability model │ │  context graph       │
 │ DAG builder    │ │ policy engine    │ │  ingestion pipeline  │
 │ replanner      │ │ approval gate    │ │  hybrid retriever    │
@@ -48,28 +48,28 @@ The architecture is shaped by five forces, in tension:
         └───────────────────┴───────┬───────────────┘
                                     │
 ┌───────────────────────────────────▼──────────────────────────────────────┐
-│                          astra.runtime                                   │
+│                          vyomel.runtime                                   │
 │   Dispatcher → Redis Streams  │  Worker pool  │  Lease reaper            │
 │   Action state machine · retry/backoff · idempotency · compensation      │
 └───────┬──────────────────────────────────────────────┬───────────────────┘
         │                                              │
 ┌───────▼────────────────┐                  ┌──────────▼───────────────────┐
-│    astra.tools         │                  │    astra.verify              │
+│    vyomel.tools         │                  │    vyomel.verify              │
 │  registry + contracts  │                  │  postcondition assertions    │
 │  ┌──────────────────┐  │                  │  value/element/file/api/llm  │
 │  │ fs · shell · web │  │                  │  evidence capture            │
 │  │ browser (CDP)    │  │                  └──────────────────────────────┘
 │  │ desktop (UIA)    │  │
 │  │ api (gmail/cal)  │  │                  ┌──────────────────────────────┐
-│  │ memory · media   │  │                  │    astra.models              │
+│  │ memory · media   │  │                  │    vyomel.models              │
 │  └──────────────────┘  │◄─────────────────┤  provider abstraction        │
 └────────────────────────┘                  │  router (privacy/cost/perf)  │
                                             │  token+cost accounting       │
 ┌──────────────────────────────────────────┐│  response cache              │
-│    astra.perception                      │└──────────────────────────────┘
+│    vyomel.perception                      │└──────────────────────────────┘
 │  screen capture · UIA tree · DOM · OCR   │
 │  active window · clipboard · selection   │  ┌─────────────────────────────┐
-└──────────────────────────────────────────┘  │   astra.obs                 │
+└──────────────────────────────────────────┘  │   vyomel.obs                 │
                                               │  tracing · metrics · logs   │
 ┌──────────────────────────────────────────┐  └─────────────────────────────┘
 │               PERSISTENCE                │
@@ -94,7 +94,7 @@ The architecture is shaped by five forces, in tension:
 | `models` | Provider abstraction, routing, accounting | — | leak sensitive data to cloud (FR-703) |
 | `perception` | Environment observation | — | act |
 | `store` | Repositories, migrations, unit-of-work | — | contain domain rules |
-| `obs` | Tracing/metrics/logging plumbing | — | depend on any other Astra layer |
+| `obs` | Tracing/metrics/logging plumbing | — | depend on any other Vyomel layer |
 
 **Dependency rule:** dependencies point downward only. `scripts/check_layering.py` enforces this by static import analysis in CI. A cyclic or upward import fails the build.
 
@@ -121,7 +121,7 @@ The architecture is shaped by five forces, in tension:
         ├─ security.evaluate(policy)         → ALLOW | CONFIRM | DENY
         │     CONFIRM → status=WAITING_FOR_USER, emit approval, STOP
         │     DENY    → status=FAILED(permission_denied)
-        └─ ALLOW → XADD astra:actions  (Redis Stream)             [dispatched]
+        └─ ALLOW → XADD vyomel:actions  (Redis Stream)             [dispatched]
         │
   6. Worker XREADGROUP → claims action with a lease
         ├─ Postgres: status=RUNNING, lease_until=now+timeout      [committed]
@@ -145,7 +145,7 @@ The architecture is shaped by five forces, in tension:
 
 Note the commit points. Every transition that could be lost on a crash is committed to Postgres **before** the effect is attempted, and the idempotency check at step 6 makes replay safe. This is what satisfies FR-202 / NFR-03.
 
-Step 5 is implemented as `astra/runtime/gate.py` rather than inside `astra/security/`. The decision needs both halves — a policy verdict and the action state machine — and the layering rule forbids `security` from importing `runtime`. So `security` owns records and verdicts, and the gate is the single component holding both. The practical benefit is that classification, policy, and approval records are all testable without a scheduler.
+Step 5 is implemented as `vyomel/runtime/gate.py` rather than inside `vyomel/security/`. The decision needs both halves — a policy verdict and the action state machine — and the layering rule forbids `security` from importing `runtime`. So `security` owns records and verdicts, and the gate is the single component holding both. The practical benefit is that classification, policy, and approval records are all testable without a scheduler.
 
 ---
 
@@ -183,7 +183,7 @@ Enforced in code, not left to the model:
    4. Vision + coordinates (screenshot → VLM → click x,y)
 ```
 
-Each `Actuator` declares the tier it operated at. The metric `astra_actuation_tier_total{tier=...}` makes degradation visible: a rising vision ratio is an early warning that reliability is dropping. Tier 4 is always ≥ L2 capability because coordinate clicking has an unbounded blast radius.
+Each `Actuator` declares the tier it operated at. The metric `vyomel_actuation_tier_total{tier=...}` makes degradation visible: a rising vision ratio is an early warning that reliability is dropping. Tier 4 is always ≥ L2 capability because coordinate clicking has an unbounded blast radius.
 
 ---
 
@@ -194,9 +194,9 @@ Each `Actuator` declares the tier it operated at. The metric `astra_actuation_ti
 ```
 Windows host                       WSL2 Ubuntu (Docker)
 ┌──────────────────────┐          ┌───────────────────────────┐
-│ astra api  :8080     │          │ postgres+pgvector :55432  │
-│ astra worker (n=2)   │◄────────►│ redis            :56379   │
-│ astra cli            │ localhost│ (M10) otel-collector,     │
+│ vyomel api  :8080     │          │ postgres+pgvector :55432  │
+│ vyomel worker (n=2)   │◄────────►│ redis            :56379   │
+│ vyomel cli            │ localhost│ (M10) otel-collector,     │
 │ pytest / evals       │ forward  │       prometheus, grafana │
 └──────────────────────┘          └───────────────────────────┘
         │
@@ -204,23 +204,22 @@ Windows host                       WSL2 Ubuntu (Docker)
         └──► optional: SSH tunnel → rented GPU vLLM :8000
 ```
 
-### Target (M13, Kubernetes)
+### Target (M13, Kubernetes) — implemented
 
 ```
-  Ingress ─► astra-api Deployment (HPA on RPS)
+  Ingress ─► vyomel-api Deployment (HPA on RPS optional)
                  │
-                 ├─► astra-worker Deployment (HPA on queue depth)
-                 ├─► astra-scheduler Deployment (single replica, leader-elected)
+                 ├─► vyomel-worker Deployment (HPA on queue depth)
+                 ├─► vyomel-scheduler Deployment (Redis leader-elected)
                  │
                  ├─► Postgres StatefulSet (pgvector) + PVC
                  ├─► Redis StatefulSet + PVC
-                 └─► vLLM StatefulSet (GPU node pool, nodeSelector + tolerations)
+                 └─► vLLM StatefulSet (GPU node pool; optional)
 
-  Sidecars/DaemonSets: OpenTelemetry Collector → Prometheus + Jaeger
-  Config: ConfigMap (policy, model routing) + Secret (API keys, OAuth tokens)
+  Host: vyomel agent ──WebSocket──► API  (desktop.* only; ADR-0009)
 ```
 
-The desktop actuator cannot run in Kubernetes — it is host-bound by nature. In the K8s topology, desktop tools are served by a **local agent** on the user's machine that registers with the control plane over an outbound WebSocket and receives actions for host-only tools. This split (cloud control plane / local actuator) is documented in `adr/ADR-0009` and is the same shape used by real desktop-agent products.
+Chart: `infra/helm/vyomel/`. kind profile: `values-kind.yaml`. Failover: chart README.
 
 ---
 
@@ -247,8 +246,8 @@ The desktop actuator cannot run in Kubernetes — it is host-bound by nature. In
 
 | Concern | Mechanism |
 |---|---|
-| Configuration | `pydantic-settings`, layered: defaults → `astra.toml` → `.env` → env vars → CLI flags |
-| Errors | Single `AstraError` hierarchy with stable `code`, `retryable`, and `user_message` fields |
+| Configuration | `pydantic-settings`, layered: defaults → `vyomel.toml` → `.env` → env vars → CLI flags |
+| Errors | Single `VyomelError` hierarchy with stable `code`, `retryable`, and `user_message` fields |
 | IDs | ULIDs — sortable by creation time, URL-safe, collision-resistant |
 | Time | UTC everywhere; `timestamptz` in Postgres; a single injectable `Clock` for testable time |
 | Serialization | Pydantic models at every boundary; no bare dicts crossing layers |

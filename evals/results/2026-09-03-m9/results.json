@@ -1,0 +1,54 @@
+{
+  "milestone": "M9",
+  "date": "2026-09-03",
+  "suite": "evals/suites/api/run.py",
+  "scenario": "S3",
+  "success": true,
+  "interview_email_id": "msg_interview",
+  "interview_from": "recruiter@acme.test",
+  "prep_event_ids": [
+    "01M1K31QD9VP2QYAJ8ZWX5AK4M",
+    "01M1K31QD9VP2QYAJ8ZWX5AK4N"
+  ],
+  "l3_actions": 2,
+  "l3_confirm": 2,
+  "l3_auto_allowed": 0,
+  "gates": [
+    {
+      "tool": "email.search",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "email.read",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "calendar.list",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "calendar.find_free",
+      "level": "L0",
+      "decision": "ALLOW",
+      "rule_id": "default:L0"
+    },
+    {
+      "tool": "calendar.create_event",
+      "level": "L3",
+      "decision": "CONFIRM",
+      "rule_id": "calendar-invite"
+    },
+    {
+      "tool": "calendar.create_event",
+      "level": "L3",
+      "decision": "CONFIRM",
+      "rule_id": "calendar-invite"
+    }
+  ]
+}

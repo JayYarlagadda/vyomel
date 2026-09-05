@@ -12,7 +12,7 @@ from httpx import AsyncClient
 async def test_create_task_without_plan_uses_mock_planner(client: AsyncClient) -> None:
     response = await client.post(
         "/v1/tasks",
-        json={"instruction": "list D:/Astra/docs"},
+        json={"instruction": "list D:/Vyomel/docs"},
     )
     assert response.status_code == 201, response.text
     body = response.json()
@@ -29,7 +29,7 @@ async def test_create_task_without_plan_uses_mock_planner(client: AsyncClient) -
 async def test_dry_run_without_plan_stays_planning(client: AsyncClient) -> None:
     response = await client.post(
         "/v1/tasks",
-        json={"instruction": "list D:/Astra/docs", "dry_run": True},
+        json={"instruction": "list D:/Vyomel/docs", "dry_run": True},
     )
     assert response.status_code == 201, response.text
     body = response.json()

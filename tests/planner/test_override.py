@@ -7,10 +7,10 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from tests.fakes import registry_with_fakes
 
-from astra.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
-from astra.core.types import Capability, TaskOrigin
-from astra.orchestrator.planning import create_task
-from astra.orchestrator.tasks import TaskBounds
+from vyomel.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.core.types import Capability, TaskOrigin
+from vyomel.orchestrator.planning import create_task
+from vyomel.orchestrator.tasks import TaskBounds
 
 
 @pytest.mark.asyncio
@@ -27,8 +27,8 @@ async def test_plan_override_skips_decompose(settings) -> None:
         ]
     )
     registry = registry_with_fakes()
-    with patch("astra.orchestrator.planning.decompose", new_callable=AsyncMock) as mocked:
-        from astra.store.db import dispose_engine, init_engine, session_scope
+    with patch("vyomel.orchestrator.planning.decompose", new_callable=AsyncMock) as mocked:
+        from vyomel.store.db import dispose_engine, init_engine, session_scope
 
         init_engine(settings)
         try:

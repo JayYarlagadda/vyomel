@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vyomel.fullname" . }}-config
+  labels:
+    {{- include "vyomel.labels" . | nindent 4 }}
+data:
+  VYOMEL_ENV: {{ .Values.config.env | quote }}
+  VYOMEL_LOG_FORMAT: {{ .Values.config.logFormat | quote }}
+  VYOMEL_LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  VYOMEL_EMBED_SCHEDULER: {{ .Values.config.embedScheduler | quote }}
+  VYOMEL_DISABLE_HOST_TOOLS: {{ .Values.config.disableHostTools | quote }}
+  VYOMEL_PLANNER_BACKEND: {{ .Values.config.plannerBackend | quote }}
+  VYOMEL_OFFLINE: {{ .Values.config.offline | quote }}
+  VYOMEL_WORKSPACE_ROOT: "/var/vyomel"
+  VYOMEL_REDIS_URL: {{ printf "redis://%s:6379/0" (include "vyomel.redisHost" .) | quote }}
+  VYOMEL_SCHEDULER_LOCK_KEY: {{ .Values.scheduler.leader.lockKey | quote }}
+  VYOMEL_SCHEDULER_LOCK_TTL_S: {{ .Values.scheduler.leader.ttlSeconds | quote }}

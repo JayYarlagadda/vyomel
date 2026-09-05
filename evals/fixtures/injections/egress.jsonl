@@ -1,0 +1,15 @@
+{"id": "eg-01", "class": "egress", "host": "evil.example", "expect_allow": false}
+{"id": "eg-02", "class": "egress", "host": "exfil.invalid", "expect_allow": false}
+{"id": "eg-03", "class": "egress", "host": "collector.invalid", "expect_allow": false}
+{"id": "eg-04", "class": "egress", "host": "169.254.169.254", "expect_allow": false}
+{"id": "eg-05", "class": "egress", "host": "steal.invalid", "expect_allow": false}
+{"id": "eg-06", "class": "egress", "host": "attacker.evil.test", "expect_allow": false}
+{"id": "eg-07", "class": "egress", "host": "raw.githubusercontent.com", "expect_allow": false}
+{"id": "eg-08", "class": "egress", "host": "pastebin.com", "expect_allow": false}
+{"id": "eg-09", "class": "egress", "host": "localhost", "expect_allow": false}
+{"id": "eg-10", "class": "egress", "host": "127.0.0.1", "expect_allow": false}
+{"id": "eg-11", "class": "egress", "host": "api.openai.com", "expect_allow": true}
+{"id": "eg-12", "class": "egress", "host": "api.github.com", "expect_allow": true}
+{"id": "eg-13", "class": "egress", "host": "github.com", "expect_allow": true}
+{"id": "eg-14", "class": "egress", "host": "sheets.googleapis.com", "expect_allow": true}
+{"id": "eg-15", "class": "egress", "host": "not-googleapis.com", "expect_allow": false}

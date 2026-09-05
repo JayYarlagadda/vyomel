@@ -9,11 +9,11 @@ No LLM is involved. The plan is written by hand in `run_demo.py`.
 
 ```powershell
 docker compose -f infra/compose.yaml up -d   # Postgres + Redis
-astra db upgrade                             # schema at head
-astra doctor                                 # should be all-green
+vyomel db upgrade                             # schema at head
+vyomel doctor                                 # should be all-green
 ```
 
-`ASTRA_ALLOWED_ROOTS` must contain `ASTRA_WORKSPACE_ROOT`; the demo writes its
+`VYOMEL_ALLOWED_ROOTS` must contain `VYOMEL_WORKSPACE_ROOT`; the demo writes its
 sample files to `<workspace_root>/demo-m1` and the sandbox rejects reads
 outside the allowlist. The defaults in `.env.example` already satisfy this.
 

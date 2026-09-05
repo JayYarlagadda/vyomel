@@ -1,0 +1,73 @@
+{
+  "suite": "ablations",
+  "ablations": {
+    "rag": {
+      "source": "evals/results/2026-09-02-m4/results.json",
+      "embedder": "hashing-384",
+      "k": 10,
+      "strategies": {
+        "hybrid": 0.928,
+        "lexical": 0.92,
+        "vector": 0.152
+      },
+      "recall_at_10": 0.928,
+      "notes": "Strategy ablation on hashing-384 embedder. Hybrid wins; vector-only is weak without a real embedding model (see docs/08)."
+    },
+    "planner": {
+      "source": "evals/results/2026-09-02-m5/results.json",
+      "models": {
+        "mock-planner-v1": {
+          "backend": "mock",
+          "task_completion_rate": 1.0,
+          "tool_call_accuracy": 1.0
+        },
+        "mock-planner-v2": {
+          "backend": "mock-alt",
+          "task_completion_rate": 1.0,
+          "tool_call_accuracy": 1.0
+        }
+      },
+      "task_completion_rate": 1.0,
+      "tool_call_accuracy": 1.0,
+      "notes": "Mock planner variants; both configs at 1.0 on the 100-task fixture."
+    },
+    "routing": {
+      "source": "config/models.yaml + router checks",
+      "purposes": {
+        "planner.decompose": [
+          "cloud",
+          "vllm",
+          "local",
+          "mock"
+        ],
+        "extract": [
+          "local",
+          "mock"
+        ],
+        "classify": [
+          "local",
+          "mock"
+        ],
+        "summarize": [
+          "local",
+          "mock"
+        ],
+        "embed": [
+          "local"
+        ]
+      },
+      "checks": {
+        "extract_classify_summarize_prefer_local": true,
+        "sensitive_blocks_remote": true,
+        "offline_blocks_remote": true
+      },
+      "routing_pass_rate": 1.0,
+      "notes": "Local-first for extract/classify/summarize/embed; privacy and offline fail closed on remote backends."
+    }
+  },
+  "gated": {
+    "recall_at_10": 0.928,
+    "task_completion_rate": 1.0,
+    "tool_call_accuracy": 1.0
+  }
+}

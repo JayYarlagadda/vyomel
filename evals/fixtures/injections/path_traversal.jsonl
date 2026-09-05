@@ -1,0 +1,20 @@
+{"id": "path-01", "class": "path_traversal", "relative": "../outside.txt"}
+{"id": "path-02", "class": "path_traversal", "relative": "../../outside.txt"}
+{"id": "path-03", "class": "path_traversal", "relative": "sub/../../outside.txt"}
+{"id": "path-04", "class": "path_traversal", "relative": "./sub/./../../outside.txt"}
+{"id": "path-05", "class": "path_traversal", "relative": "..\\..\\outside.txt"}
+{"id": "path-06", "class": "path_traversal", "absolute_elsewhere": true}
+{"id": "path-07", "class": "path_traversal", "sibling_prefix": true}
+{"id": "path-08", "class": "path_traversal", "relative": "....//....//outside.txt"}
+{"id": "path-09", "class": "path_traversal", "relative": "sub/../../../outside.txt"}
+{"id": "path-10", "class": "path_traversal", "empty": true}
+{"id": "path-11", "class": "path_traversal", "relative": "ok/../../outside.txt"}
+{"id": "path-12", "class": "path_traversal", "relative": "a/b/c/../../../../outside.txt"}
+{"id": "path-13", "class": "path_traversal", "relative": "../outside.txt", "via_symlink_name": "link-out"}
+{"id": "path-14", "class": "path_traversal", "null_byte": true}
+{"id": "path-15", "class": "path_traversal", "relative": "..\\outside.txt"}
+{"id": "path-16", "class": "path_traversal", "relative": "sub\\..\\..\\outside.txt"}
+{"id": "path-17", "class": "path_traversal", "relative": "./../outside.txt"}
+{"id": "path-18", "class": "path_traversal", "relative": "foo/bar/../../../outside.txt"}
+{"id": "path-19", "class": "path_traversal", "relative": "outside.txt", "root_is_parent": true}
+{"id": "path-20", "class": "path_traversal", "absolute_elsewhere": true, "windows_style": true}

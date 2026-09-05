@@ -7,14 +7,14 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.cancel import CancellationToken
-from astra.core.clock import SystemClock
-from astra.core.ids import digest_bytes
-from astra.core.types import Capability, VerifyOutcome
-from astra.tools.base import ToolContext
-from astra.tools.fs import WriteFile, WriteFileInput, WriteFileOutput
-from astra.tools.registry import default_registry
-from astra.verify.engine import verify_result
+from vyomel.core.cancel import CancellationToken
+from vyomel.core.clock import SystemClock
+from vyomel.core.ids import digest_bytes
+from vyomel.core.types import Capability, VerifyOutcome
+from vyomel.tools.base import ToolContext
+from vyomel.tools.fs import WriteFile, WriteFileInput, WriteFileOutput
+from vyomel.tools.registry import default_registry
+from vyomel.verify.engine import verify_result
 
 
 def _ctx(root: Path, *, scratch: Path | None = None) -> ToolContext:

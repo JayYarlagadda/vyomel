@@ -10,7 +10,7 @@ Template: Context → Options → Decision → Consequences → Status.
 
 **Status:** Accepted (2026-08-28)
 
-**Context.** Astra needs an LLM/agent ecosystem, async I/O for long-running concurrent work, strong schema validation (tool contracts double as model-facing JSON Schema), and it must match the resume's stated stack.
+**Context.** Vyomel needs an LLM/agent ecosystem, async I/O for long-running concurrent work, strong schema validation (tool contracts double as model-facing JSON Schema), and it must match the resume's stated stack.
 
 **Options.** (a) Python; (b) Go — better concurrency story, matches the author's strongest language, but a far thinner LLM/vector/browser-automation ecosystem; (c) TypeScript — good browser story, weaker ML tooling; (d) Rust — best performance, worst iteration speed for this problem.
 
@@ -38,7 +38,7 @@ Template: Context → Options → Decision → Consequences → Status.
 
 **Status:** Accepted (2026-08-28)
 
-**Context.** Astra needs durable, resumable, retryable DAG execution.
+**Context.** Vyomel needs durable, resumable, retryable DAG execution.
 
 **Options.** (a) Temporal; (b) Prefect/Dagster; (c) Celery/Dramatiq; (d) custom: Postgres as source of truth + Redis Streams as transport.
 
@@ -130,4 +130,4 @@ Template: Context → Options → Decision → Consequences → Status.
 
 **Decision.** (c), with `UNVERIFIED` as a distinct terminal-ish state so the system never has to choose between lying and failing.
 
-**Consequences.** Latency and cost per action increase (one extra observation, sometimes one extra model call) — measured as `verification_duration_seconds`. In exchange, failures surface at the point of occurrence rather than three steps later, and `unverified_action_ratio` becomes a directly actionable reliability signal. This is the decision most responsible for Astra being trustworthy enough to grant real permissions to.
+**Consequences.** Latency and cost per action increase (one extra observation, sometimes one extra model call) — measured as `verification_duration_seconds`. In exchange, failures surface at the point of occurrence rather than three steps later, and `unverified_action_ratio` becomes a directly actionable reliability signal. This is the decision most responsible for Vyomel being trustworthy enough to grant real permissions to.

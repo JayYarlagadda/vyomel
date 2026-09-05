@@ -6,7 +6,7 @@ Status: **Approved baseline (v1.0)**
 
 ## 1. Three kinds of memory
 
-Conflating these is the most common reason "AI memory" features feel unreliable. Astra keeps them physically separate.
+Conflating these is the most common reason "AI memory" features feel unreliable. Vyomel keeps them physically separate.
 
 | Kind | Question it answers | Storage | Lifetime |
 |---|---|---|---|

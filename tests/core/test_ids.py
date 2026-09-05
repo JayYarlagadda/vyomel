@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.ids import canonical_json, content_hash, idempotency_key, new_id
+from vyomel.core.ids import canonical_json, content_hash, idempotency_key, new_id
 
 
 def test_ids_are_unique_and_sortable() -> None:

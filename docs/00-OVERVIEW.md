@@ -8,9 +8,9 @@ Last updated: 2026-08-28
 
 ## 1. One-sentence definition
 
-> **Astra is a personal AI execution layer that turns natural-language intent into verified, permission-aware actions across a user's digital environment.**
+> **Vyomel is a personal AI execution layer that turns natural-language intent into verified, permission-aware actions across a user's digital environment.**
 
-Astra is not a chatbot. A chatbot returns text. Astra **changes state in the world** — files, calendars, browser sessions, desktop applications, third-party APIs — and then **proves** that the change actually happened.
+Vyomel is not a chatbot. A chatbot returns text. Vyomel **changes state in the world** — files, calendars, browser sessions, desktop applications, third-party APIs — and then **proves** that the change actually happened.
 
 ---
 
@@ -18,13 +18,13 @@ Astra is not a chatbot. A chatbot returns text. Astra **changes state in the wor
 
 Three motivations, in priority order:
 
-1. **Career artifact.** The resume already claims Astra (see `14-RESUME-MAPPING.md`). Every claim must map to running, tested, measurable code. This document set exists so that no claim is aspirational at interview time.
+1. **Career artifact.** The resume already claims Vyomel (see `14-RESUME-MAPPING.md`). Every claim must map to running, tested, measurable code. This document set exists so that no claim is aspirational at interview time.
 2. **Technical depth.** The interesting problems here are not "make an LLM click a button." They are: durable distributed execution, capability-based security, retrieval quality, verification of probabilistic actions, and inference routing. These are systems problems with an AI surface — which matches the author's background (distributed systems, Kubernetes, OpenTelemetry, Rust/Go/C# runtime work).
 3. **Real product category.** Computer-using agents (OpenAI Operator/CUA lineage, Rabbit DLAM, Perplexity's local-first agent, and a wave of desktop-agent startups) are an active, unsolved category. The unsolved parts are reliability, permissions, persistent context, cross-app execution, privacy, and verification — not tool-calling itself.
 
 ---
 
-## 3. What Astra is
+## 3. What Vyomel is
 
 A layered runtime:
 
@@ -88,7 +88,7 @@ A layered runtime:
 
 ---
 
-## 4. What Astra is NOT (explicit non-goals)
+## 4. What Vyomel is NOT (explicit non-goals)
 
 Writing these down prevents scope drift. Each is a **deliberate** exclusion, not an oversight.
 
@@ -97,16 +97,16 @@ Writing these down prevents scope drift. Each is a **deliberate** exclusion, not
 | A general-purpose chatbot UI | Text answers are a side effect, not the product. |
 | A multi-user SaaS with tenancy/billing | Single-user, self-hosted. Multi-tenancy is a distraction from the hard parts. |
 | Autonomous financial transactions | Permanently gated at capability L4 with mandatory human approval. Never auto-approved. |
-| Training or fine-tuning foundation models | Astra is an *inference and orchestration* system. Model training is out of scope. |
+| Training or fine-tuning foundation models | Vyomel is an *inference and orchestration* system. Model training is out of scope. |
 | Mobile app (v1) | Interface-agnostic core is designed for it; the app itself is post-v1. |
-| Smart glasses hardware | Astra targets the *software* layer. Glasses = another client of the same API. |
+| Smart glasses hardware | Vyomel targets the *software* layer. Glasses = another client of the same API. |
 | Beating a benchmark leaderboard | We build our own reproducible evaluation suite instead. |
 
 ---
 
 ## 5. Differentiation thesis
 
-"My AI controls the computer" is not a differentiator — OpenAI, Rabbit, and several startups already ship that. Astra's defensible combination is:
+"My AI controls the computer" is not a differentiator — OpenAI, Rabbit, and several startups already ship that. Vyomel's defensible combination is:
 
 1. **Persistent personal context graph** — entities and relationships, not a pile of embeddings. "Continue Orbit from yesterday" resolves to real state.
 2. **Capability-based permission model** — a formal L0–L4 lattice enforced in the runtime, not prompt-level "please ask first."

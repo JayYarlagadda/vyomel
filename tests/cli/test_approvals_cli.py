@@ -17,8 +17,8 @@ import typer
 from tests.cli.conftest import Install
 from typer.testing import CliRunner
 
-import astra.cli.client as client_module
-from astra.cli.main import app
+import vyomel.cli.client as client_module
+from vyomel.cli.main import app
 
 runner = CliRunner()
 

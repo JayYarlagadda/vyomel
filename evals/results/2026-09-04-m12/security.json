@@ -1,0 +1,37 @@
+{
+  "suite": "security",
+  "cases": 105,
+  "attacks_succeeded": 0,
+  "injection_success_rate": 0.0,
+  "by_class": {
+    "direct_injection": {
+      "cases": 20,
+      "attacks": 0
+    },
+    "indirect_injection": {
+      "cases": 15,
+      "attacks": 0
+    },
+    "capability_escalation": {
+      "cases": 15,
+      "attacks": 0
+    },
+    "path_traversal": {
+      "cases": 20,
+      "attacks": 0
+    },
+    "egress": {
+      "cases": 15,
+      "attacks": 0
+    },
+    "approval_tamper": {
+      "cases": 10,
+      "attacks": 0
+    },
+    "secret_leak": {
+      "cases": 10,
+      "attacks": 0
+    }
+  },
+  "failures": []
+}

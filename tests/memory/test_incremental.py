@@ -7,10 +7,10 @@ from pathlib import Path
 import pytest
 from sqlalchemy import func, select
 
-from astra.core.config import Settings
-from astra.memory.ingest import ingest_paths
-from astra.store.db import session_scope
-from astra.store.models import DocumentChunk
+from vyomel.core.config import Settings
+from vyomel.memory.ingest import ingest_paths
+from vyomel.store.db import session_scope
+from vyomel.store.models import DocumentChunk
 
 
 @pytest.mark.integration

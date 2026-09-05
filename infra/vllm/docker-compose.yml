@@ -1,0 +1,54 @@
+# vLLM on a GPU host (ADR-0006). Not for the MX330 — requires compute ≥ 7.0 and
+# ≥ 8 GB VRAM. Typical rented target: A10G / L4 on RunPod, Vast.ai, or Lambda.
+#
+# From the GPU host:
+#   docker compose -f infra/vllm/docker-compose.yml up -d
+# From the Windows dev machine (tunnel):
+#   ssh -L 8000:localhost:8000 <gpu-host>
+#   $env:VYOMEL_VLLM_BASE_URL = "http://localhost:8000/v1"
+
+name: vyomel-vllm
+
+services:
+  vllm:
+    image: vllm/vllm-openai:v0.6.3
+    container_name: vyomel-vllm
+    runtime: nvidia
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+    volumes:
+      - vllm-hf-cache:/root/.cache/huggingface
+    ports:
+      - "8000:8000"
+    # Tunables match docs/09 §5.2. Override MODEL / MAX_MODEL_LEN as needed.
+    command:
+      - "--model"
+      - "${VLLM_MODEL:-meta-llama/Meta-Llama-3.1-8B-Instruct}"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      - "--max-model-len"
+      - "${VLLM_MAX_MODEL_LEN:-8192}"
+      - "--gpu-memory-utilization"
+      - "${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
+      - "--max-num-seqs"
+      - "${VLLM_MAX_NUM_SEQS:-32}"
+      - "--dtype"
+      - "auto"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 120s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  vllm-hf-cache:

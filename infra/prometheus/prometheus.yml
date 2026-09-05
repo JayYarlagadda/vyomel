@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: vyomel
+    metrics_path: /metrics
+    scrape_interval: 5s
+    static_configs:
+      # API runs on the Windows host; Docker Desktop / WSL forwards this alias.
+      - targets: ["host.docker.internal:8080"]

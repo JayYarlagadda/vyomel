@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "proposals": 1,
+  "occurrence_count": 5,
+  "steps": 4,
+  "parameters": 5,
+  "trust_level": "L2",
+  "accepted": true,
+  "suppression_ok": true
+}

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.logging import REDACTED, redact, redact_processor, redact_text, register_secret
+from vyomel.core.logging import REDACTED, redact, redact_processor, redact_text, register_secret
 
 
 @pytest.mark.req("FR-308")

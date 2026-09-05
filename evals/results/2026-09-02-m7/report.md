@@ -1,6 +1,6 @@
 # M7 browser workflow eval — 2026-09-02
 
-40 workflows against local HTML fixtures (`astra/tools/browser/fixtures/`).
+40 workflows against local HTML fixtures (`vyomel/tools/browser/fixtures/`).
 Includes DOM-perturbation coverage via `job_board_perturbed.html` (changed CSS
 classes, stable `aria-label` targets).
 
@@ -22,7 +22,7 @@ pytest tests/tools/test_browser.py
 Playwright backend (optional):
 
 ```powershell
-pip install astra[browser]
+pip install vyomel[browser]
 playwright install chromium
 python evals/suites/browser/run.py --backend playwright
 ```

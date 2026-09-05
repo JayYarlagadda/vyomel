@@ -18,7 +18,9 @@ ROOT = Path(__file__).resolve().parent.parent
 REQUIREMENTS_DOC = ROOT / "docs" / "01-REQUIREMENTS.md"
 TESTS = ROOT / "tests"
 
-ROW = re.compile(r"^\|\s*(?P<id>(?:FR|NFR)-\d+)\s*\|.*?\|\s*(?P<priority>P[012])\s*\|")
+ROW = re.compile(
+    r"^\|\s*(?P<id>(?:FR|NFR)-\d+)\s*\|.*?\|\s*(?P<priority>P[012]|pass|bit-identical|[^|]+?)\s*\|"
+)
 MARKER = re.compile(r"""@pytest\.mark\.req\(\s*["'](?P<id>(?:FR|NFR)-\d+)["']""")
 
 

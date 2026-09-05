@@ -1,0 +1,30 @@
+Vyomel {{ .Chart.AppVersion }} installed as release {{ .Release.Name }}.
+
+Control plane (in-cluster)
+  API:        {{ include "vyomel.fullname" . }}-api
+  Workers:    {{ include "vyomel.fullname" . }}-worker  (HPA on vyomel_queue_depth when enabled)
+  Scheduler:  {{ include "vyomel.fullname" . }}-scheduler  (Redis leader election)
+  Postgres:   {{ include "vyomel.postgresHost" . }}
+  Redis:      {{ include "vyomel.redisHost" . }}
+{{- if .Values.vllm.enabled }}
+  vLLM:       {{ include "vyomel.fullname" . }}-vllm
+{{- else }}
+  vLLM:       disabled (enable with --set vllm.enabled=true on a GPU node pool)
+{{- end }}
+
+Local agent (host-bound desktop tools — ADR-0009)
+  Desktop UIA cannot run in a pod. On the user machine:
+
+    export VYOMEL_API_BASE=http://<api-host>:{{ .Values.api.service.port }}
+    export VYOMEL_LOCAL_AGENT_TOKEN=<from secret local-agent-token>
+    vyomel agent
+
+Failover notes
+  - API pods are interchangeable; sessions for local agents are sticky per API replica
+    (reconnect if the API pod restarts).
+  - Scheduler: run ≥2 replicas; only the Redis lock holder ticks. Lock TTL={{ .Values.scheduler.leader.ttlSeconds }}s.
+  - Workers: crash → lease reaper reclaim; HPA scales on queue depth when metrics adapter is present.
+  - Postgres/Redis: single-replica StatefulSets with PVCs; restore from volume snapshot for DR.
+
+kind smoke
+  helm upgrade --install vyomel infra/helm/vyomel -f infra/helm/vyomel/values-kind.yaml

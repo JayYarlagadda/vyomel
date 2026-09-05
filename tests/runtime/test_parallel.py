@@ -7,13 +7,13 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select
 
-from astra.core.config import Settings
-from astra.core.types import ActionStatus, TaskStatus
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.store.db import session_scope
-from astra.store.models import Action, Task
+from vyomel.core.config import Settings
+from vyomel.core.types import ActionStatus, TaskStatus
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.store.db import session_scope
+from vyomel.store.models import Action, Task
 from tests.runtime.helpers import drain, install_plan
 
 

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from evals.suites.rag.recall import CORPUS, run_eval
 
-from astra.core.config import Settings
+from vyomel.core.config import Settings
 
 
 @pytest.mark.integration
@@ -19,7 +19,7 @@ async def test_starter_corpus_recall_with_hashing(tmp_path: Path) -> None:
         env="test",
         embedding_backend="hashing",
         allowed_roots=[corpus_parent],
-        workspace_root=tmp_path / ".astra-eval",
+        workspace_root=tmp_path / ".vyomel-eval",
     )
     settings.ensure_directories()
     score = await run_eval(settings, k=10)

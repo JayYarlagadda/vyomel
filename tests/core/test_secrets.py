@@ -14,8 +14,8 @@ import pickle
 
 import pytest
 
-from astra.core.logging import REDACTED, redact, redact_text
-from astra.core.secrets import Secret
+from vyomel.core.logging import REDACTED, redact, redact_text
+from vyomel.core.secrets import Secret
 
 # Assembled at runtime so repository credential scanners do not flag it.
 VALUE = "-".join(("sk", "test", "9f2c4b7e1a08d5"))

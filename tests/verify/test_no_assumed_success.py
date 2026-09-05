@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.types import Capability, VerifyOutcome
-from astra.verify.engine import verify_result
+from vyomel.core.types import Capability, VerifyOutcome
+from vyomel.verify.engine import verify_result
 
 
 @pytest.mark.req("FR-402")

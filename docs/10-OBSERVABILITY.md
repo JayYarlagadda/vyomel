@@ -1,6 +1,6 @@
 # 10 — Observability
 
-Status: **Approved baseline (v1.0)**
+Status: **M10 implemented (in-process traces + Prometheus; OTLP optional)**
 
 Agent systems fail in ways that are invisible without instrumentation: the plan was subtly wrong, retrieval missed the key document, the model chose a plausible-but-wrong tool, a selector silently matched the wrong element. "It didn't work" is not a debuggable statement. Traces and metrics turn it into one.
 
@@ -64,70 +64,70 @@ Prometheus, exposed at `/metrics`.
 
 ### Task level
 ```
-astra_tasks_total{status, origin}                             counter
-astra_task_duration_seconds{status}                           histogram
-astra_task_steps                                              histogram
-astra_task_replans_total                                      counter
-astra_task_cost_usd                                           histogram
-astra_human_interventions_total{reason}                       counter
-astra_task_success_ratio                                      gauge (recording rule)
+vyomel_tasks_total{status, origin}                             counter
+vyomel_task_duration_seconds{status}                           histogram
+vyomel_task_steps                                              histogram
+vyomel_task_replans_total                                      counter
+vyomel_task_cost_usd                                           histogram
+vyomel_human_interventions_total{reason}                       counter
+vyomel_task_success_ratio                                      gauge (recording rule)
 ```
 
 ### Action / tool level
 ```
-astra_actions_total{tool, status, capability}                 counter
-astra_action_duration_seconds{tool}                           histogram
-astra_action_retries_total{tool, error_code}                  counter
-astra_actuation_tier_total{tier}                              counter
-astra_tool_errors_total{tool, code, retryable}                counter
-astra_dead_letters_total{tool}                                counter
+vyomel_actions_total{tool, status, capability}                 counter
+vyomel_action_duration_seconds{tool}                           histogram
+vyomel_action_retries_total{tool, error_code}                  counter
+vyomel_actuation_tier_total{tier}                              counter
+vyomel_tool_errors_total{tool, code, retryable}                counter
+vyomel_dead_letters_total{tool}                                counter
 ```
 
 ### Security
 ```
-astra_policy_decisions_total{decision, capability, rule_id}   counter
-astra_approvals_total{outcome, capability}                    counter
-astra_approval_wait_seconds                                   histogram
-astra_privacy_routing_blocks_total                            counter
-astra_redactions_total{sink}                                  counter
+vyomel_policy_decisions_total{decision, capability, rule_id}   counter
+vyomel_approvals_total{outcome, capability}                    counter
+vyomel_approval_wait_seconds                                   histogram
+vyomel_privacy_routing_blocks_total                            counter
+vyomel_redactions_total{sink}                                  counter
 ```
 
 ### Verification
 ```
-astra_verifications_total{type, outcome}                      counter
-astra_unverified_actions_total{tool}                          counter
-astra_verification_duration_seconds{type}                     histogram
+vyomel_verifications_total{type, outcome}                      counter
+vyomel_unverified_actions_total{tool}                          counter
+vyomel_verification_duration_seconds{type}                     histogram
 ```
 
 ### Model
 ```
-astra_model_calls_total{provider, model, purpose, cache_hit}  counter
-astra_model_tokens_total{provider, model, direction}          counter
-astra_model_ttft_seconds{provider, model}                     histogram
-astra_model_latency_seconds{provider, model}                  histogram
-astra_model_cost_usd_total{provider, model}                   counter
-astra_model_failovers_total{from, to, reason}                 counter
-astra_circuit_breaker_state{provider}                         gauge
+vyomel_model_calls_total{provider, model, purpose, cache_hit}  counter
+vyomel_model_tokens_total{provider, model, direction}          counter
+vyomel_model_ttft_seconds{provider, model}                     histogram
+vyomel_model_latency_seconds{provider, model}                  histogram
+vyomel_model_cost_usd_total{provider, model}                   counter
+vyomel_model_failovers_total{from, to, reason}                 counter
+vyomel_circuit_breaker_state{provider}                         gauge
 ```
 
 ### Memory
 ```
-astra_retrievals_total{strategy}                              counter
-astra_retrieval_latency_seconds{strategy}                     histogram
-astra_ingestion_documents_total{status}                       counter
-astra_ingestion_chunks_total                                  counter
-astra_context_graph_entities{type}                            gauge
+vyomel_retrievals_total{strategy}                              counter
+vyomel_retrieval_latency_seconds{strategy}                     histogram
+vyomel_ingestion_documents_total{status}                       counter
+vyomel_ingestion_chunks_total                                  counter
+vyomel_context_graph_entities{type}                            gauge
 ```
 
 ### Runtime health
 ```
-astra_queue_depth{stream}                                     gauge
-astra_workers_active                                          gauge
-astra_leases_reclaimed_total                                  counter
-astra_action_queue_wait_seconds                               histogram
+vyomel_queue_depth{stream}                                     gauge
+vyomel_workers_active                                          gauge
+vyomel_leases_reclaimed_total                                  counter
+vyomel_action_queue_wait_seconds                               histogram
 ```
 
-`astra_leases_reclaimed_total` and `astra_unverified_actions_total` are the two most diagnostic series in the whole system: the first means workers are dying or under-provisioned, the second means the agent is doing things it cannot prove.
+`vyomel_leases_reclaimed_total` and `vyomel_unverified_actions_total` are the two most diagnostic series in the whole system: the first means workers are dying or under-provisioned, the second means the agent is doing things it cannot prove.
 
 ---
 
@@ -152,7 +152,7 @@ Every log record passes through the redaction filter before any sink. No excepti
 
 ## 6. Per-task trace view (FR-804)
 
-`astra trace <task_id>` renders the timeline in the terminal:
+`vyomel trace <task_id>` renders the timeline in the terminal:
 
 ```
 Task 01J8X... "grade submission 482"                    SUCCEEDED   12.8s

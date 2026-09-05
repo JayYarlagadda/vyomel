@@ -1,4 +1,4 @@
--- Extensions Astra depends on. Runs once, on first cluster initialization.
+-- Extensions Vyomel depends on. Runs once, on first cluster initialization.
 -- Schema objects themselves are owned by Alembic, not by this file.
 
 CREATE EXTENSION IF NOT EXISTS vector;      -- pgvector: embeddings + HNSW

@@ -5,7 +5,7 @@ from pathlib import Path
 from tests.cli.conftest import Install
 from typer.testing import CliRunner
 
-from astra.cli.main import app
+from vyomel.cli.main import app
 
 runner = CliRunner()
 

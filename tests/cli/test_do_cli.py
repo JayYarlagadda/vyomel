@@ -10,7 +10,7 @@ import pytest
 from tests.cli.conftest import Install
 from typer.testing import CliRunner
 
-from astra.cli.main import app
+from vyomel.cli.main import app
 
 runner = CliRunner()
 
@@ -222,3 +222,23 @@ def test_tools_invoke_rejects_malformed_json() -> None:
     result = runner.invoke(app, ["tools", "invoke", "task.report", "--json", "{nope}"])
     assert result.exit_code == 1
     assert "not valid JSON" in result.output
+
+
+@pytest.mark.req("FR-804")
+def test_trace_prints_the_rendered_timeline(recorder: Install) -> None:
+    rec = recorder(
+        {
+            ("GET", "/v1/tasks/01TASK/trace"): {
+                "task_id": "01TASK",
+                "trace_id": "ab" * 16,
+                "rendered": 'Task 01TASK "grade"                    SUCCEEDED   12.8s',
+                "tree": {"name": "01TASK", "children": []},
+            }
+        }
+    )
+
+    result = runner.invoke(app, ["trace", "01TASK"])
+
+    assert result.exit_code == 0, result.output
+    assert rec.calls[0]["path"] == "/v1/tasks/01TASK/trace"
+    assert "SUCCEEDED" in result.output

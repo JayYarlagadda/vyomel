@@ -1,0 +1,22 @@
+---
+description: Product is Vyomel — never use the old Astra name
+alwaysApply: true
+---
+
+# Product name: Vyomel
+
+The product, package, CLI, env prefix, metrics, GitHub repo, and local checkout are **Vyomel** / `vyomel`. No Astra leftovers — no exceptions.
+
+| Surface | Correct | Forbidden |
+|---|---|---|
+| Display / docs | Vyomel | Astra |
+| Python package / imports | `vyomel` | `astra` |
+| CLI entrypoint | `vyomel` | `astra` |
+| Env vars | `VYOMEL_*` | `ASTRA_*` |
+| Prometheus metrics | `vyomel_*` | `astra_*` |
+| Errors | `VyomelError` | `AstraError` |
+| Workspace dir | `.vyomel/` | `.astra/` |
+| GitHub | `JayYarlagadda/vyomel` | any `astra` GitHub path |
+| Local checkout | `D:/Vyomel` | any `Astra` folder path |
+
+If you see the old product name anywhere, rename it to the Vyomel equivalent.

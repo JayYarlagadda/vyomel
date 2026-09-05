@@ -25,12 +25,12 @@ import pytest
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
 
-from astra.core.clock import FrozenClock
-from astra.core.config import Settings
-from astra.core.types import Capability
-from astra.security.audit import AuditEvent, AuditTrail
-from astra.store.db import session_scope
-from astra.store.models import AuditLog
+from vyomel.core.clock import FrozenClock
+from vyomel.core.config import Settings
+from vyomel.core.types import Capability
+from vyomel.security.audit import AuditEvent, AuditTrail
+from vyomel.store.db import session_scope
+from vyomel.store.models import AuditLog
 
 
 async def _append(trail: AuditTrail, event_type: str, **kwargs: object) -> int:

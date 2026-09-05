@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.errors import BudgetExceededError
-from astra.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
-from astra.planner.budget import enforce_token_budget, estimate_plan_tokens
+from vyomel.core.errors import BudgetExceededError
+from vyomel.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.planner.budget import enforce_token_budget, estimate_plan_tokens
 
 
 @pytest.mark.req("FR-108")

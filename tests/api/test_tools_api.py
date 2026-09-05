@@ -10,7 +10,7 @@ from __future__ import annotations
 import pytest
 from httpx import AsyncClient
 
-from astra.security.audit import AuditEvent
+from vyomel.security.audit import AuditEvent
 
 
 @pytest.mark.integration
@@ -97,7 +97,7 @@ async def test_invoke_refuses_confirm_and_does_not_run_the_tool(
 async def test_invoke_refuses_a_denied_credential_path(client: AsyncClient) -> None:
     response = await client.post(
         "/v1/tools/fs.read_file/invoke",
-        json={"parameters": {"path": "D:/Astra/.env"}},
+        json={"parameters": {"path": "D:/Vyomel/.env"}},
     )
     assert response.status_code == 403, response.text
     assert response.json()["code"] == "PERMISSION_DENIED"

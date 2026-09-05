@@ -14,11 +14,11 @@ from __future__ import annotations
 import pytest
 from httpx import AsyncClient
 
-from astra.core.config import Settings
-from astra.core.types import ActionStatus, ApprovalStatus, Capability
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
-from astra.security.audit import AuditEvent
+from vyomel.core.config import Settings
+from vyomel.core.types import ActionStatus, ApprovalStatus, Capability
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
+from vyomel.security.audit import AuditEvent
 from tests.fakes import Notify
 from tests.runtime.helpers import install_plan
 from tests.security.test_approval_gate import notify_plan, only_action, only_approval

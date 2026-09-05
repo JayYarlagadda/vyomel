@@ -1,0 +1,61 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "hiring",
+      "start": 0.15,
+      "end": 0.55,
+      "tags": []
+    },
+    {
+      "text": "pipeline",
+      "start": 0.63,
+      "end": 1.03,
+      "tags": []
+    },
+    {
+      "text": "has",
+      "start": 1.11,
+      "end": 1.46,
+      "tags": []
+    },
+    {
+      "text": "three",
+      "start": 1.54,
+      "end": 1.89,
+      "tags": []
+    },
+    {
+      "text": "strong",
+      "start": 1.97,
+      "end": 2.37,
+      "tags": []
+    },
+    {
+      "text": "backend",
+      "start": 2.45,
+      "end": 2.85,
+      "tags": []
+    },
+    {
+      "text": "candidates",
+      "start": 2.93,
+      "end": 3.33,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

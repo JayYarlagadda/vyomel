@@ -1,0 +1,63 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "hell",
+      "start": 0.15,
+      "end": 0.5,
+      "tags": [
+        "profanity"
+      ]
+    },
+    {
+      "text": "that",
+      "start": 0.58,
+      "end": 0.93,
+      "tags": []
+    },
+    {
+      "text": "interview",
+      "start": 1.01,
+      "end": 1.41,
+      "tags": []
+    },
+    {
+      "text": "loop",
+      "start": 1.49,
+      "end": 1.84,
+      "tags": []
+    },
+    {
+      "text": "needs",
+      "start": 1.92,
+      "end": 2.27,
+      "tags": []
+    },
+    {
+      "text": "tighter",
+      "start": 2.35,
+      "end": 2.75,
+      "tags": []
+    },
+    {
+      "text": "scheduling",
+      "start": 2.83,
+      "end": 3.23,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

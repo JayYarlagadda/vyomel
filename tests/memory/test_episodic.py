@@ -5,11 +5,11 @@ from __future__ import annotations
 import pytest
 from tests.runtime.helpers import drain, install_plan
 
-from astra.core.types import TaskStatus
-from astra.memory.episodes import list_episodes
-from astra.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
-from astra.store.db import session_scope
-from astra.store.repos import TaskRepo
+from vyomel.core.types import TaskStatus
+from vyomel.memory.episodes import list_episodes
+from vyomel.orchestrator.plans import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.store.db import session_scope
+from vyomel.store.repos import TaskRepo
 
 
 @pytest.mark.integration

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "astra"
+name = "vyomel"
 version = "0.1.0"
 description = "Personal AI execution platform: turns natural-language intent into verified, permission-aware actions."
 readme = "README.md"
@@ -76,15 +76,16 @@ memory = [
 ]
 browser = ["playwright>=1.49"]
 desktop = ["uiautomation>=2.0.20", "pywinauto>=0.6.8", "mss>=9.0", "pillow>=11.0"]
+api = ["keyring>=25.0"]
 
 [project.scripts]
-astra = "astra.cli.main:app"
+vyomel = "vyomel.cli.main:app"
 
 [project.urls]
-Repository = "https://github.com/JayYarlagadda/astra"
+Repository = "https://github.com/JayYarlagadda/vyomel"
 
 [tool.hatch.build.targets.wheel]
-packages = ["astra"]
+packages = ["vyomel"]
 
 # ----------------------------------------------------------------------------
 # ruff
@@ -92,7 +93,7 @@ packages = ["astra"]
 [tool.ruff]
 line-length = 100
 target-version = "py313"
-src = ["astra", "tests"]
+src = ["vyomel", "tests"]
 
 [tool.ruff.lint]
 select = [
@@ -120,13 +121,14 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # Invariant violations are deliberately not named *Error: they signal a broken
 # security or state-machine guarantee, not a recoverable failure.
-"astra/core/errors.py" = ["N818"]
-"tests/**" = ["S", "T20"]
+"vyomel/core/errors.py" = ["N818"]
+"tests/**" = ["S", "T20", "ASYNC240"]
 "scripts/**" = ["T20"]
-"evals/**" = ["T20"]
+"evals/**" = ["T20", "E402", "ASYNC240"]
+"infra/**" = ["T20"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["astra"]
+known-first-party = ["vyomel"]
 
 # ----------------------------------------------------------------------------
 # mypy
@@ -140,7 +142,7 @@ plugins = ["pydantic.mypy"]
 exclude = ["^evals/", "^\\.venv/"]
 
 [[tool.mypy.overrides]]
-module = ["uiautomation.*", "pywinauto.*", "mss.*", "pgvector.*", "trafilatura.*", "sentence_transformers.*", "playwright.*"]
+module = ["uiautomation.*", "pywinauto.*", "mss.*", "pgvector.*", "trafilatura.*", "sentence_transformers.*", "playwright.*", "keyring", "opentelemetry.*"]
 ignore_missing_imports = true
 
 # ----------------------------------------------------------------------------
@@ -162,9 +164,9 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["astra"]
+source = ["vyomel"]
 branch = true
-omit = ["astra/store/migrations/*"]
+omit = ["vyomel/store/migrations/*"]
 
 [tool.coverage.report]
 exclude_lines = [

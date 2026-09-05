@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from astra.planner.longrun import build_research_plan
+from vyomel.planner.longrun import build_research_plan
 
 
 def test_research_plan_action_count() -> None:

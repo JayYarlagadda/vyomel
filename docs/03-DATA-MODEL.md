@@ -9,7 +9,7 @@ Engine: PostgreSQL 17 + `pgvector` 0.8+
 
 > **Structured state → relational tables. Semantic content → vector index. Never both, never neither.**
 
-A common failure mode in agent projects is dumping everything into a vector store, which makes exact lookups ("which tasks are running?") unreliable and expensive. Astra keeps a strict split:
+A common failure mode in agent projects is dumping everything into a vector store, which makes exact lookups ("which tasks are running?") unreliable and expensive. Vyomel keeps a strict split:
 
 - **Relational**: tasks, steps, actions, approvals, audit, entities, relationships, files, workflows, model calls.
 - **Vector**: document chunks and episodic summaries only — content whose *meaning* is queried.
@@ -108,7 +108,7 @@ The most important table. One row per tool invocation attempt lineage.
 | `tool_version` | `text` | for reproducibility across tool changes |
 | `parameters` | `jsonb` | validated against the tool's input schema |
 | `preconditions` | `jsonb` | asserted before execution |
-| `postconditions` | `jsonb` | asserted by `astra.verify` after execution |
+| `postconditions` | `jsonb` | asserted by `vyomel.verify` after execution |
 | `capability_level` | `capability` enum | `L0..L4` |
 | `reversible` | `bool` | drives compensation on cancel |
 | `idempotency_key` | `text` | **UNIQUE** — the duplicate-suppression mechanism |
@@ -180,7 +180,7 @@ Append-only. No `UPDATE`, no `DELETE`.
 | `payload` | `jsonb` | **redacted** before write |
 | `prev_hash` / `hash` | `text` | hash chain: `hash = sha256(prev_hash || canonical(row))` |
 
-Enforcement: a `BEFORE UPDATE OR DELETE` trigger raises an exception, and the hash chain makes silent tampering detectable. `astra audit verify` walks the chain.
+Enforcement: a `BEFORE UPDATE OR DELETE` trigger raises an exception, and the hash chain makes silent tampering detectable. `vyomel audit verify` walks the chain.
 
 ---
 
@@ -196,7 +196,7 @@ Enforcement: a `BEFORE UPDATE OR DELETE` trigger raises an exception, and the ha
 | `aliases` | `text[]` | for reference resolution ("the Orbit repo") |
 | `attributes` | `jsonb` | type-specific |
 | `salience` | `real` | decayed recency/frequency score, used for ranking |
-| `source` | `text` | how Astra learned it |
+| `source` | `text` | how Vyomel learned it |
 | `first_seen_at` / `last_seen_at` | `timestamptz` | |
 
 Index: `GIN` on `aliases` and on `to_tsvector(name)`.
@@ -241,7 +241,7 @@ HNSW over IVFFlat: better recall at this corpus size and no retraining as docume
 
 `(id, task_id, entity_ids[], summary, outcome, started_at, finished_at, embedding vector(384))`
 
-Written after every task completes. This is what lets Astra answer "what did I ask you to do about Orbit last week?" and is the raw input to workflow mining (FR-901).
+Written after every task completes. This is what lets Vyomel answer "what did I ask you to do about Orbit last week?" and is the raw input to workflow mining (FR-901).
 
 ### 4.5 `workflows`
 
@@ -286,7 +286,7 @@ CREATE TYPE entity_type     AS ENUM ('person','project','document','application'
 2. Migrations are **additive first**: add column → backfill → switch reads → drop old column in a later revision. Never a destructive single-step change.
 3. `tests/store/test_migrations.py` runs `upgrade head` then `downgrade base` against a throwaway database in CI. A migration that cannot round-trip does not merge.
 4. Enum values are only ever appended, never reordered or removed.
-5. Seed/reference data lives in `astra/store/seeds/`, applied idempotently, never inside a migration.
+5. Seed/reference data lives in `vyomel/store/seeds/`, applied idempotently, never inside a migration.
 
 ---
 
@@ -295,10 +295,10 @@ CREATE TYPE entity_type     AS ENUM ('person','project','document','application'
 | Data | Retention | Deletion path |
 |---|---|---|
 | `audit_log` | indefinite | never deleted (append-only, hash-chained) |
-| screenshots / evidence blobs | 30 days default | `astra gc evidence` |
+| screenshots / evidence blobs | 30 days default | `vyomel gc evidence` |
 | `model_calls` prompts | **not stored** — only token counts, cost, and a prompt hash | n/a |
-| `document_chunks` | until source deleted | `astra memory forget <entity>` cascades (FR-509) |
+| `document_chunks` | until source deleted | `vyomel memory forget <entity>` cascades (FR-509) |
 | `episodes` | 1 year default, configurable | cascades with `forget` |
-| OAuth tokens | until revoked | OS keyring; `astra auth revoke <provider>` |
+| OAuth tokens | until revoked | OS keyring; `vyomel auth revoke <provider>` |
 
 Prompt bodies are deliberately not persisted. Storing them would replicate the entire contents of the user's private documents into a second, less-protected location. Hashes are sufficient for cache lookups and reproducibility checks.

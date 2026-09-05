@@ -13,9 +13,9 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from astra.core.types import Capability, Trust
-from astra.security.capability import Classification, EscalationRules, Invocation, classify
-from astra.security.policy import load_policy, variables_for
+from vyomel.core.types import Capability, Trust
+from vyomel.security.capability import Classification, EscalationRules, Invocation, classify
+from vyomel.security.policy import load_policy, variables_for
 
 RULES = EscalationRules(
     sensitive_paths=("**/.ssh/**", "**/.env", "**/*.pem"),
@@ -122,7 +122,7 @@ def test_the_shipped_policy_file_configures_escalation() -> None:
 
     policy = load_policy(
         Path("config/policy.yaml"),
-        variables=variables_for(Path("D:/Astra/.astra/scratch"), Path("D:/Astra/.astra")),
+        variables=variables_for(Path("D:/Vyomel/.vyomel/scratch"), Path("D:/Vyomel/.vyomel")),
     )
     rules = policy.escalation
     assert rules.unknown_tool is Capability.L4

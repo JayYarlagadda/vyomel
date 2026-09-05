@@ -24,7 +24,7 @@ async def test_create_task_with_handwritten_plan(client: AsyncClient) -> None:
                             {
                                 "alias": "ls",
                                 "tool": "fs.list_dir",
-                                "parameters": {"path": "D:/Astra/docs"},
+                                "parameters": {"path": "D:/Vyomel/docs"},
                             }
                         ],
                     }
@@ -65,7 +65,7 @@ async def test_dry_run_installs_the_plan_but_does_not_enter_ready(client: AsyncC
                             {
                                 "alias": "ls",
                                 "tool": "fs.list_dir",
-                                "parameters": {"path": "D:/Astra/docs"},
+                                "parameters": {"path": "D:/Vyomel/docs"},
                             }
                         ],
                     }

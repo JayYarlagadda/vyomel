@@ -6,7 +6,7 @@ Status: **Approved baseline (v1.0)**
 
 ## 1. The tool contract
 
-Every tool is a class implementing `astra.tools.base.Tool`. The contract is deliberately strict: the planner, policy engine, runtime, and verifier all consume this metadata, so an incomplete tool declaration is a correctness bug, not a style issue.
+Every tool is a class implementing `vyomel.tools.base.Tool`. The contract is deliberately strict: the planner, policy engine, runtime, and verifier all consume this metadata, so an incomplete tool declaration is a correctness bug, not a style issue.
 
 ```python
 class Tool(Protocol):
@@ -117,7 +117,7 @@ Legend: **Cap** = base capability, **Tier** = actuation tier, **Rev** = reversib
 | `browser.download` | L2 | 3 | into scratch dir only |
 | `browser.screenshot` | L0 | 4 | |
 
-Browser sessions run in a **dedicated, persistent Playwright profile** separate from the user's daily browser. This bounds blast radius: Astra only has the sessions the user deliberately logged in through it.
+Browser sessions run in a **dedicated, persistent Playwright profile** separate from the user's daily browser. This bounds blast radius: Vyomel only has the sessions the user deliberately logged in through it.
 
 ### 3.4 Desktop (M7, Windows UIA)
 
@@ -133,7 +133,7 @@ Browser sessions run in a **dedicated, persistent Playwright profile** separate 
 | `desktop.click_xy` | L2 | 4 | **last resort**; always ≥ L2, always logs a screenshot as evidence |
 | `desktop.scroll` | L1 | 2 | |
 
-The tier hierarchy is enforced by `DesktopActuator.resolve()`, which attempts tiers 1→4 in order and records `astra_actuation_tier_total{tier}`. A tool cannot skip directly to tier 4.
+The tier hierarchy is enforced by `DesktopActuator.resolve()`, which attempts tiers 1→4 in order and records `vyomel_actuation_tier_total{tier}`. A tool cannot skip directly to tier 4.
 
 ### 3.5 External APIs (M8)
 
@@ -150,7 +150,7 @@ The tier hierarchy is enforced by `DesktopActuator.resolve()`, which attempts ti
 | `http.get` | L0 | allowlisted domains |
 | `http.post` | L3 | allowlisted domains |
 
-OAuth uses least-privilege scopes, tokens in the OS keyring, refresh rotation, and a `astra auth revoke` path.
+OAuth uses least-privilege scopes, tokens in the OS keyring, refresh rotation, and a `vyomel auth revoke` path.
 
 ### 3.6 Media (M14, plugin)
 
@@ -164,9 +164,17 @@ OAuth uses least-privilege scopes, tokens in the OS keyring, refresh rotation, a
 | `media.caption` | L1 | burn-in or sidecar `.srt` |
 | `media.export` | L2 | writes the final artifact |
 
-This is how the "AI video editor" idea lands as **one Astra toolset** rather than a separate product — same runtime, same permissions, same verification.
+This is how the "AI video editor" idea lands as **one Vyomel toolset** rather than a separate product — same runtime, same permissions, same verification.
 
-### 3.7 Meta
+### 3.7 Camera / gym (M17, plugin)
+
+| Tool | Cap | Notes |
+|---|---|---|
+| `camera.capture` | L0 | fixture or live frame |
+| `camera.detect` | L0 | structured detections; equipment filter |
+| `gym.plan_session` | L0 | S8: equipment + personal history → today's plan |
+
+### 3.8 Meta
 
 | Tool | Cap | Notes |
 |---|---|---|
@@ -194,12 +202,12 @@ Reliability measures:
 
 ## 5. Adding a tool — checklist
 
-1. Implement `Tool` in `astra/tools/<domain>/<name>.py`.
+1. Implement `Tool` in `vyomel/tools/<domain>/<name>.py`.
 2. Declare capability, reversibility, idempotency, tier, concurrency key, timeout.
 3. Implement `classify()` with parameter-based escalation.
 4. Implement `verification_plan()` (mandatory for ≥ L2).
 5. Implement `compensate()` if reversible.
-6. Register in `astra/tools/registry.py`.
+6. Register in `vyomel/tools/registry.py`.
 7. Add a policy rule in `config/policy.yaml` if the default level is wrong for it.
 8. Write `tests/tools/<domain>/test_<name>.py` with success, failure, timeout, and permission-denied cases.
 9. Add at least one case to `evals/suites/agent/cases/`.

@@ -11,7 +11,7 @@ python demos\m2\run_demo.py --denied-path  # credential path -> denied, never pr
 ```
 
 Prerequisites: Postgres and Redis up (`docker compose -f infra/compose.yaml up -d`)
-and the schema migrated (`astra db upgrade`).
+and the schema migrated (`vyomel db upgrade`).
 
 Each mode asserts its own claim and exits non-zero if the claim fails, so this
 doubles as a smoke test of the whole permission path against a real database.

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from astra.models.accounting import AccountingProvider
-from astra.models.providers.mock import MockPlannerProvider
-from astra.models.types import ChatMessage, ModelRequest
-from astra.store.models import ModelCall
+from vyomel.models.accounting import AccountingProvider
+from vyomel.models.providers.mock import MockPlannerProvider
+from vyomel.models.types import ChatMessage, ModelRequest
+from vyomel.store.models import ModelCall
 
 
 @pytest.mark.integration
@@ -16,7 +16,7 @@ from astra.store.models import ModelCall
 async def test_accounting_persists_model_call(runtime_db) -> None:
     from sqlalchemy import select
 
-    from astra.store.db import session_scope
+    from vyomel.store.db import session_scope
 
     async with session_scope() as session:
         provider = AccountingProvider(MockPlannerProvider(), session)

@@ -137,11 +137,11 @@ def build_workflows() -> list[Workflow]:
                             _open(page),
                             WorkflowStep(
                                 "browser.type",
-                                {"role": "textbox", "name": "Full name", "text": "Astra"},
+                                {"role": "textbox", "name": "Full name", "text": "Vyomel"},
                             ),
                         ),
                         "typed",
-                        "Astra",
+                        "Vyomel",
                     ),
                     Workflow(
                         f"w{base + 7:02d}_{page}_select",

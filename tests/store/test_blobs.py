@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from astra.store.blobs import (
+from vyomel.store.blobs import (
     BLOB_REF_KEY,
     BlobError,
     is_blob_ref,

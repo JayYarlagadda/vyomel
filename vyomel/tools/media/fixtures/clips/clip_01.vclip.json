@@ -1,0 +1,75 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "welcome",
+      "start": 0.15,
+      "end": 0.55,
+      "tags": []
+    },
+    {
+      "text": "to",
+      "start": 0.63,
+      "end": 0.98,
+      "tags": []
+    },
+    {
+      "text": "the",
+      "start": 1.06,
+      "end": 1.41,
+      "tags": []
+    },
+    {
+      "text": "weekly",
+      "start": 1.49,
+      "end": 1.89,
+      "tags": []
+    },
+    {
+      "text": "recap",
+      "start": 1.97,
+      "end": 2.32,
+      "tags": []
+    },
+    {
+      "text": "um",
+      "start": 2.4,
+      "end": 2.75,
+      "tags": [
+        "filler"
+      ]
+    },
+    {
+      "text": "we",
+      "start": 2.83,
+      "end": 3.18,
+      "tags": []
+    },
+    {
+      "text": "covered",
+      "start": 3.26,
+      "end": 3.66,
+      "tags": []
+    },
+    {
+      "text": "shipping",
+      "start": 3.74,
+      "end": 4.14,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

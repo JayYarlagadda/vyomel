@@ -1,0 +1,63 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "one",
+      "start": 0.15,
+      "end": 0.5,
+      "tags": []
+    },
+    {
+      "text": "damn",
+      "start": 0.58,
+      "end": 0.93,
+      "tags": [
+        "profanity"
+      ]
+    },
+    {
+      "text": "regression",
+      "start": 1.01,
+      "end": 1.41,
+      "tags": []
+    },
+    {
+      "text": "slipped",
+      "start": 1.49,
+      "end": 1.89,
+      "tags": []
+    },
+    {
+      "text": "into",
+      "start": 1.97,
+      "end": 2.32,
+      "tags": []
+    },
+    {
+      "text": "staging",
+      "start": 2.4,
+      "end": 2.8,
+      "tags": []
+    },
+    {
+      "text": "overnight",
+      "start": 2.88,
+      "end": 3.28,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.config import Settings
-from astra.core.errors import PrivacyRoutingViolation
-from astra.core.types import Sensitivity
-from astra.models.router import get_planner_provider
+from vyomel.core.config import Settings
+from vyomel.core.errors import PrivacyRoutingViolation
+from vyomel.core.types import Sensitivity
+from vyomel.models.router import get_planner_provider
 
 
 @pytest.mark.req("FR-703")

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
-from astra.core.types import ActionStatus
-from astra.runtime.dag import ActionNode, CyclicPlanError, validate_acyclic
+from vyomel.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.core.types import ActionStatus
+from vyomel.runtime.dag import ActionNode, CyclicPlanError, validate_acyclic
 
 
 @pytest.mark.req("FR-102")

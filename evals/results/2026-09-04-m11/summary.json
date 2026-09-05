@@ -1,0 +1,150 @@
+{
+  "suite": "serving",
+  "recorded_at": "2026-09-04T08:19:07.403599+00:00",
+  "concurrencies": [
+    1,
+    4,
+    8,
+    16,
+    32
+  ],
+  "max_tokens": 32,
+  "rounds": 2,
+  "throughput_speedup_at_c16": 1.99,
+  "success_rate": 1.0,
+  "backend": "fixture",
+  "note": "Synthetic OpenAI-compatible fixture: baseline serializes requests; vllm admits concurrency (continuous-batching shape). Replace with live A10G/L4 numbers via --backend live after infra/vllm/up.ps1.",
+  "systems": [
+    {
+      "label": "baseline",
+      "rows": [
+        {
+          "concurrency": 1,
+          "requests": 2,
+          "wall_s": 1.692,
+          "ttft_p50_s": 0.8178,
+          "ttft_p95_s": 0.822,
+          "latency_p50_s": 0.8455,
+          "latency_p95_s": 0.8744,
+          "output_tokens_per_s": 37.83,
+          "requests_per_s": 1.18,
+          "mean_latency_s": 0.8455
+        },
+        {
+          "concurrency": 4,
+          "requests": 8,
+          "wall_s": 6.577,
+          "ttft_p50_s": 2.1005,
+          "ttft_p95_s": 2.1672,
+          "latency_p50_s": 2.1006,
+          "latency_p95_s": 2.1673,
+          "output_tokens_per_s": 38.92,
+          "requests_per_s": 1.22,
+          "mean_latency_s": 2.0653
+        },
+        {
+          "concurrency": 8,
+          "requests": 16,
+          "wall_s": 13.165,
+          "ttft_p50_s": 3.9889,
+          "ttft_p95_s": 4.2806,
+          "latency_p50_s": 3.989,
+          "latency_p95_s": 4.2807,
+          "output_tokens_per_s": 38.89,
+          "requests_per_s": 1.22,
+          "mean_latency_s": 3.7294
+        },
+        {
+          "concurrency": 16,
+          "requests": 32,
+          "wall_s": 26.576,
+          "ttft_p50_s": 7.1926,
+          "ttft_p95_s": 7.7524,
+          "latency_p50_s": 7.1926,
+          "latency_p95_s": 7.7525,
+          "output_tokens_per_s": 38.53,
+          "requests_per_s": 1.2,
+          "mean_latency_s": 7.0704
+        },
+        {
+          "concurrency": 32,
+          "requests": 64,
+          "wall_s": 51.975,
+          "ttft_p50_s": 13.478,
+          "ttft_p95_s": 14.3885,
+          "latency_p50_s": 13.4781,
+          "latency_p95_s": 14.3885,
+          "output_tokens_per_s": 39.4,
+          "requests_per_s": 1.23,
+          "mean_latency_s": 13.4829
+        }
+      ]
+    },
+    {
+      "label": "vllm",
+      "rows": [
+        {
+          "concurrency": 1,
+          "requests": 2,
+          "wall_s": 1.714,
+          "ttft_p50_s": 0.8569,
+          "ttft_p95_s": 0.8934,
+          "latency_p50_s": 0.8569,
+          "latency_p95_s": 0.8935,
+          "output_tokens_per_s": 37.33,
+          "requests_per_s": 1.17,
+          "mean_latency_s": 0.8569
+        },
+        {
+          "concurrency": 4,
+          "requests": 8,
+          "wall_s": 4.2,
+          "ttft_p50_s": 1.5062,
+          "ttft_p95_s": 2.1174,
+          "latency_p50_s": 1.5063,
+          "latency_p95_s": 2.1175,
+          "output_tokens_per_s": 60.95,
+          "requests_per_s": 1.9,
+          "mean_latency_s": 1.5114
+        },
+        {
+          "concurrency": 8,
+          "requests": 16,
+          "wall_s": 7.326,
+          "ttft_p50_s": 2.3069,
+          "ttft_p95_s": 3.6437,
+          "latency_p50_s": 2.307,
+          "latency_p95_s": 3.6438,
+          "output_tokens_per_s": 69.89,
+          "requests_per_s": 2.18,
+          "mean_latency_s": 2.2984
+        },
+        {
+          "concurrency": 16,
+          "requests": 32,
+          "wall_s": 13.845,
+          "ttft_p50_s": 3.9384,
+          "ttft_p95_s": 6.6988,
+          "latency_p50_s": 3.9384,
+          "latency_p95_s": 6.6989,
+          "output_tokens_per_s": 73.96,
+          "requests_per_s": 2.31,
+          "mean_latency_s": 3.9243
+        },
+        {
+          "concurrency": 32,
+          "requests": 64,
+          "wall_s": 26.173,
+          "ttft_p50_s": 7.0409,
+          "ttft_p95_s": 12.4478,
+          "latency_p50_s": 7.0409,
+          "latency_p95_s": 12.4478,
+          "output_tokens_per_s": 78.25,
+          "requests_per_s": 2.45,
+          "mean_latency_s": 7.0224
+        }
+      ]
+    }
+  ],
+  "table_markdown": "| System | Concurrency | req/s | tok/s | TTFT p50 | TTFT p95 | lat p95 |\n|---|---:|---:|---:|---:|---:|---:|\n| baseline | 1 | 1.18 | 37.83 | 0.8178 | 0.822 | 0.8744 |\n| baseline | 4 | 1.22 | 38.92 | 2.1005 | 2.1672 | 2.1673 |\n| baseline | 8 | 1.22 | 38.89 | 3.9889 | 4.2806 | 4.2807 |\n| baseline | 16 | 1.2 | 38.53 | 7.1926 | 7.7524 | 7.7525 |\n| baseline | 32 | 1.23 | 39.4 | 13.478 | 14.3885 | 14.3885 |\n| vllm | 1 | 1.17 | 37.33 | 0.8569 | 0.8934 | 0.8935 |\n| vllm | 4 | 1.9 | 60.95 | 1.5062 | 2.1174 | 2.1175 |\n| vllm | 8 | 2.18 | 69.89 | 2.3069 | 3.6437 | 3.6438 |\n| vllm | 16 | 2.31 | 73.96 | 3.9384 | 6.6988 | 6.6989 |\n| vllm | 32 | 2.45 | 78.25 | 7.0409 | 12.4478 | 12.4478 |"
+}

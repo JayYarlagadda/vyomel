@@ -1,0 +1,67 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "security",
+      "start": 0.15,
+      "end": 0.55,
+      "tags": []
+    },
+    {
+      "text": "review",
+      "start": 0.63,
+      "end": 1.03,
+      "tags": []
+    },
+    {
+      "text": "passed",
+      "start": 1.11,
+      "end": 1.51,
+      "tags": []
+    },
+    {
+      "text": "with",
+      "start": 1.59,
+      "end": 1.94,
+      "tags": []
+    },
+    {
+      "text": "two",
+      "start": 2.02,
+      "end": 2.37,
+      "tags": []
+    },
+    {
+      "text": "minor",
+      "start": 2.45,
+      "end": 2.8,
+      "tags": []
+    },
+    {
+      "text": "follow",
+      "start": 2.88,
+      "end": 3.28,
+      "tags": []
+    },
+    {
+      "text": "ups",
+      "start": 3.36,
+      "end": 3.71,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

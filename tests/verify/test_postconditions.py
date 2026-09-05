@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.ids import digest_bytes
-from astra.core.types import Capability, VerifyOutcome
-from astra.verify.engine import verify_result
+from vyomel.core.ids import digest_bytes
+from vyomel.core.types import Capability, VerifyOutcome
+from vyomel.verify.engine import verify_result
 
 
 @pytest.mark.req("FR-401")

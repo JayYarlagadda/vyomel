@@ -1,0 +1,55 @@
+{
+  "duration_s": 5.5,
+  "width": 1280,
+  "height": 720,
+  "has_audio": true,
+  "has_video": true,
+  "format": "fixture",
+  "sample_rate": 16000,
+  "words": [
+    {
+      "text": "thanks",
+      "start": 0.15,
+      "end": 0.55,
+      "tags": []
+    },
+    {
+      "text": "everyone",
+      "start": 0.63,
+      "end": 1.03,
+      "tags": []
+    },
+    {
+      "text": "that",
+      "start": 1.11,
+      "end": 1.46,
+      "tags": []
+    },
+    {
+      "text": "wraps",
+      "start": 1.54,
+      "end": 1.89,
+      "tags": []
+    },
+    {
+      "text": "this",
+      "start": 1.97,
+      "end": 2.32,
+      "tags": []
+    },
+    {
+      "text": "update",
+      "start": 2.4,
+      "end": 2.8,
+      "tags": []
+    }
+  ],
+  "silence": [
+    {
+      "start": 4.7,
+      "end": 5.3
+    }
+  ],
+  "highlights": [],
+  "payload": {}
+}

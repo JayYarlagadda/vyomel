@@ -42,9 +42,9 @@ Severity × Likelihood → Priority. Anything **High/High** gets a mitigation im
 
 | ID | Risk | Sev | Lik | Mitigation |
 |---|---|---|---|---|
-| R-30 | **Astra destroys real user data** during development. | High | Med | Dev runs against a sandboxed workspace root; `fs.delete` moves to trash rather than unlinking; L2+ confirm by default in dev; backups before destructive test suites. |
+| R-30 | **Vyomel destroys real user data** during development. | High | Med | Dev runs against a sandboxed workspace root; `fs.delete` moves to trash rather than unlinking; L2+ confirm by default in dev; backups before destructive test suites. |
 | R-31 | **Credentials leak** into git, logs, or a model prompt. | **Critical** | Med | `Secret` type, central redaction, `gitleaks` in CI, keyring for OAuth, `.env` git-ignored from commit #1, sensitivity-based local-only routing. |
-| R-32 | **Astra sends something embarrassing** on the user's behalf (email/comment). | High | Low | L3 always requires approval; approvals show the full resolved payload; no batch approval above L2. |
+| R-32 | **Vyomel sends something embarrassing** on the user's behalf (email/comment). | High | Low | L3 always requires approval; approvals show the full resolved payload; no batch approval above L2. |
 | R-33 | **Screenshots containing private information** leave the machine via a cloud VLM. | High | Med | Credential-region detection and redaction before egress; `SENSITIVE` classification forces local-only; the local path fails closed rather than escalating. |
 | R-34 | **Supply-chain compromise** in a dependency running inside a process that holds every credential. | High | Low | Pinned lockfile, `pip-audit` in CI, minimal dependency surface, dependency review on every addition. |
 

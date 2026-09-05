@@ -1,4 +1,4 @@
-# Astra permission policy.
+# Vyomel permission policy.
 #
 # Normative reference: docs/06-SECURITY-PERMISSIONS.md section 3.
 # Evaluation order: explicit deny -> protected paths -> matching allow rule
@@ -22,7 +22,7 @@ rules:
     match:
       tool: "fs.read_file"
       args:
-        path: ["D:/Astra/**"]
+        path: ["D:/Vyomel/**"]
     level: L0
     decision: allow
 
@@ -30,7 +30,7 @@ rules:
     match:
       tool: "fs.list_dir"
       args:
-        path: ["D:/Astra/**"]
+        path: ["D:/Vyomel/**"]
     decision: allow
 
   # --- scratch is disposable, so writes there stay frictionless ---
@@ -95,6 +95,30 @@ rules:
     decision: confirm
     show: [remote, branch, commit_count]
 
+  - id: calendar-invite
+    match:
+      tool: "calendar.create_event"
+    decision: confirm
+    show: [title, start, end, attendees]
+
+  - id: github-create-issue
+    match:
+      tool: "github.create_issue"
+    decision: confirm
+    show: [repo, title, body]
+
+  - id: github-comment
+    match:
+      tool: "github.comment"
+    decision: confirm
+    show: [repo, number, body]
+
+  - id: http-post
+    match:
+      tool: "http.post"
+    decision: confirm
+    show: [url]
+
   - id: memory-query
     match:
       tool: "memory.query"
@@ -114,6 +138,41 @@ rules:
     match:
       tool: "memory.forget"
     decision: confirm
+
+  # --- media scratch writes stay frictionless; final export confirms (L2) ---
+  - id: media-scratch-cut
+    match:
+      tool: "media.cut"
+      args:
+        dest: ["${scratch_dir}/**"]
+    decision: allow
+
+  - id: media-scratch-concat
+    match:
+      tool: "media.concat"
+      args:
+        dest: ["${scratch_dir}/**"]
+    decision: allow
+
+  - id: media-scratch-mute
+    match:
+      tool: "media.mute_segment"
+      args:
+        dest: ["${scratch_dir}/**"]
+    decision: allow
+
+  - id: media-scratch-caption
+    match:
+      tool: "media.caption"
+      args:
+        dest: ["${scratch_dir}/**"]
+    decision: allow
+
+  - id: media-export
+    match:
+      tool: "media.export"
+    decision: confirm
+    show: [path, dest]
 
 egress:
   deny_by_default: true

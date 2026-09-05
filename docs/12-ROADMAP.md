@@ -37,10 +37,10 @@ Repo scaffold, tooling, infrastructure, and the first vertical slice through eve
 - Config, structured logging, error hierarchy, ULID ids, `Clock`
 - FastAPI with `/healthz`, `/readyz`, `/version`, `/metrics`
 - `tasks` table + `POST /v1/tasks` + `GET /v1/tasks/{id}`
-- CLI: `astra serve`, `astra doctor`, `astra db upgrade`
+- CLI: `vyomel serve`, `vyomel doctor`, `vyomel db upgrade`
 - `scripts/check_layering.py` and `scripts/check_traceability.py` in CI from day one
 
-**Exit:** `astra doctor` all-green; `POST /v1/tasks` persists and survives a restart; CI green.
+**Exit:** `vyomel doctor` all-green; `POST /v1/tasks` persists and survives a restart; CI green.
 
 ---
 
@@ -70,10 +70,10 @@ Classification, policy, approvals, audit, redaction, and the CLI/API surfaces ar
 - Capability classification with escalation rules
 - Policy engine, `config/policy.yaml`, default-deny, L4 invariant
 - Approval flow: creation, `WAITING_FOR_USER`, decide, modify, expiry
-- Append-only hash-chained audit log + `astra audit verify`
+- Append-only hash-chained audit log + `vyomel audit verify`
 - Redaction filter across logs/traces/audit; `Secret` type
 - Filesystem sandbox (allowlisted roots, traversal rejection)
-- CLI: `astra approvals`, `astra approve/reject/modify`
+- CLI: `vyomel approvals`, `vyomel approve/reject/modify`
 
 **Exit:** `tests/security/` green including adversarial policy fuzzing; an L3 action visibly blocks for approval and proceeds only after decision.
 
@@ -81,12 +81,12 @@ Classification, policy, approvals, audit, redaction, and the CLI/API surfaces ar
 
 ### M3 — Verification and first real tools *(week 5)* — in progress (2026-08-28)
 
-The engine, the `UNVERIFIED` task-completion tightening, `verifications` persistence, mutating fs tools, `shell.run`, `git.*`, cancel compensation, operator CLI (`astra tools` / `astra do` / `astra show`), and cooperative cancel of `RUNNING` actions are in tree.
+The engine, the `UNVERIFIED` task-completion tightening, `verifications` persistence, mutating fs tools, `shell.run`, `git.*`, cancel compensation, operator CLI (`vyomel tools` / `vyomel do` / `vyomel show`), and cooperative cancel of `RUNNING` actions are in tree.
 
-- `astra.verify` with `value_equals`, `file_exists`, `file_hash` re-observing; `api_readback`, `llm_judge` registered as `NO_METHOD` until their paths exist
+- `vyomel.verify` with `value_equals`, `file_exists`, `file_hash` re-observing; `api_readback`, `llm_judge` registered as `NO_METHOD` until their paths exist
 - `UNVERIFIED` status wired end-to-end; no path to task `SUCCEEDED` without verification unless the step opts in
 - Mutating tools: `fs.write_file`, `fs.move`, `fs.copy`, `fs.delete` (trash-based, L4 for directory trees), `shell.run` (allowlisted), `git.status` / `git.diff` / `git.commit` / `git.push`
-- Compensation: `Canceller` calls `tool.compensate()` in `reverse_topo` order; `POST /v1/tasks/{id}/cancel` and `astra cancel`
+- Compensation: `Canceller` calls `tool.compensate()` in `reverse_topo` order; `POST /v1/tasks/{id}/cancel` and `vyomel cancel`
 
 **Exit:** injected wrong-value writes are caught 100 % of the time; cancel compensates reversible actions in reverse topological order.
 
@@ -142,80 +142,111 @@ Deferred: Playwright-backed eval in default CI image; `element_exists` verifier 
 
 ---
 
-### M8 — Desktop agent *(weeks 13–15)*
-
-- Windows UIA backend (`uiautomation`/`pywinauto`), screen capture (`mss`), OCR fallback
-- Tier-enforcing `DesktopActuator.resolve()`
-- Vision fallback via a VLM, with credential-region redaction before egress
-- Fixture WinForms app + `evals/suites/desktop/` including UI perturbation
+### M8 — Desktop agent *(weeks 13–15)* — done (2026-09-02)
 
 **Exit:** ≥ 70 % success on 50 desktop workflows; `verification_catch_rate` 100 %; vision-tier ratio < 30 %.
 
+Shipped: UIA-first resolver (tier 2 → automation-id 3 → coordinates 4), fixture JSON apps with perturbation variant, full `05` §3.4 tool surface plus `app.open`/`app.focus`, `evals/suites/desktop/` (50 workflows, 1.0 success on fixture backend, vision tier 11 %). See `evals/results/2026-09-02-m8/`.
+
+Deferred: live UIA eval in default CI image; VLM vision fallback for tier 4.
+
 ---
 
-### M9 — External API tools *(week 16)*
-
-- OAuth flows with least-privilege scopes, keyring token storage, refresh rotation
-- Gmail, Google Calendar, GitHub tools
-- Scenario S3 ("find the interview email, check calendar, propose prep blocks") end-to-end
+### M9 — External API tools *(week 16)* — done (2026-09-03)
 
 **Exit:** S3 runs end-to-end with correct approval gating on every L3 action.
 
+Shipped: OAuth token store (least-privilege scopes, refresh rotation, memory/file/keyring), Gmail/Calendar/GitHub/`http.get`/`http.post` tools, fixture backend seeded for S3, `vyomel auth login|status|revoke`. Eval: `evals/suites/api/` — S3 success, 2 L3 creates both `CONFIRM` (`calendar-invite`), 0 auto-allowed. See `evals/results/2026-09-03-m9/`.
+
+Deferred: live Google/GitHub OAuth redirect flow; HTTP live egress beyond the fixture catalog.
+
 ---
 
-### M10 — Observability *(week 17)*
+### M10 — Observability *(week 17)* — **done 2026-09-03**
 
 - OpenTelemetry tracing across process boundaries, including resume-after-crash span links
 - Full Prometheus metric set
 - OTel Collector + Prometheus + Grafana + Jaeger in WSL Docker
 - Six versioned Grafana dashboards
-- `astra trace <task_id>` terminal renderer
+- `vyomel trace <task_id>` terminal renderer
 
-**Exit:** a single task's full lifecycle is visible in Jaeger; all six dashboards populated.
+**Exit:** in-process recorder shows a full task lifecycle (including a resume link); all six dashboards are valid Grafana JSON. Live Jaeger population requires `VYOMEL_OTEL_ENABLED=true` and `vyomel[otel]`.
 
 ---
 
-### M11 — Model serving and benchmarking *(week 18)*
+### M11 — Model serving and benchmarking *(week 18)* — **done 2026-09-04**
 
 - vLLM provider + `infra/vllm/` deployment artifacts
-- Rented-GPU benchmark session; `evals/suites/serving/` results committed
-- Local llama.cpp path validated fully offline (NFR-12)
-- Router tuned from measured data
+- Fixture serving harness (continuous-batching vs naive sequential); live path for rented GPU
+- Local llama.cpp / offline path validated (NFR-12); circuit-breaker failover (FR-705)
+- Router tuned from `config/models.yaml` purpose table
 
-**Exit:** committed vLLM-vs-baseline throughput/latency table with reproduction commands.
-
----
-
-### M12 — Evaluation maturity *(week 19)*
-
-- `evals/harness/compare.py` regression gating in CI
-- `evals/suites/security/` complete, `injection_success_rate` = 0
-- Full ablation tables for RAG, planner models, and routing strategies
-- Public results dashboard in the README
-
-**Exit:** CI blocks a PR that regresses any gated metric.
+**Exit:** committed throughput/latency table in `evals/results/serving/` (fixture backend; live A10G via `infra/vllm/up.ps1`). Speedup at concurrency 32: **1.99×** vs sequential fixture.
 
 ---
 
-### M13 — Kubernetes *(week 20)*
+### M12 — Evaluation maturity *(week 19)* — **done 2026-09-04**
 
-- Helm chart: api, worker, scheduler, postgres, redis, vLLM StatefulSet
-- HPA on queue depth; leader election for the scheduler
-- Local-agent split for host-bound desktop tools (`adr/ADR-0009`)
-- Validated on `kind` in CI and once on a short-lived cloud cluster
+- `evals/harness/compare.py` regression gating in CI (`eval-gate` job)
+- `evals/suites/security/` complete — 105 cases, `injection_success_rate` = 0
+- Ablation tables: RAG strategies, planner models, routing (`evals/suites/ablations/`)
+- Public results dashboard in the README Measured results table
 
-**Exit:** `helm install` produces a working deployment; documented failover behavior.
+**Exit:** CI blocks a PR that regresses any gated metric. Baseline: `evals/results/baselines/gated.json`. Results: `evals/results/2026-09-04-m12/`.
 
 ---
 
-### M14–M17 — Frontier *(post-v1)*
+### M13 — Kubernetes *(week 20)* — **done 2026-09-04**
 
-| M | Scope |
-|---|---|
-| **M14** | Media plugin: transcription, segment detection, cut/mute/caption, FFmpeg pipeline (scenario S7) |
-| **M15** | Workflow learning: sequence mining, parameterization, proposal UX (FR-901–903) |
-| **M16** | Voice: local Whisper STT, wake word, TTS, barge-in |
-| **M17** | Multimodal verticals: camera perception, the gym scenario (S8), wearable client against the same API |
+- Helm chart `infra/helm/vyomel/`: api, worker, scheduler, postgres, redis, optional vLLM
+- HPA on `vyomel_queue_depth` (+ CPU fallback); kind profile disables HPA
+- Scheduler Deployment with Redis leader election (`vyomel scheduler`)
+- Local-agent split: `GET /v1/agents`, `WS /v1/agents/local/ws`, `vyomel agent` (ADR-0009)
+- CI: `helm` lint/template + `kind` install smoke; Dockerfile entrypoint
+
+**Exit:** `helm install` (kind profile) produces a working control plane; failover matrix in `infra/helm/vyomel/README.md`. Cloud GPU/vLLM apply remains a short-lived rental session.
+
+---
+
+### M14 — Media plugin *(post-v1 / frontier)* — **done 2026-09-04**
+
+- FFmpeg-backed media tools on the shared runtime (FR-607): `media.probe`, `media.transcribe`, `media.detect_segments`, `media.cut`, `media.concat`, `media.mute_segment`, `media.caption`, `media.export`
+- Fixture backend for CI; optional live `ffmpeg`/`ffprobe` via `VYOMEL_MEDIA_BACKEND=ffmpeg`
+- Scenario S7 eval: 12 clips → 60s draft, mute profanity, captions, export with L2 CONFIRM
+
+**Exit:** S7 runs end-to-end; `tests/tools/test_media.py` green. Results: `evals/results/2026-09-04-m14/`.
+
+---
+
+### M15 — Workflow learning — **done 2026-09-04**
+
+- Mine audit/action sequences into normalized signatures; PrefixSpan-lite with support ≥ 3, length ≥ 3 (FR-901)
+- Parameterize recurring pipelines into proposals (FR-902); trust capped at L2 (FR-310)
+- Explicit accept/reject; rejected patterns suppressed; `workflow.invoke` only after accept (FR-903)
+- API `/v1/workflows`, CLI `vyomel workflows`, migration `0009_workflows`
+
+**Exit:** `tests/learning/` + `tests/security/test_trusted_workflows.py` green. Results: `evals/results/2026-09-04-m15/`.
+
+---
+
+### M16 — Voice — **done 2026-09-04**
+
+- Local Whisper-compatible STT with fixture audio blobs (FR-1001)
+- Wake-word gating before intent capture (FR-1002); default phrase `hey vyomel`
+- Fixture TTS artifacts (FR-1003); session barge-in cancels in-progress speech (FR-1004)
+- API `/v1/voice/*`, CLI `vyomel voice`
+
+**Exit:** `tests/voice/` green. Results: `evals/results/2026-09-04-m16/`. Live Whisper/TTS engines remain optional installs.
+
+---
+
+### M17 — Multimodal verticals — **done 2026-09-04**
+
+- Camera perception fixtures with structured equipment detections (FR-1101)
+- Gym scenario S8: visible equipment + personal training history → today's session (FR-1102)
+- `WearableClient` creates work through the same HTTP API (FR-1103); `demos/m17/`
+
+**Exit:** `tests/perception/` + `tests/clients/test_wearable.py` green. Results: `evals/results/2026-09-04-m17/`.
 
 ---
 

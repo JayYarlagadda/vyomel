@@ -1,4 +1,4 @@
-# Intentional synthetic fixtures used to verify Astra's redaction filter.
+# Intentional synthetic fixtures used to verify Vyomel's redaction filter.
 # These fingerprints scope the exception to the exact findings in the initial
 # commit; real secrets elsewhere (or future findings in this file) still fail.
 26e7a416de44ff9225854b1a02407ec713e7e967:tests/core/test_redaction.py:jwt:21

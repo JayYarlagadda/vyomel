@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
-from astra.core.types import Capability
+from vyomel.core.plan_spec import ActionSpec, HandwrittenPlan, StepSpec
+from vyomel.core.types import Capability
 
 
 @pytest.mark.req("FR-105")

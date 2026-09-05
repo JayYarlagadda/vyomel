@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from astra.core.cancel import CancellationToken
-from astra.core.clock import SystemClock
-from astra.core.errors import ErrorCode, ToolError
-from astra.core.types import Capability
-from astra.tools.base import ToolContext
-from astra.tools.shell import ShellRun, ShellRunInput, allowed_programs
+from vyomel.core.cancel import CancellationToken
+from vyomel.core.clock import SystemClock
+from vyomel.core.errors import ErrorCode, ToolError
+from vyomel.core.types import Capability
+from vyomel.tools.base import ToolContext
+from vyomel.tools.shell import ShellRun, ShellRunInput, allowed_programs
 
 
 def _ctx(root: Path) -> ToolContext:

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from astra.core.config import Settings
-from astra.core.types import TaskStatus
-from astra.runtime.longrun import HarnessConfig, LongrunHarness
-from astra.runtime.scheduler import Scheduler
-from astra.runtime.worker import Worker
+from vyomel.core.config import Settings
+from vyomel.core.types import TaskStatus
+from vyomel.orchestrator.longrun import HarnessConfig, LongrunHarness
+from vyomel.runtime.scheduler import Scheduler
+from vyomel.runtime.worker import Worker
 
 
 @pytest.mark.integration

@@ -6,7 +6,7 @@ import random
 
 import pytest
 
-from astra.runtime.retry import Backoff, delay_s
+from vyomel.runtime.retry import Backoff, delay_s
 
 
 @pytest.mark.req("FR-206")

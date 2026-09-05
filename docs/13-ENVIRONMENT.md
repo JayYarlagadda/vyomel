@@ -56,7 +56,7 @@ Docker Engine works inside WSL2 and is the only container runtime available. WSL
 
 ### C-4 — Python 3.13, not 3.14
 
-Python 3.14 is the machine default but has thin wheel coverage for the scientific/ML stack (notably `torch`, and some C-extension DB and parsing libraries). **All Astra tooling pins Python 3.13.5.** The virtualenv is created explicitly with `py -3.13`.
+Python 3.14 is the machine default but has thin wheel coverage for the scientific/ML stack (notably `torch`, and some C-extension DB and parsing libraries). **All Vyomel tooling pins Python 3.13.5.** The virtualenv is created explicitly with `py -3.13`.
 
 ### C-5 — Desktop control targets Windows first
 
@@ -93,7 +93,7 @@ Fixed to avoid collisions with anything else on the machine. Non-standard ports 
 
 | Service | Port | Notes |
 |---|---|---|
-| Astra API (FastAPI) | `8080` | Windows host process |
+| Vyomel API (FastAPI) | `8080` | Windows host process |
 | Postgres 17 + pgvector | `55432` | WSL Docker; non-default to avoid clashing with any local Postgres |
 | Redis 7 | `56379` | WSL Docker; non-default |
 | Ollama / llama.cpp server | `11434` | optional, local model serving |
@@ -131,19 +131,19 @@ wsl -e bash -c "docker compose version"     # -> Docker Compose version v2.32.4
 This starts the containers *and* the WSL keepalive (constraint C-8). The raw equivalent is:
 
 ```bash
-wsl -e bash -c "cd /mnt/d/Astra/infra && docker compose up -d"
+wsl -e bash -c "cd /mnt/d/Vyomel/infra && docker compose up -d"
 wsl -e bash -c "docker ps --format '{{.Names}}\t{{.Status}}\t{{.Ports}}'"
 ```
 
 ### Step 3 — Create the Windows virtualenv
 
 ```powershell
-cd D:\Astra
+cd D:\Vyomel
 py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 # verify
-.\.venv\Scripts\python.exe -c "import astra; print(astra.__version__)"
+.\.venv\Scripts\python.exe -c "import vyomel; print(vyomel.__version__)"
 ```
 
 ### Step 4 — Configure secrets
@@ -160,7 +160,7 @@ Copy-Item .env.example .env
 ```powershell
 .\.venv\Scripts\alembic.exe upgrade head
 # verify
-.\.venv\Scripts\python.exe -m astra.cli db check
+.\.venv\Scripts\python.exe -m vyomel.cli db check
 ```
 
 ### Step 6 — Run the test suite
@@ -172,7 +172,7 @@ Copy-Item .env.example .env
 ### Step 7 — Start the API
 
 ```powershell
-.\.venv\Scripts\python.exe -m astra.cli serve
+.\.venv\Scripts\python.exe -m vyomel.cli serve
 # verify, in another shell:
 curl http://localhost:8080/healthz
 ```

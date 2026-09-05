@@ -63,7 +63,7 @@ async def test_test_endpoint_reports_escalation_on_a_credential_path(
     client: AsyncClient, tmp_path: Path
 ) -> None:
     secret = tmp_path / ".env"
-    secret.write_text("ASTRA_API_TOKEN=nope", encoding="utf-8")
+    secret.write_text("VYOMEL_API_TOKEN=nope", encoding="utf-8")
 
     body = (
         await client.post(

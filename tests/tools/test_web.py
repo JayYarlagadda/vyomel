@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from astra.tools.web import WebFetchMock, WebFetchMockInput
+from vyomel.tools.web import WebFetchMock, WebFetchMockInput
 async def test_fetch_mock_is_deterministic(tmp_path) -> None:
     from datetime import UTC, datetime, timedelta
 
-    from astra.core.cancel import CancellationToken
-    from astra.core.clock import SystemClock
-    from astra.core.types import Capability
-    from astra.tools.base import ToolContext
+    from vyomel.core.cancel import CancellationToken
+    from vyomel.core.clock import SystemClock
+    from vyomel.core.types import Capability
+    from vyomel.tools.base import ToolContext
 
     tool = WebFetchMock()
     ctx = ToolContext(
@@ -24,7 +24,7 @@ async def test_fetch_mock_is_deterministic(tmp_path) -> None:
         cancel=CancellationToken(),
         clock=SystemClock(),
     )
-    params = WebFetchMockInput(url="https://mock.astra/research/001")
+    params = WebFetchMockInput(url="https://mock.vyomel/research/001")
     first = await tool.execute(params, ctx)
     second = await tool.execute(params, ctx)
     assert first.body == second.body

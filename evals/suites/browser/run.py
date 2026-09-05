@@ -13,14 +13,14 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from astra.core.cancel import CancellationToken
-from astra.core.clock import SystemClock
-from astra.core.config import Settings
-from astra.core.types import Capability
-from astra.tools.base import ToolContext
-from astra.tools.browser.metrics import actuation_tier_distribution, reset_actuation_tiers
-from astra.tools.browser.session import reset_sessions
-from astra.tools.registry import default_registry
+from vyomel.core.cancel import CancellationToken
+from vyomel.core.clock import SystemClock
+from vyomel.core.config import Settings
+from vyomel.core.types import Capability
+from vyomel.tools.base import ToolContext
+from vyomel.tools.browser.metrics import actuation_tier_distribution, reset_actuation_tiers
+from vyomel.tools.browser.session import reset_sessions
+from vyomel.tools.registry import default_registry
 from evals.suites.browser.workflows import Workflow, build_workflows
 
 

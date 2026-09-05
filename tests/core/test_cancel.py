@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from astra.core.cancel import CancellationToken
+from vyomel.core.cancel import CancellationToken
 
 
 def test_token_starts_live_and_stays_cancelled() -> None:

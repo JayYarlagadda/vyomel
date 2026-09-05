@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Bring up Astra's local data infrastructure and keep it up.
+    Bring up Vyomel's local data infrastructure and keep it up.
 
 .DESCRIPTION
     Starts Postgres 17 + pgvector and Redis 7 as Docker containers inside WSL,
@@ -31,17 +31,17 @@ if (-not (Test-WslKeepalive)) {
 }
 
 Write-Host 'Starting containers...' -ForegroundColor Cyan
-wsl -e bash -c 'cd /mnt/d/Astra/infra && docker compose up -d'
+wsl -e bash -c 'cd /mnt/d/Vyomel/infra && docker compose up -d'
 if ($LASTEXITCODE -ne 0) { throw 'docker compose up failed' }
 
 Write-Host 'Waiting for health...' -ForegroundColor Cyan
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 while ((Get-Date) -lt $deadline) {
-    $status = wsl -e bash -c "docker ps --filter name=astra --format '{{.Names}}={{.Status}}'"
+    $status = wsl -e bash -c "docker ps --filter name=vyomel --format '{{.Names}}={{.Status}}'"
     $healthy = ($status | Select-String -Pattern 'healthy' -AllMatches).Matches.Count
     if ($healthy -ge 2) {
         Write-Host 'Postgres and Redis are healthy.' -ForegroundColor Green
-        wsl -e bash -c "docker ps --filter name=astra --format '  {{.Names}}  {{.Status}}  {{.Ports}}'"
+        wsl -e bash -c "docker ps --filter name=vyomel --format '  {{.Names}}  {{.Status}}  {{.Ports}}'"
         exit 0
     }
     Start-Sleep -Seconds 3

@@ -1,6 +1,6 @@
 """L4 is never auto-approved (FR-306).
 
-This is the one guarantee in Astra with no configuration path, no environment
+This is the one guarantee in Vyomel with no configuration path, no environment
 variable, and no CLI flag. The test does not check that the shipped policy is
 sensible — it checks that *no* policy, including one written by an adversary who
 knows the implementation, can produce ``ALLOW`` for an L4 action.
@@ -11,7 +11,7 @@ Two enforcement points are exercised, and they are independent on purpose:
 2. Evaluation raises :class:`PolicyInvariantViolation` if an ``ALLOW`` ever
    reaches an L4 request, whatever produced it.
 
-A failure here is not a bug to triage later. It means Astra can spend money or
+A failure here is not a bug to triage later. It means Vyomel can spend money or
 change credentials without asking.
 """
 
@@ -22,9 +22,9 @@ import yaml
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from astra.core.errors import ConfigError, PolicyInvariantViolation
-from astra.core.types import Capability, Decision
-from astra.security.policy import PolicyRequest, parse_policy
+from vyomel.core.errors import ConfigError, PolicyInvariantViolation
+from vyomel.core.types import Capability, Decision
+from vyomel.security.policy import PolicyRequest, parse_policy
 
 L4_REQUEST = PolicyRequest(
     tool="payment.transfer",
@@ -131,11 +131,11 @@ def test_l4_may_still_be_denied() -> None:
 def test_the_shipped_policy_confirms_l4() -> None:
     from pathlib import Path
 
-    from astra.security.policy import load_policy, variables_for
+    from vyomel.security.policy import load_policy, variables_for
 
     policy = load_policy(
         Path("config/policy.yaml"),
-        variables=variables_for(Path("D:/Astra/.astra/scratch"), Path("D:/Astra/.astra")),
+        variables=variables_for(Path("D:/Vyomel/.vyomel/scratch"), Path("D:/Vyomel/.vyomel")),
     )
     assert policy.defaults[Capability.L4] is Decision.CONFIRM
     harmless_l4 = PolicyRequest(tool="payment.transfer", level=Capability.L4, parameters={})

@@ -14,8 +14,8 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from astra.core.errors import ErrorCode, ToolError
-from astra.tools.sandbox import resolve_in_sandbox
+from vyomel.core.errors import ErrorCode, ToolError
+from vyomel.tools.sandbox import resolve_in_sandbox
 
 
 @pytest.mark.req("FR-603")

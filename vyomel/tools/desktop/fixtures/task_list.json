@@ -1,0 +1,54 @@
+{
+  "title": "Task Manager",
+  "root": {
+    "role": "Window",
+    "name": "Task Manager",
+    "automation_id": "task_manager_window",
+    "children": [
+      {
+        "role": "Edit",
+        "name": "New task",
+        "automation_id": "task_input",
+        "value": "",
+        "bounds": [16, 56, 260, 24]
+      },
+      {
+        "role": "Button",
+        "name": "Add task",
+        "automation_id": "btn_add",
+        "bounds": [290, 56, 88, 24]
+      },
+      {
+        "role": "List",
+        "name": "Tasks",
+        "automation_id": "task_list",
+        "children": [
+          {
+            "role": "ListItem",
+            "name": "Review pull request",
+            "automation_id": "task_1",
+            "value": "open"
+          },
+          {
+            "role": "ListItem",
+            "name": "Write tests",
+            "automation_id": "task_2",
+            "value": "open"
+          }
+        ]
+      },
+      {
+        "role": "Button",
+        "name": "Mark complete",
+        "automation_id": "btn_complete",
+        "bounds": [16, 300, 120, 28]
+      },
+      {
+        "role": "Button",
+        "name": "Save",
+        "automation_id": "btn_save",
+        "bounds": [150, 300, 80, 28]
+      }
+    ]
+  }
+}

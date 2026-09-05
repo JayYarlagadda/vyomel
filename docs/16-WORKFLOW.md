@@ -102,15 +102,15 @@ A red CI is never merged around. If a check is wrong, the check gets fixed.
 ## 6. Repository layout
 
 ```
-D:\Astra\
+D:\Vyomel\
 ├─ README.md
 ├─ CHANGELOG.md
 ├─ pyproject.toml
 ├─ .env.example
-├─ astra.toml                  # non-secret defaults
+├─ vyomel.toml                  # non-secret defaults
 ├─ docs/                       # this documentation set
 │   └─ adr/
-├─ astra/
+├─ vyomel/
 │   ├─ core/                   # config, errors, ids, clock, types, logging
 │   ├─ api/                    # FastAPI routers, schemas, deps
 │   ├─ orchestrator/           # task/plan/approval services
@@ -126,7 +126,7 @@ D:\Astra\
 │   ├─ obs/                    # tracing, metrics, logging setup
 │   ├─ prompts/                # versioned prompt templates
 │   └─ cli/                    # typer CLI
-├─ tests/                      # mirrors astra/
+├─ tests/                      # mirrors vyomel/
 ├─ evals/                      # harness, suites, fixtures, results
 ├─ infra/                      # docker compose, k8s, helm, grafana, scripts
 ├─ scripts/                    # guards and dev utilities

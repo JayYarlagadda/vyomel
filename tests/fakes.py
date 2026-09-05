@@ -15,12 +15,12 @@ from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field
 
-from astra.core.errors import ErrorCode, ToolError
-from astra.core.ids import digest_bytes
-from astra.core.types import Capability
-from astra.tools.base import Tool, ToolContext
-from astra.tools.registry import ToolRegistry, default_registry
-from astra.tools.sandbox import resolve_in_sandbox
+from vyomel.core.errors import ErrorCode, ToolError
+from vyomel.core.ids import digest_bytes
+from vyomel.core.types import Capability
+from vyomel.tools.base import Tool, ToolContext
+from vyomel.tools.registry import ToolRegistry, default_registry
+from vyomel.tools.sandbox import resolve_in_sandbox
 
 
 class SleepInput(BaseModel):
@@ -207,8 +207,9 @@ _hold_release = asyncio.Event()
 
 
 def reset_hold() -> None:
-    _hold_started.clear()
-    _hold_release.clear()
+    global _hold_started, _hold_release
+    _hold_started = asyncio.Event()
+    _hold_release = asyncio.Event()
 
 
 def signal_hold_started() -> asyncio.Event:
