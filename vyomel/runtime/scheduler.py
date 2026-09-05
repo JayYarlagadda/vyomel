@@ -16,7 +16,7 @@ from vyomel.core.clock import Clock, SystemClock
 from vyomel.core.config import Settings
 from vyomel.core.logging import get_logger
 from vyomel.core.types import ActionStatus, StepStatus, TaskStatus
-from vyomel.runtime.dispatcher import Dispatcher
+from vyomel.runtime.dispatcher import Dispatcher, HostActionBridge
 from vyomel.runtime.gate import PolicyGate
 from vyomel.runtime.queue import ActionQueue
 from vyomel.runtime.reaper import Reaper
@@ -63,9 +63,9 @@ class Scheduler:
             max_parallel=settings.max_parallel_actions,
         )
         self._stop = asyncio.Event()
-        self._host_bridge = None
+        self._host_bridge: HostActionBridge | None = None
 
-    def set_host_bridge(self, bridge: object | None) -> None:
+    def set_host_bridge(self, bridge: HostActionBridge | None) -> None:
         self._host_bridge = bridge
 
     @property
@@ -90,7 +90,7 @@ class Scheduler:
                 params[row.id] = (dict(row.parameters or {}), row.capability_level)
         await self._dispatcher.publish(
             payload,
-            host_bridge=self._host_bridge,  # type: ignore[arg-type]
+            host_bridge=self._host_bridge,
             action_params=params,
         )
         republished = len(payload)
@@ -130,7 +130,7 @@ class Scheduler:
                                 )
         await self._dispatcher.publish(
             to_publish,
-            host_bridge=self._host_bridge,  # type: ignore[arg-type]
+            host_bridge=self._host_bridge,
             action_params=action_params,
         )
         try:

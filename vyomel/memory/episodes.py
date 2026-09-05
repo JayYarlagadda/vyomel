@@ -49,7 +49,8 @@ async def record_episode(
     ]
     summary = ""
     if reports:
-        summary = str(reports[-1].get("summary", "")).strip()
+        last = reports[-1] or {}
+        summary = str(last.get("summary", "")).strip()
     if not summary:
         tools = sorted(
             {action.tool for action in actions if action.status is ActionStatus.SUCCEEDED}

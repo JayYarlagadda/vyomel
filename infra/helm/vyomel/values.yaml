@@ -41,8 +41,11 @@ postgres:
   user: vyomel
   database: vyomel
   persistence:
+    enabled: true
     size: 10Gi
     storageClass: ""
+    # Use a subdirectory so PVC mounts do not break postgres initdb.
+    pgdata: /var/lib/postgresql/data/pgdata
   resources:
     requests:
       cpu: 100m
@@ -54,6 +57,7 @@ redis:
   enabled: true
   image: redis:7-alpine
   persistence:
+    enabled: true
     size: 2Gi
     storageClass: ""
   resources:

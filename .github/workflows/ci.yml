@@ -140,6 +140,16 @@ jobs:
             --set image.tag=0.1.0 \
             --set image.pullPolicy=Never \
             --wait --timeout 5m
+        continue-on-error: true
+        id: helm_install
+      - name: Diagnose on helm failure
+        if: steps.helm_install.outcome == 'failure'
+        run: |
+          kubectl get pods -A
+          kubectl describe pods -l app.kubernetes.io/instance=vyomel || true
+          kubectl logs -l app.kubernetes.io/component=api --all-containers --tail=80 || true
+          kubectl logs -l app.kubernetes.io/component=postgres --tail=80 || true
+          exit 1
       - name: API readiness
         run: |
           kubectl rollout status deploy/vyomel-api --timeout=180s

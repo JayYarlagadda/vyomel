@@ -335,11 +335,11 @@ def _element_exists(
         )
     try:
         if surface == "desktop":
-            from vyomel.tools.desktop.session import get_fixture_session
+            from vyomel.tools.desktop.session import get_fixture_session as get_desktop_session
             from vyomel.tools.desktop.types import Target as DesktopTarget
 
-            session = get_fixture_session(ctx.settings, task_id=ctx.task_id)
-            element = session.find(
+            desktop = get_desktop_session(ctx.settings, task_id=ctx.task_id)
+            element = desktop.find(
                 DesktopTarget(
                     role=role if isinstance(role, str) else None,
                     name=name if isinstance(name, str) else None,
@@ -349,11 +349,11 @@ def _element_exists(
             )
             observed = {"ref": element.ref, "role": element.role, "name": element.name}
         else:
-            from vyomel.tools.browser.session import get_fixture_session
+            from vyomel.tools.browser.session import get_fixture_session as get_browser_session
             from vyomel.tools.browser.types import Target as BrowserTarget
 
-            session = get_fixture_session(ctx.settings, task_id=ctx.task_id)
-            element = session.query(
+            browser = get_browser_session(ctx.settings, task_id=ctx.task_id)
+            element = browser.query(
                 BrowserTarget(
                     role=role if isinstance(role, str) else None,
                     name=name if isinstance(name, str) else None,

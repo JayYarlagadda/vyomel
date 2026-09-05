@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from vyomel.tools.desktop.metrics import record_actuation_tier
 from vyomel.tools.desktop.types import ActuationTier, ElementRef, Target, UiNode
 
@@ -52,7 +54,9 @@ def resolve_element(
         if match is not None:
             path, node = match
             record_actuation_tier(tier)
-            return _element_ref(path, node, tier), tier  # type: ignore[return-value]
+            return _element_ref(path, node, cast("ActuationTier", tier)), cast(
+                "ActuationTier", tier
+            )
     raise LookupError("element not found")
 
 

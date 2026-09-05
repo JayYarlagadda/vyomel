@@ -8,14 +8,14 @@ worker:
     enabled: false
 
 scheduler:
-  replicas: 2
+  replicas: 1
 
 api:
   replicas: 1
 
 postgres:
   persistence:
-    size: 1Gi
+    enabled: false
   resources:
     requests:
       cpu: 50m
@@ -25,7 +25,7 @@ postgres:
 
 redis:
   persistence:
-    size: 1Gi
+    enabled: false
 
 config:
   plannerBackend: mock

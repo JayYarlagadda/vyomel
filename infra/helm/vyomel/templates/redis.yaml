@@ -52,6 +52,12 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+      {{- if not .Values.redis.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.redis.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -63,4 +69,5 @@ spec:
         resources:
           requests:
             storage: {{ .Values.redis.persistence.size }}
+  {{- end }}
 {{- end }}
